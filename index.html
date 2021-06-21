@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- COMMON TAGS -->
     <meta charset="utf-8">
     <title>Bitcoin Clicker</title>
     <!-- Search Engine -->
     <meta name="description" content="A clicker game where you can get virtual Bitcoins by clicking!">
-    <meta name="image" content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <meta name="image"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
     <!-- Schema.org for Google -->
     <meta itemprop="name" content="Bitcoin Clicker">
     <meta itemprop="description" content="A clicker game where you can get virtual Bitcoins by clicking!">
-    <meta itemprop="image" content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <meta itemprop="image"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Bitcoin Clicker">
     <meta name="twitter:description" content="A clicker game where you can get virtual Bitcoins by clicking!">
     <meta name="twitter:site" content="@julianYaman">
-    <meta name="twitter:image:src" content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <meta name="twitter:image:src"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
     <!-- Open Graph general (Facebook, Pinterest & Google+) -->
     <meta name="og:title" content="Bitcoin Clicker">
     <meta name="og:description" content="A clicker game where you can get virtual Bitcoins by clicking!">
-    <meta name="og:image" content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <meta name="og:image"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
     <meta name="og:url" content="https://julianyaman.github.io/bitcoin-clicker/index.html">
     <meta name="og:site_name" content="Bitcoin Clicker">
     <meta name="og:type" content="website">
@@ -28,6 +33,7 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 </head>
+
 <body>
     <div class="gameFullContent">
         <div class="leftContainer">
@@ -42,92 +48,110 @@
         </div>
         <div class="rightContainer buyItemContainer">
             <ul class="purchaseList">
-                <li class="purchaseItem" id="item_oldCalculator" data-price="0.0000001" data-bits-per-sec="0.00000001">
+                <li class="purchaseItem" id="item_oldCalculator" data-price="0.0000001" data-bits-per-sec="0.00000001"
+                    onclick="buyItem('oldCalculator')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Old calculator</p>
                     <p class="itemPrice">0.0000001 Bitcoins (10 Satoshi)</p>
                 </li>
-                <li class="purchaseItem" id="item_oldCpu" data-price="0.00000125" data-bits-per-sec="0.0000001">
+                <li class="purchaseItem" id="item_oldCpu" data-price="0.00000125" data-bits-per-sec="0.0000001"
+                    onclick="buyItem('oldCpu')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Old CPU</p>
                     <p class="itemPrice">0.00000125 Bitcoins (125 Satoshi)</p>
                 </li>
-                <li class="purchaseItem" id="item_oldComputerFromGrandpa" data-price="0.00003" data-bits-per-sec="0.000005">
+                <li class="purchaseItem" id="item_oldComputerFromGrandpa" data-price="0.00003"
+                    data-bits-per-sec="0.000005" onclick="buyItem('oldComputerFromGrandpa')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Old computer from grandpa</p>
                     <p class="itemPrice">0.00003 Bitcoins (3k Satoshi)</p>
                 </li>
-                <li class="purchaseItem" id="item_rapsberrypy" data-price="0.00005" data-bits-per-sec="0.0000075">
+                <li class="purchaseItem" id="item_rapsberrypy" data-price="0.00005" data-bits-per-sec="0.0000075"
+                    onclick="buyItem('rapsberrypy')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Rapsberry Py</p>
                     <p class="itemPrice">0.00005 Bitcoins (5k Satoshi)</p>
                 </li>
-                <li class="purchaseItem" id="item_smartphone" data-price="0.0005" data-bits-per-sec="0.000075">
+                <li class="purchaseItem" id="item_smartphone" data-price="0.0005" data-bits-per-sec="0.000075"
+                    onclick="buyItem('smartphone')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Smartphone</p>
                     <p class="itemPrice">0.0005 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_middleClassPC" data-price="0.0015" data-bits-per-sec="0.000175">
+                <li class="purchaseItem" id="item_middleClassPC" data-price="0.0015" data-bits-per-sec="0.000175"
+                    onclick="buyItem('middleClassPC')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Middle-class PC</p>
                     <p class="itemPrice">0.0015 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_cheapServer" data-price="0.0040" data-bits-per-sec="0.000375">
+                <li class="purchaseItem" id="item_cheapServer" data-price="0.0040" data-bits-per-sec="0.000375"
+                    onclick="buyItem('cheapServer')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Cheap server</p>
                     <p class="itemPrice">0.0040 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_gamingPC" data-price="0.015" data-bits-per-sec="0.00175">
+                <li class="purchaseItem" id="item_gamingPC" data-price="0.015" data-bits-per-sec="0.00175"
+                    onclick="buyItem('gamingPC')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Gaming PC</p>
                     <p class="itemPrice">0.015 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_cheapMiner" data-price="0.05" data-bits-per-sec="0.007">
+                <li class="purchaseItem" id="item_cheapMiner" data-price="0.05" data-bits-per-sec="0.007"
+                    onclick="buyItem('cheapMiner')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Cheap Miner</p>
                     <p class="itemPrice">0.05 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_highEndUltraPC" data-price="0.15" data-bits-per-sec="0.021">
+                <li class="purchaseItem" id="item_highEndUltraPC" data-price="0.15" data-bits-per-sec="0.021"
+                    onclick="buyItem('highEndUltraPC')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">High-End Ultra PC</p>
                     <p class="itemPrice">0.15 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_bigMiner" data-price="1.5" data-bits-per-sec="0.2">
+                <li class="purchaseItem" id="item_bigMiner" data-price="1.5" data-bits-per-sec="0.2"
+                    onclick="buyItem('bigMiner')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Big Miner</p>
                     <p class="itemPrice">1.5 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_miningFarm" data-price="250" data-bits-per-sec="25">
+                <li class="purchaseItem" id="item_miningFarm" data-price="250" data-bits-per-sec="25"
+                    onclick="buyItem('miningFarm')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Mining Farm</p>
                     <p class="itemPrice">250 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_nasaPC" data-price="5000" data-bits-per-sec="500">
+                <li class="purchaseItem" id="item_nasaPC" data-price="5000" data-bits-per-sec="500"
+                    onclick="buyItem('nasaPC')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">NASA PCs</p>
                     <p class="itemPrice">5.000 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_quantumRig" data-price="245000" data-bits-per-sec="24000">
+                <li class="purchaseItem" id="item_quantumRig" data-price="245000" data-bits-per-sec="24000"
+                    onclick="buyItem('quantumRig')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Quantum CPU Mining Rig</p>
                     <p class="itemPrice">245.000 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_miningFarmSpace" data-price="2000000" data-bits-per-sec="95000">
+                <li class="purchaseItem" id="item_miningFarmSpace" data-price="2000000" data-bits-per-sec="95000"
+                    onclick="buyItem('miningFarmSpace')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Mining Farm IN SPACE</p>
                     <p class="itemPrice">2.000.000 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_miningFarmMoon" data-price="37500000" data-bits-per-sec="6750">
+                <li class="purchaseItem" id="item_miningFarmMoon" data-price="37500000" data-bits-per-sec="6750"
+                    onclick="buyItem('miningFarmMoon')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Mining Farm ON THE MOON</p>
                     <p class="itemPrice">75.500.000 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_bitcoinTimeMachine" data-price="500000000" data-bits-per-sec="80000000">
+                <li class="purchaseItem" id="item_bitcoinTimeMachine" data-price="500000000"
+                    data-bits-per-sec="80000000" onclick="buyItem('bitcoinTimeMachine')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Bitcoin Time Machine</p>
                     <p class="itemPrice">975.000.000 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_blackHolePoweredMiner" data-price="75000000000" data-bits-per-sec="1750000000">
+                <li class="purchaseItem" id="item_blackHolePoweredMiner" data-price="75000000000"
+                    data-bits-per-sec="1750000000" onclick="buyItem('blackHolePoweredMiner')">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Black Hole-powered Miner</p>
                     <p class="itemPrice">750.000.000.000 Bitcoins</p>
@@ -137,6 +161,8 @@
     </div>
     <script src="lib/jquery-3.3.1.min.js"></script>
     <script async src="scripts/app.js" type="text/javascript"></script>
-    <script async src="scripts/comp_wax.js" type="text/javascript"></script>
+    <script src="scripts/waxjs.js"></script>
+    <script src="scripts/wax.js"></script>
 </body>
+
 </html>

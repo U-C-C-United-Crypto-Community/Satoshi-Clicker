@@ -244,9 +244,9 @@ Game.setBitcoinPerSecondRateAtBeginning = function () {
       bitcoinRate = bitcoinRate + (itemAmount * bits_per_sec)
 
       // Logging the calculation in the console
-      console.log("i = " + i + " | B/sec before: " + before.toFixed(8) +
-        " - Calculation made: " + before.toFixed(8) + " + (" + itemAmount + " * " + bits_per_sec + ") = " +  bitcoinRate.toFixed(8) +
-        " | New B/sec at " + bitcoinRate.toFixed(8))
+      // console.log("i = " + i + " | B/sec before: " + before.toFixed(8) +
+      //   " - Calculation made: " + before.toFixed(8) + " + (" + itemAmount + " * " + bits_per_sec + ") = " +  bitcoinRate.toFixed(8) +
+      //   " | New B/sec at " + bitcoinRate.toFixed(8))
     }
   }
 
@@ -263,7 +263,7 @@ Game.setBitcoinPerSecondRateAtBeginning = function () {
 Game.setNewBitcoinRate = function (rate) {
 
   // Logging the new Bitcoin per second rate
-  console.log("setNewBitcoinRate -> New rate: " + (bitcoinRate + rate).toFixed(8) )
+  // console.log("setNewBitcoinRate -> New rate: " + (bitcoinRate + rate).toFixed(8) )
 
   // Showing the new rate on the page
   // Rounding at specific values
@@ -361,7 +361,7 @@ Game.bSecFunction = function (rate) {
   // Save bitcoin amount in the storage
   localStorage.setItem("bitcoins", "" + bitcoins + "")
 
-  console.log("bSec -> B/sec at " + rate.toFixed(8))
+  // console.log("bSec -> B/sec at " + rate.toFixed(8))
 
 }
 
@@ -491,8 +491,6 @@ $(document).ready(function () {
     // The element which shows how many of the item is existing
     var amountDisplay = $(this).children()[0]
     var amountDisplayAmount = parseInt(localStorage.getItem(id))
-
-    var priceDisplay = $(this).children()[2]
 
     // If you have enough Bitcoins, it´ll buy one item
     if(parseFloat(bitcoins.toFixed(8)) >= price){
