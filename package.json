@@ -1,0 +1,31 @@
+{
+  "name": "wax-bitcoin-clicker",
+  "version": "1.0.0",
+  "description": "Bitcoin Clicker with NFTs",
+  "main": "index.html",
+  "type": "module",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {
+    "@waxio/waxjs": "0.0.15",
+    "atomicassets": "^1.3.1",
+    "browserify": "^17.0.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker.git"
+  },
+  "author": "countersoda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker/issues"
+  },
+  "homepage": "https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker#readme"
+}
