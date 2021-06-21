@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Bitcoin Clicker with NFTs",
   "main": "index.html",
+  "type": "module",
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -12,9 +13,6 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker.git"
