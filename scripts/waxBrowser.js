@@ -3838,13 +3838,12 @@ exports.Response = global.Response;
 },{}],41:[function(require,module,exports){
 const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
-const api = new ExplorerApi(
-  "https://test.wax.api.atomicassets.io",
-  "atomicassets",
-  { fetch }
-);
+const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
+  fetch,
+});
 console.log(api);
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
+
 var bitcoins = 0;
 var bitcoinRate = 0;
 
@@ -4229,12 +4228,12 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
 /**
  * Resets the game
  */
-Game.resetGame = function () {
-  Game.stopBsec();
-  localStorage.setItem("bitcoins", "0");
-  localStorage.clear();
-  location.reload();
-};
+// Game.resetGame = function () {
+//   Game.stopBsec();
+//   localStorage.setItem("bitcoins", "0");
+//   localStorage.clear();
+//   location.reload();
+// };
 
 // --------------------------------------------------- //
 
@@ -4294,34 +4293,27 @@ $(document).ready(function () {
 
   // If any item from the list was clicked...
   $(".purchaseItem").click(function () {
-    const result = wax.api
-      .transact(
-        {
-          actions: [
-            {
-              account: "eosio.token",
-              name: "transfer",
-              authorization: [
-                {
-                  actor: wax.userAccount,
-                  permission: "active",
-                },
-              ],
-              data: {
-                from: wax.userAccount,
-                to: "eosio",
-                quantity: "0.00000001 WAX",
-                memo: "",
-              },
-            },
-          ],
-        },
-        {
-          blocksBehind: 3,
-          expireSeconds: 1200,
-        }
-      )
-      .then(console.log);
+    const actions = api.action.then((actionGenerator) => {
+      actionGenerator
+        .mintasset(
+          [{ actor: "1mbtu.wam", permission: "active" }],
+          "1mbtu.wam",
+          "cactuscactus",
+          "cactus",
+          "176044",
+          userAccount,
+          {},
+          {}
+        )
+        .then((actions) => {
+          wax.api.transact(actions, {
+            blocksBehind: 3,
+            expireSeconds: 1200,
+          });
+        })
+        .then(console.log)
+        .catch(console.log);
+    });
     // Get following attributes and children elements
 
     // id of the item
@@ -4391,15 +4383,14 @@ $(document).ready(function () {
 
   //
   // If the reset button was pressed, do following thing
-  $(".resetButton").click(function () {
-    Game.resetGame();
-  });
+  // $(".resetButton").click(function () {
+  //   Game.resetGame();
+  // });
 });
 
 //normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
-    console.log(wax.userAccount)
     userAccount = await wax.login();
   } catch (e) {
     console.log(e);
