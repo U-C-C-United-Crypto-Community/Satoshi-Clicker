@@ -1,9 +1,9 @@
 const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
+const waxjs = require("@waxio/waxjs/dist");
 const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
-console.log(api);
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 
 var bitcoins = 0;
@@ -454,28 +454,54 @@ $(document).ready(function () {
   });
 
   // If any item from the list was clicked...
-  $(".purchaseItem").click(function () {
-    const actions = api.action.then((actionGenerator) => {
-      actionGenerator
-        .mintasset(
-          [{ actor: "1mbtu.wam", permission: "active" }],
-          "1mbtu.wam",
-          "cactuscactus",
-          "cactus",
-          "176044",
-          userAccount,
-          {},
-          {}
-        )
-        .then((actions) => {
-          wax.api.transact(actions, {
-            blocksBehind: 3,
-            expireSeconds: 1200,
-          });
-        })
-        .then(console.log)
-        .catch(console.log);
-    });
+  $(".purchaseItem").click(async function () {
+    const actions = await (
+      await api.action
+    ).mintasset(
+      [{ actor: "1mbtu.wam", permission: "active" }],
+      "1mbtu.wam",
+      "cactuscactus",
+      "cactus",
+      "176044",
+      wax.userAccount,
+      {},
+      {}
+    );
+    console.log(actions);
+    const result = await wax.api
+      .transact(
+        {
+          actions: [
+            {
+              account: "atomicassets",
+              name: "mintasset",
+              authorization: [
+                {
+                  actor: "1mbtu.wam",
+                  permission: "active",
+                },
+              ],
+              data: {
+                authorized_minter: "1mbtu.wam",
+                collection_name: "cactuscactus",
+                schema_name: "cactus",
+                template_id: "176044",
+                new_asset_owner: "1mbtu.wam",
+                immutable_data: [],
+                mutable_data: [],
+                tokens_to_back: 0,
+              },
+            },
+          ],
+        },
+        {
+          blocksBehind: 30,
+          expireSeconds: 1200,
+        }
+      )
+      .catch(console.log);
+    console.log(result);
+
     // Get following attributes and children elements
 
     // id of the item
@@ -553,7 +579,7 @@ $(document).ready(function () {
 //normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
-    userAccount = await wax.login();
+    const userAccount = await wax.login();
   } catch (e) {
     console.log(e);
   }
