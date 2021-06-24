@@ -7282,92 +7282,92 @@ var items = [
   {
     name: "item_oldCalculator",
     price: "0.0000001",
-    template_id: "178873",
+    template_id: "180336",
   },
   {
     name: "item_oldCpu",
     price: "0.00000125",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_oldComputerFromGrandpa",
     price: "0.00003",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_rapsberrypy",
     price: "0.00005",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_smartphone",
     price: "0.0005",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_middleClassPC",
     price: "0.0015",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_cheapServer",
     price: "0.004",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_gamingPC",
     price: "0.015",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_cheapMiner",
     price: "0.05",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_highEndUltraPC",
     price: "0.15",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_bigMiner",
     price: "1.5",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_miningFarm",
     price: "250",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_nasaPC",
     price: "5000",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_quantumRig",
     price: "245000",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_miningFarmSpace",
     price: "2000000",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_miningFarmMoon",
     price: "75500000",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_bitcoinTimeMachine",
     price: "975000000",
-    template_id: "178873",
+    template_id: "180335",
   },
   {
     name: "item_blackHolePoweredMiner",
     price: "750000000000",
-    template_id: "178873",
+    template_id: "180335",
   },
 ];
 
@@ -7390,7 +7390,7 @@ if (
   $(".bitcoinAmount").text(bitcoins.toFixed(8));
 } else {
   // Get the amount of Bitcoins and parse them to a float number
-  bitcoins = localStorage.getItem("bitcoins"); // parseFloat(localStorage.getItem("bitcoins"));
+  bitcoins = parseFloat(localStorage.getItem("bitcoins")); // parseFloat(localStorage.getItem("bitcoins"));
 
   $(".bitcoinAmount").text("loading...");
   $(".satoshiAmount").text("loading...");
@@ -7474,12 +7474,12 @@ Game.setPriceAtGameBeginning = function (element, price, itemAmount) {
  *
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
+  bitcoinRate = 0;
   for (var i = 0; i < items.length; i++) {
     const asset = await Game.getItem(items[i].name);
     var itemAmount = 0;
     if (asset !== undefined) {
       itemAmount = asset.assets;
-      console.log(asset);
     }
     // HTML element on the game page
     var $element = $("#" + items[i].name);
@@ -7513,21 +7513,18 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  * @param rate - The number which must be added to the current Bitcoin per Second - rate
  * @returns {Number} - Returning the new Bitcoin per Second - rate
  */
-Game.setNewBitcoinRate = function (rate) {
+Game.setNewBitcoinRate = function () {
   // Showing the new rate on the page
   // Rounding at specific values
-  if (bitcoinRate + rate >= 1000000) {
-    $(".bSecRateNumber").text((bitcoinRate + rate).toFixed(0).optimizeNumber());
-  } else if (bitcoinRate + rate >= 1000) {
-    $(".bSecRateNumber").text((bitcoinRate + rate).toFixed(0));
-  } else if (bitcoinRate + rate >= 1) {
-    $(".bSecRateNumber").text((bitcoinRate + rate).toFixed(2));
+  if (bitcoinRate >= 1000000) {
+    $(".bSecRateNumber").text(bitcoinRate.toFixed(0).optimizeNumber());
+  } else if (bitcoinRate >= 1000) {
+    $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
+  } else if (bitcoinRate >= 1) {
+    $(".bSecRateNumber").text(bitcoinRate.toFixed(2));
   } else {
-    $(".bSecRateNumber").text((bitcoinRate + rate).toFixed(8));
+    $(".bSecRateNumber").text(bitcoinRate.toFixed(8));
   }
-
-  // Returning the new rate
-  return (bitcoinRate = bitcoinRate + rate);
 };
 
 /**
@@ -7572,8 +7569,7 @@ Game.setNewPrice = async function () {
  * @param rate - The Bitcoin per second rate; Needed for adding the generated Bitcoins every second
  */
 Game.bSecFunction = function (rate) {
-  // bitcoins = bitcoins + rate;
-
+  bitcoins = bitcoins + rate;
   // Show both values on the page
   // Rounding the bitcoin number at specific set values
   if (bitcoins > 1000000) {
@@ -7654,10 +7650,10 @@ bSec = setInterval(function () {
 }, 1000);
 
 // Doing everything here when the game is ready to be used.
-$(document).ready(function () {
+$(document).ready(async function () {
+  await login();
   // Write the version into the .version span element
   $(".version").text("Version " + Game.GameConst.VERSION);
-
   // Write the bitcoin per second rate into the .bSecRateNumber span element
   if (bitcoinRate >= 1000) {
     $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
@@ -7705,13 +7701,9 @@ $(document).ready(function () {
     // The price attribute as a float number
     var price = parseFloat($(this).attr("data-price"));
 
-    // The b/sec attribute from the item as a float number
-    var bitcoinsPerSecond = parseFloat($(this).attr("data-bits-per-sec"));
-
     // The element which shows how many of the item is existing
     // If you have enough Bitcoins, it´ll buy one item
     if (parseFloat(bitcoins.toFixed(8)) >= price) {
-      console.log("Clicked");
       await mint(id);
       // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
       bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -7746,11 +7738,16 @@ $(document).ready(function () {
       // Setting a new price and show it
       await Game.setNewPrice();
 
-      // Saving the new calculated Bitcoin/second rate in a variable
-      var newRate = Game.setNewBitcoinRate(bitcoinsPerSecond);
+      console.log("Minted");
+      await Game.setBitcoinPerSecondRateAtBeginning();
+
       // Restarting the interval with the new rate
+      setInterval(async function () {
+        await Game.setBitcoinPerSecondRateAtBeginning(); //Update amount
+        Game.setNewBitcoinRate();
+      }, 3000);
       bSec = setInterval(function () {
-        Game.bSecFunction(newRate);
+        Game.bSecFunction(bitcoinRate);
       }, 1000);
     }
   });
@@ -7768,46 +7765,27 @@ Game.getItem = async function (id) {
 };
 
 async function mint(id) {
-  const template_id = items.find((val) => {
-    return (val.template_id = id);
+  const item = items.find((val) => {
+    return val.name === id;
   });
+  const template_id = parseInt(item.template_id);
   const actions = await (
     await api.action
   ).mintasset(
     [{ actor: "1mbtu.wam", permission: "active" }],
     "1mbtu.wam",
     "waxbtcclickr",
-    "items",
+    "equipments",
     template_id,
     wax.userAccount,
     {},
-    {}
+    {},
+    0
   );
   const result = await wax.api
     .transact(
       {
-        actions: [
-          {
-            account: "atomicassets",
-            name: "mintasset",
-            authorization: [
-              {
-                actor: "1mbtu.wam",
-                permission: "active",
-              },
-            ],
-            data: {
-              authorized_minter: "1mbtu.wam",
-              collection_name: "cactuscactus",
-              schema_name: "cactus",
-              template_id: "176044",
-              new_asset_owner: "1mbtu.wam",
-              immutable_data: [],
-              mutable_data: [],
-              tokens_to_back: 0,
-            },
-          },
-        ],
+        actions: actions,
       },
       {
         blocksBehind: 30,
@@ -7821,12 +7799,11 @@ async function mint(id) {
 //normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
-    const userAccount = await wax.login();
-    Game.setBitcoinPerSecondRateAtBeginning();
+    await wax.login();
+    await Game.setBitcoinPerSecondRateAtBeginning();
   } catch (e) {
     console.log(e);
   }
 }
-login();
 
 },{"@waxio/waxjs/dist":2,"atomicassets":38,"node-fetch":52}]},{},[54]);
