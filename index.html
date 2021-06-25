@@ -46,7 +46,10 @@
             <p class="bSecRate"><span class="bSecRateNumber">0</span> Bitcoins/sec</p>
             <img class="bitcoin" src="images/bitcoin-8bit.png">
         </div>
-        <div class="rightContainer buyItemContainer">
+        <span class="satoshiAmountDisplay" id="Loading"
+            style="display:none; text-align: center; font-size: xx-large;">Loading...</span>
+        <div id="purchaseList" class="rightContainer buyItemContainer">
+
             <ul class="purchaseList">
                 <li class="purchaseItem" id="item_oldCalculator" data-price="0.0000001" data-bits-per-sec="0.00000001">
                     <span class="amountOfItem">0</span>
@@ -64,9 +67,9 @@
                     <p class="itemHeadline">Old computer from grandpa</p>
                     <p class="itemPrice">0.00003 Bitcoins (3k Satoshi)</p>
                 </li>
-                <li class="purchaseItem" id="item_rapsberrypy" data-price="0.00005" data-bits-per-sec="0.0000075">
+                <li class="purchaseItem" id="item_raspberrypi" data-price="0.00005" data-bits-per-sec="0.0000075">
                     <span class="amountOfItem">0</span>
-                    <p class="itemHeadline">Rapsberry Py</p>
+                    <p class="itemHeadline">Raspberry Pi</p>
                     <p class="itemPrice">0.00005 Bitcoins (5k Satoshi)</p>
                 </li>
                 <li class="purchaseItem" id="item_smartphone" data-price="0.0005" data-bits-per-sec="0.000075">
@@ -124,7 +127,7 @@
                     <p class="itemHeadline">Mining Farm IN SPACE</p>
                     <p class="itemPrice">2.000.000 Bitcoins</p>
                 </li>
-                <li class="purchaseItem" id="item_miningFarmMoon" data-price="37500000" data-bits-per-sec="6750">
+                <li class="purchaseItem" id="item_miningFarmMoon" data-price="37500000" data-bits-per-sec="675000">
                     <span class="amountOfItem">0</span>
                     <p class="itemHeadline">Mining Farm ON THE MOON</p>
                     <p class="itemPrice">75.500.000 Bitcoins</p>

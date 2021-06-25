@@ -20,87 +20,87 @@ var items = [
   {
     name: "item_oldCpu",
     price: "0.00000125",
-    template_id: "180335",
+    template_id: "180473",
   },
   {
     name: "item_oldComputerFromGrandpa",
     price: "0.00003",
-    template_id: "180335",
+    template_id: "180512",
   },
   {
-    name: "item_rapsberrypy",
+    name: "item_raspberrypi",
     price: "0.00005",
-    template_id: "180335",
+    template_id: "180513",
   },
   {
     name: "item_smartphone",
     price: "0.0005",
-    template_id: "180335",
+    template_id: "180515",
   },
   {
     name: "item_middleClassPC",
     price: "0.0015",
-    template_id: "180335",
+    template_id: "180516",
   },
   {
     name: "item_cheapServer",
     price: "0.004",
-    template_id: "180335",
+    template_id: "180517",
   },
   {
     name: "item_gamingPC",
     price: "0.015",
-    template_id: "180335",
+    template_id: "180519",
   },
   {
     name: "item_cheapMiner",
     price: "0.05",
-    template_id: "180335",
+    template_id: "180521",
   },
   {
     name: "item_highEndUltraPC",
     price: "0.15",
-    template_id: "180335",
+    template_id: "180522",
   },
   {
     name: "item_bigMiner",
     price: "1.5",
-    template_id: "180335",
+    template_id: "180524",
   },
   {
     name: "item_miningFarm",
     price: "250",
-    template_id: "180335",
+    template_id: "180525",
   },
   {
     name: "item_nasaPC",
     price: "5000",
-    template_id: "180335",
+    template_id: "180526",
   },
   {
     name: "item_quantumRig",
     price: "245000",
-    template_id: "180335",
+    template_id: "180528",
   },
   {
     name: "item_miningFarmSpace",
     price: "2000000",
-    template_id: "180335",
+    template_id: "180529",
   },
   {
     name: "item_miningFarmMoon",
     price: "75500000",
-    template_id: "180335",
+    template_id: "180530",
   },
   {
     name: "item_bitcoinTimeMachine",
     price: "975000000",
-    template_id: "180335",
+    template_id: "180531",
   },
   {
     name: "item_blackHolePoweredMiner",
     price: "750000000000",
-    template_id: "180335",
+    template_id: "180532",
   },
 ];
 
@@ -123,7 +123,7 @@ if (
   $(".bitcoinAmount").text(bitcoins.toFixed(8));
 } else {
   // Get the amount of Bitcoins and parse them to a float number
-  bitcoins = parseFloat(localStorage.getItem("bitcoins")); // parseFloat(localStorage.getItem("bitcoins"));
+  bitcoins = parseFloat(localStorage.getItem("bitcoins"));
 
   $(".bitcoinAmount").text("loading...");
   $(".satoshiAmount").text("loading...");
@@ -430,13 +430,13 @@ $(document).ready(async function () {
 
     // id of the item
     var id = $(this).attr("id");
-
     // The price attribute as a float number
     var price = parseFloat($(this).attr("data-price"));
 
     // The element which shows how many of the item is existing
     // If you have enough Bitcoins, it´ll buy one item
     if (parseFloat(bitcoins.toFixed(8)) >= price) {
+      showItems("none");
       await mint(id);
       // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
       bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -467,21 +467,11 @@ $(document).ready(async function () {
 
       // Stops the interval
       Game.stopBsec();
-
+      oldBitcoinRate = bitcoinRate;
       // Setting a new price and show it
       await Game.setNewPrice();
-
-      console.log("Minted");
-      await Game.setBitcoinPerSecondRateAtBeginning();
-
       // Restarting the interval with the new rate
-      setInterval(async function () {
-        await Game.setBitcoinPerSecondRateAtBeginning(); //Update amount
-        Game.setNewBitcoinRate();
-      }, 3000);
-      bSec = setInterval(function () {
-        Game.bSecFunction(bitcoinRate);
-      }, 1000);
+      await waitForTransaction(oldBitcoinRate);
     }
   });
 });
@@ -526,7 +516,27 @@ async function mint(id) {
       }
     )
     .catch(console.log);
-  console.log(result);
+}
+
+function showItems(state) {
+  document.getElementById("purchaseList").style.display = state;
+  const loadingState = state === "none" ? "initial" : "none";
+  document.getElementById("Loading").style.display = loadingState;
+}
+
+async function waitForTransaction(oldBitcoinRate) {
+  await Game.setBitcoinPerSecondRateAtBeginning();
+  Game.setNewBitcoinRate();
+  setTimeout(() => {
+    if (oldBitcoinRate === bitcoinRate) {
+      waitForTransaction(oldBitcoinRate);
+      return;
+    }
+    showItems("initial");
+    bSec = setInterval(function () {
+      Game.bSecFunction(bitcoinRate);
+    }, 1000);
+  }, 1000);
 }
 
 //normal login. Triggers a popup for non-whitelisted dapps
