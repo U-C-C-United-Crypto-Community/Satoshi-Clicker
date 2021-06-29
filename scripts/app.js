@@ -505,7 +505,7 @@ async function mint(id) {
     {},
     0
   );
-  const result = await wax.api
+  await wax.api
     .transact(
       {
         actions: actions,

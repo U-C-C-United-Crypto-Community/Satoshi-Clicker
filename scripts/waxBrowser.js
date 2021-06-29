@@ -7772,7 +7772,7 @@ async function mint(id) {
     {},
     0
   );
-  const result = await wax.api
+  await wax.api
     .transact(
       {
         actions: actions,
@@ -7811,6 +7811,7 @@ async function login() {
   try {
     await wax.login();
     await Game.setBitcoinPerSecondRateAtBeginning();
+    wax.api.rpc.get_account(wax.userAccount).then(console.log)
   } catch (e) {
     console.log(e);
   }
