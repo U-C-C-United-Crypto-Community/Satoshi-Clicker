@@ -32,13 +32,7 @@ const events = await getBEP20TransactionsByAddress();
 
 for (let i = 0; i < events.length; i++) {
   const { transactionHash } = events[i];
-  const result = await web3.eth.getTransaction(
-    transactionHash,
-    (error, txResult) => {
-      if (error) return error;
-      const { inputs } = decoder.decodeData(txResult.input);
-      console.log(inputs);
-      return inputs;
-    }
-  );
+  const result = await web3.eth.getTransaction(transactionHash);
+  const { inputs } = decoder.decodeData(result.input);
+  console.log(inputs);
 }
