@@ -7273,6 +7273,10 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
 });
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 
+var userData = {
+  bitcoins: 0,
+  waxWallet: "",
+};
 var bitcoins = 0;
 var bitcoinRate = 0;
 
@@ -7376,26 +7380,30 @@ var bSec = null;
 
 // If there is no bitcoins Item in the localStorage, create one.
 // If there is one, do the other thing.
-if (
-  localStorage.getItem("bitcoins") === null ||
-  localStorage.getItem("bitcoins") === "NaN"
-) {
-  // Bitcoins are 0
-  bitcoins = 0;
+function init() {
+  const data = JSON.parse(localStorage.getItem("userData"));
+  if (data === null || data.waxWallet === "") {
+    // Bitcoins are 0
+    bitcoins = 0;
+    waxWallet = wax.userAccount;
+    userData = {
+      bitcoins,
+      waxWallet,
+    };
+    // Set the localStorage Item for the first time
+    localStorage.setItem("userData", JSON.stringify(userData));
+    // Write the current amount of Bitcoins on the page
+    $(".bitcoinAmount").text(bitcoins.toFixed(8));
+  } else {
+    // Get the amount of Bitcoins and parse them to a float number
+    bitcoins = parseFloat(
+      JSON.parse(localStorage.getItem("userData")).bitcoins
+    );
+    $(".bitcoinAmount").text("loading...");
+    $(".satoshiAmount").text("loading...");
 
-  // Set the localStorage Item for the first time
-  localStorage.setItem("bitcoins", "0");
-
-  // Write the current amount of Bitcoins on the page
-  $(".bitcoinAmount").text(bitcoins.toFixed(8));
-} else {
-  // Get the amount of Bitcoins and parse them to a float number
-  bitcoins = parseFloat(localStorage.getItem("bitcoins"));
-
-  $(".bitcoinAmount").text("loading...");
-  $(".satoshiAmount").text("loading...");
-
-  let satoshis = bitcoins * 100000000;
+    // let satoshis = bitcoins * 100000000;
+  }
 }
 /**
  *
@@ -7593,9 +7601,9 @@ Game.bSecFunction = function (rate) {
     let satoshiUnitNumber = satoshis.optimizeNumber();
     $(".satoshiAmount").text(satoshiUnitNumber);
   }
-
+  userData.bitcoins = bitcoins;
   // Save bitcoin amount in the storage
-  localStorage.setItem("bitcoins", "" + bitcoins + "");
+  localStorage.setItem("userData", JSON.stringify(userData));
 };
 
 /**
@@ -7686,9 +7694,9 @@ $(document).ready(async function () {
       let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
       $(".satoshiAmount").text(satoshiUnitNumber);
     }
-
+    userData.bitcoins = bitcoins;
     // Save the new amount of Bitcoins in the localStorage storage
-    localStorage.setItem("bitcoins", "" + bitcoins + "");
+    localStorage.setItem("userData", JSON.stringify(userData));
   });
 
   // If any item from the list was clicked...
@@ -7709,7 +7717,8 @@ $(document).ready(async function () {
       bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
 
       // Save the new amount of Bitcoins in the localStorage storage
-      localStorage.setItem("bitcoins", "" + bitcoins + "");
+      userData.bitcoins = bitcoins;
+      localStorage.setItem("userData", JSON.stringify(userData));
 
       // Changing the Bitcoins amount
       // Rounding the Bitcoin number at specific values
@@ -7811,7 +7820,7 @@ async function login() {
   try {
     await wax.login();
     await Game.setBitcoinPerSecondRateAtBeginning();
-    wax.api.rpc.get_account(wax.userAccount).then(console.log)
+    init();
   } catch (e) {
     console.log(e);
   }
