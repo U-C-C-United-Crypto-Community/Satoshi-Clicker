@@ -7381,24 +7381,26 @@ var bSec = null;
 // If there is no bitcoins Item in the localStorage, create one.
 // If there is one, do the other thing.
 function init() {
-  const data = JSON.parse(localStorage.getItem("userData"));
-  if (data === null || data.waxWallet === "") {
+  const wallet = localStorage.getItem("waxWallet");
+  const btcs = localStorage.getItem("bitcoins");
+  if (
+    btcs === null ||
+    wallet === null ||
+    btcs === "" ||
+    wallet !== wax.userAccount
+  ) {
     // Bitcoins are 0
     bitcoins = 0;
     waxWallet = wax.userAccount;
-    userData = {
-      bitcoins,
-      waxWallet,
-    };
     // Set the localStorage Item for the first time
-    localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("bitcoins", bitcoins);
+    localStorage.setItem("waxWallet", wax.userAccount);
+
     // Write the current amount of Bitcoins on the page
     $(".bitcoinAmount").text(bitcoins.toFixed(8));
   } else {
     // Get the amount of Bitcoins and parse them to a float number
-    bitcoins = parseFloat(
-      JSON.parse(localStorage.getItem("userData")).bitcoins
-    );
+    bitcoins = parseFloat(localStorage.getItem("bitcoins"));
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
 
@@ -7694,9 +7696,9 @@ $(document).ready(async function () {
       let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
       $(".satoshiAmount").text(satoshiUnitNumber);
     }
-    userData.bitcoins = bitcoins;
     // Save the new amount of Bitcoins in the localStorage storage
     localStorage.setItem("userData", JSON.stringify(userData));
+    localStorage.setItem("bitcoins", bitcoins);
   });
 
   // If any item from the list was clicked...
@@ -7717,8 +7719,7 @@ $(document).ready(async function () {
       bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
 
       // Save the new amount of Bitcoins in the localStorage storage
-      userData.bitcoins = bitcoins;
-      localStorage.setItem("userData", JSON.stringify(userData));
+      localStorage.setItem("bitcoins", bitcoins);
 
       // Changing the Bitcoins amount
       // Rounding the Bitcoin number at specific values
