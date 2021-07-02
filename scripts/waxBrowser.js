@@ -7274,98 +7274,80 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 var bitcoins = 0;
 var bitcoinRate = 0;
-
 // Every item in the game
 // TODO: items should be part of the Game variable
+
 var items = [
   {
     name: "item_oldCalculator",
-    price: "0.0000001",
     template_id: "180336",
   },
   {
     name: "item_oldCpu",
-    price: "0.00000125",
     template_id: "180473",
   },
   {
     name: "item_oldComputerFromGrandpa",
-    price: "0.00003",
     template_id: "180512",
   },
   {
     name: "item_raspberrypi",
-    price: "0.00005",
     template_id: "180513",
   },
   {
     name: "item_smartphone",
-    price: "0.0005",
     template_id: "180515",
   },
   {
     name: "item_middleClassPC",
-    price: "0.0015",
     template_id: "180516",
   },
   {
     name: "item_cheapServer",
-    price: "0.004",
     template_id: "180517",
   },
   {
     name: "item_gamingPC",
-    price: "0.015",
     template_id: "180519",
   },
   {
     name: "item_cheapMiner",
-    price: "0.05",
     template_id: "180521",
   },
   {
     name: "item_highEndUltraPC",
-    price: "0.15",
     template_id: "180522",
   },
   {
     name: "item_bigMiner",
-    price: "1.5",
     template_id: "180524",
   },
   {
     name: "item_miningFarm",
-    price: "250",
     template_id: "180525",
   },
   {
     name: "item_nasaPC",
-    price: "5000",
     template_id: "180526",
   },
   {
     name: "item_quantumRig",
-    price: "245000",
     template_id: "180528",
   },
   {
     name: "item_miningFarmSpace",
-    price: "2000000",
     template_id: "180529",
   },
   {
     name: "item_miningFarmMoon",
-    price: "75500000",
     template_id: "180530",
   },
   {
     name: "item_bitcoinTimeMachine",
-    price: "975000000",
     template_id: "180531",
   },
   {
     name: "item_blackHolePoweredMiner",
-    price: "750000000000",
     template_id: "180532",
   },
 ];
@@ -7647,76 +7629,31 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
  */
 
 // Doing everything here when the game is ready to be used.
-$(document).ready(async function () {
-  await login();
+function setup() {
+  $(document).ready(async function () {
+    // Stating the interval with the calculated Bitcoin/second rate.
+    bSec = setInterval(function () {
+      Game.bSecFunction(bitcoinRate);
+    }, 1000);
 
-  // Stating the interval with the calculated Bitcoin/second rate.
-  bSec = setInterval(function () {
-    Game.bSecFunction(bitcoinRate);
-  }, 1000);
-
-  // Write the version into the .version span element
-  $(".version").text("Version " + Game.GameConst.VERSION);
-  // Write the bitcoin per second rate into the .bSecRateNumber span element
-  if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
-  } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(2));
-  } else {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(8));
-  }
-
-  // If clicked on the big Bitcoin
-  $(".bitcoin").click(function () {
-    // Add 1^-8 Bitcoins (equal to 1 satoshi)
-    bitcoins = bitcoins + 0.00000001;
-
-    // Show the new number on the page
-    if (bitcoins > 1000000) {
-      let bitcoinUnitNumber = bitcoins.optimizeNumber();
-      $(".bitcoinAmount").text(bitcoinUnitNumber);
-    } else if (bitcoins >= 1000) {
-      $(".bitcoinAmount").text(bitcoins.toFixed(0));
-    } else if (bitcoins >= 1) {
-      $(".bitcoinAmount").text(bitcoins.toFixed(2));
+    // Write the version into the .version span element
+    $(".version").text("Version " + Game.GameConst.VERSION);
+    // Write the bitcoin per second rate into the .bSecRateNumber span element
+    if (bitcoinRate >= 1000) {
+      $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
+    } else if (bitcoinRate >= 1) {
+      $(".bSecRateNumber").text(bitcoinRate.toFixed(2));
     } else {
-      $(".bitcoinAmount").text(bitcoins.toFixed(8));
+      $(".bSecRateNumber").text(bitcoinRate.toFixed(8));
     }
 
-    if (bitcoins * 100000000 < 1000000) {
-      $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
-    } else {
-      let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
-      $(".satoshiAmount").text(satoshiUnitNumber);
-    }
-    // Save the new amount of Bitcoins in the localStorage storage
-    localStorage.setItem("bitcoins", bitcoins.toString());
-  });
+    // If clicked on the big Bitcoin
+    $(".bitcoin").click(function () {
+      // Add 1^-8 Bitcoins (equal to 1 satoshi)
+      bitcoins = bitcoins + 0.00000001;
 
-  // If any item from the list was clicked...
-  $(".purchaseItem").click(async function () {
-    // Get following attributes and children elements
-
-    // id of the item
-    const id = $(this).attr("id");
-    // The price attribute as a float number
-    const { template } = await getItem(id);
-    const price = template.price;
-
-    // The element which shows how many of the item is existing
-    // If you have enough Bitcoins, it´ll buy one item
-    if (parseFloat(bitcoins.toFixed(8)) >= price) {
-      showItems("none");
-      await mint(id);
-      // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
-      bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
-
-      // Save the new amount of Bitcoins in the localStorage storage
-      localStorage.setItem("bitcoins", bitcoins.toString());
-
-      // Changing the Bitcoins amount
-      // Rounding the Bitcoin number at specific values
-      if (bitcoins > 1e6) {
+      // Show the new number on the page
+      if (bitcoins > 1000000) {
         let bitcoinUnitNumber = bitcoins.optimizeNumber();
         $(".bitcoinAmount").text(bitcoinUnitNumber);
       } else if (bitcoins >= 1000) {
@@ -7727,24 +7664,71 @@ $(document).ready(async function () {
         $(".bitcoinAmount").text(bitcoins.toFixed(8));
       }
 
-      // Calculation the Satoshi amount
-      if (bitcoins * 100000000 < 1e6) {
+      if (bitcoins * 100000000 < 1000000) {
         $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
       } else {
         let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
         $(".satoshiAmount").text(satoshiUnitNumber);
       }
+      // Save the new amount of Bitcoins in the localStorage storage
+      localStorage.setItem("bitcoins", bitcoins.toString());
+    });
 
-      // Stops the interval
-      Game.stopBsec();
-      oldBitcoinRate = bitcoinRate;
-      // Setting a new price and show it
-      await Game.setNewPrice();
-      // Restarting the interval with the new rate
-      await waitForTransaction(oldBitcoinRate);
-    }
+    // If any item from the list was clicked...
+    $(".purchaseItem").click(async function () {
+      // Get following attributes and children elements
+
+      // id of the item
+      const id = $(this).attr("id");
+      // The price attribute as a float number
+      const { template } = await Game.getItem(id);
+      const price = template.price;
+
+      // The element which shows how many of the item is existing
+      // If you have enough Bitcoins, it´ll buy one item
+      if (parseFloat(bitcoins.toFixed(8)) >= price) {
+        showItems("none");
+        await mint(id).catch((err) => {
+          console.log(err);
+        });
+        // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
+        bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
+
+        // Save the new amount of Bitcoins in the localStorage storage
+        localStorage.setItem("bitcoins", bitcoins.toString());
+
+        // Changing the Bitcoins amount
+        // Rounding the Bitcoin number at specific values
+        if (bitcoins > 1e6) {
+          let bitcoinUnitNumber = bitcoins.optimizeNumber();
+          $(".bitcoinAmount").text(bitcoinUnitNumber);
+        } else if (bitcoins >= 1000) {
+          $(".bitcoinAmount").text(bitcoins.toFixed(0));
+        } else if (bitcoins >= 1) {
+          $(".bitcoinAmount").text(bitcoins.toFixed(2));
+        } else {
+          $(".bitcoinAmount").text(bitcoins.toFixed(8));
+        }
+
+        // Calculation the Satoshi amount
+        if (bitcoins * 100000000 < 1e6) {
+          $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
+        } else {
+          let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
+          $(".satoshiAmount").text(satoshiUnitNumber);
+        }
+
+        // Stops the interval
+        Game.stopBsec();
+        oldBitcoinRate = bitcoinRate;
+        // Setting a new price and show it
+        await Game.setNewPrice();
+        // Restarting the interval with the new rate
+        await waitForTransaction(oldBitcoinRate);
+      }
+    });
   });
-});
+}
 
 Game.getItem = async function (id) {
   const assets = (await api.getAccount(wax.userAccount)).templates;
@@ -7795,7 +7779,7 @@ async function mint(id) {
 
 function showItems(state) {
   document.getElementById("purchaseList").style.display = state;
-  const loadingState = state === "none" ? "initial" : "none";
+  const loadingState = state === "none" ? "block" : "none";
   document.getElementById("Loading").style.display = loadingState;
 }
 
@@ -7807,7 +7791,7 @@ async function waitForTransaction(oldBitcoinRate) {
       waitForTransaction(oldBitcoinRate);
       return;
     }
-    showItems("initial");
+    showItems("inline");
     bSec = setInterval(function () {
       Game.bSecFunction(bitcoinRate);
     }, 1000);
@@ -7820,9 +7804,26 @@ async function login() {
     await wax.login();
     init();
     await Game.setBitcoinPerSecondRateAtBeginning();
+    return true;
   } catch (e) {
     console.log(e);
+    return false;
   }
 }
+
+document.getElementById("loginWaxWallet").onclick = async () => {
+  document.getElementById("loginWaxWallet").style.display = "none";
+  showItems("none");
+  const success = await login();
+  if (success) {
+    for (let i = 0; i < items.length; i++) {
+      document.getElementById(items[i].name).style.display = "block";
+    }
+    setup();
+    showItems("block");
+    return;
+  }
+  document.getElementById("loginWaxWallet").style.display = "block";
+};
 
 },{"@waxio/waxjs/dist":2,"atomicassets":38,"node-fetch":52}]},{},[54]);
