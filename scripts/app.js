@@ -122,7 +122,8 @@ function init() {
     bitcoins = 0;
     waxWallet = wax.userAccount;
     // Set the localStorage Item for the first time
-    localStorage.setItem("bitcoins", bitcoins);
+    localStorage.clear();
+    localStorage.setItem("bitcoins", "0");
     localStorage.setItem("waxWallet", waxWallet);
 
     // Write the current amount of Bitcoins on the page
@@ -378,16 +379,15 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
  * <-- Now doing everything -->
  */
 
-// Calculates the Bitcoin/sec rate with the amount of every item multiplied with their given Bitcoins/second rate.
-
-// Stating the interval with the calculated Bitcoin/second rate.
-bSec = setInterval(function () {
-  Game.bSecFunction(bitcoinRate);
-}, 1000);
-
 // Doing everything here when the game is ready to be used.
 $(document).ready(async function () {
   await login();
+
+  // Stating the interval with the calculated Bitcoin/second rate.
+  bSec = setInterval(function () {
+    Game.bSecFunction(bitcoinRate);
+  }, 1000);
+
   // Write the version into the .version span element
   $(".version").text("Version " + Game.GameConst.VERSION);
   // Write the bitcoin per second rate into the .bSecRateNumber span element
