@@ -7,7 +7,7 @@ const mainnet = "https://bsc-dataseed.binance.org/";
 const testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/";
 const web3 = new Web3(testnet);
 
-const waxWalletCollectorAddress = "0x0c54B2a13224D772586C98c5b29732413E11011A";
+const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 
 async function getBEP20TransactionsByAddress() {
   const currentBlockNumber = await web3.eth.getBlockNumber();
