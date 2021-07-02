@@ -3,82 +3,57 @@ import bip39 from "bip39";
 import { hdkey } from "ethereumjs-wallet";
 import Web3 from "web3";
 
-const mnemonic =
-  "basic shop clerk share someone gold click scale member brisk omit client";
-
-const mainnet = "https://bsc-dataseed.binance.org/";
-const web3 = new Web3(mainnet);
-
-function combo(c) {
-  var r = [],
-    len = c.length,
-    tmp = [];
-  function nodup() {
-    var got = {};
-    for (var l = 0; l < tmp.length; l++) {
-      if (got[tmp[l]]) return false;
-      got[tmp[l]] = true;
-    }
-    return true;
-  }
-  function iter(col, done) {
-    var l, rr;
-    if (col === len) {
-      if (nodup()) {
-        rr = [];
-        for (l = 0; l < tmp.length; l++) rr.push(c[tmp[l]]);
-        r.push(rr);
-      }
-    } else {
-      for (l = 0; l < len; l++) {
-        tmp[col] = l;
-        iter(col + 1);
-      }
-    }
-  }
-  iter(0);
-  return r;
-}
-
-function getSeedOrder(seedPhrase) {
-  const phrases = combo(seedPhrase);
-  console.log("Anzahl aller Kombinationen: ", phrases.length);
-  const result = [];
-  for (let i = 0; i < phrases.length; i++) {
-    phrases[i] = phrases[i].concat(["brisk", "omit"]);
-    const phrase = phrases[i].join(" ");
-    if (utils.HDNode.isValidMnemonic(phrase)) {
-      result.push(phrases[i]);
-    }
-  }
-  return result;
-}
-
-console.time("Seed generating");
-// const phrases = getSeedOrder([
-//   "client",
-//   "someone",
-//   "shop",
-//   "share",
-//   "clerk",
-//   "basic",
-//   "gold",
-//   "click",
-//   "scale",
-//   "member"
-// ]);
-console.timeEnd("Seed generating");
-// console.log("Anzahl der möglichen Seeds: ", phrases.length);
-// const hdnodes = phrases.map((phrase) =>
-//   utils.HDNode.fromMnemonic(phrase.join(" "))
-// );
-// console.log("seed phrase: \n", hdnodes);
-
-const hdWallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(mnemonic));
+const providerURL = `https://mainnet.infura.io/v3/86699891da194635a19df4e3ad7221ab`;
+const web3 = new Web3(providerURL);
 const path = "m/44'/60'/0'/0/0";
-const wallet = hdWallet.derivePath(path).getWallet();
-const address = `0x${wallet.getAddress().toString("hex")}`;
 
-console.log("Address:", address);
+function swap(i, j, A) {
+  const temp = A[i];
+  A[i] = A[j];
+  A[j] = temp;
+  return A;
+}
 
-console.log((await web3.eth.getBalance(address)) / 10 ** 18);
+async function generate(A) {
+  const n = A.length;
+  let c = [];
+  for (let i = 0; i < n; i++) {
+    c[i] = 0;
+  }
+  await getSeedOrder(A);
+  let i = 1;
+  while (i < n) {
+    if (c[i] < i) {
+      if (i % 2 == 0) {
+        swap(0, i, A);
+      } else {
+        swap(c[i], i, A);
+      }
+      await getSeedOrder(A);
+      c[i]++;
+      i = 1;
+    } else {
+      c[i] = 0;
+      i++;
+    }
+  }
+}
+
+async function getSeedOrder(seedPhrase) {
+  const phrase = seedPhrase.join(" ");
+  if (utils.HDNode.isValidMnemonic(phrase)) {
+    const hdWallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(phrase));
+    const wallet = hdWallet.derivePath(path).getWallet();
+    const address = `0x${wallet.getAddress().toString("hex")}`;
+    const balance = await web3.eth.getBalance(address);
+    console.log(phrase);
+    if (balance > 0) result.push({ phrase, address, balance });
+  }
+}
+
+const indexes = process.argv.slice(2);
+if (indexes.length == 12) {
+  console.time("Heap Alg");
+  await generate(indexes);
+  console.timeEnd("Heap Alg");
+}
