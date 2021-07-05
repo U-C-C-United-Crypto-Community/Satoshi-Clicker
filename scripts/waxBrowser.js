@@ -1,5 +1,69 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+/**
+ * Returns a Promise that resolves to the value of window.ethereum if it is
+ * set within the given timeout, or null.
+ * The Promise will not reject, but an error will be thrown if invalid options
+ * are provided.
+ *
+ * @param options - Options bag.
+ * @param options.mustBeMetaMask - Whether to only look for MetaMask providers.
+ * Default: false
+ * @param options.silent - Whether to silence console errors. Does not affect
+ * thrown errors. Default: false
+ * @param options.timeout - Milliseconds to wait for 'ethereum#initialized' to
+ * be dispatched. Default: 3000
+ * @returns A Promise that resolves with the Provider if it is detected within
+ * given timeout, otherwise null.
+ */
+function detectEthereumProvider({ mustBeMetaMask = false, silent = false, timeout = 3000, } = {}) {
+    _validateInputs();
+    let handled = false;
+    return new Promise((resolve) => {
+        if (window.ethereum) {
+            handleEthereum();
+        }
+        else {
+            window.addEventListener('ethereum#initialized', handleEthereum, { once: true });
+            setTimeout(() => {
+                handleEthereum();
+            }, timeout);
+        }
+        function handleEthereum() {
+            if (handled) {
+                return;
+            }
+            handled = true;
+            window.removeEventListener('ethereum#initialized', handleEthereum);
+            const { ethereum } = window;
+            if (ethereum && (!mustBeMetaMask || ethereum.isMetaMask)) {
+                resolve(ethereum);
+            }
+            else {
+                const message = mustBeMetaMask && ethereum
+                    ? 'Non-MetaMask window.ethereum detected.'
+                    : 'Unable to detect window.ethereum.';
+                !silent && console.error('@metamask/detect-provider:', message);
+                resolve(null);
+            }
+        }
+    });
+    function _validateInputs() {
+        if (typeof mustBeMetaMask !== 'boolean') {
+            throw new Error(`@metamask/detect-provider: Expected option 'mustBeMetaMask' to be a boolean.`);
+        }
+        if (typeof silent !== 'boolean') {
+            throw new Error(`@metamask/detect-provider: Expected option 'silent' to be a boolean.`);
+        }
+        if (typeof timeout !== 'number') {
+            throw new Error(`@metamask/detect-provider: Expected option 'timeout' to be a number.`);
+        }
+    }
+}
+module.exports = detectEthereumProvider;
+
+},{}],2:[function(require,module,exports){
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -85,7 +149,7 @@ class WaxEventSource {
 }
 exports.WaxEventSource = WaxEventSource;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -305,7 +369,7 @@ class WaxJS {
 }
 exports.WaxJS = WaxJS;
 
-},{"./WaxEventSource":1,"eosjs":48}],3:[function(require,module,exports){
+},{"./WaxEventSource":2,"eosjs":49}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -474,7 +538,7 @@ class ExplorerApi {
 }
 exports.default = ExplorerApi;
 
-},{"../../Actions/Explorer":12,"../../Errors/ApiError":15}],4:[function(require,module,exports){
+},{"../../Actions/Explorer":13,"../../Errors/ApiError":16}],5:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -595,7 +659,7 @@ class RpcAsset {
 }
 exports.default = RpcAsset;
 
-},{"../../Serialization":37,"./Collection":6,"./Schema":9,"./Template":10}],5:[function(require,module,exports){
+},{"../../Serialization":38,"./Collection":7,"./Schema":10,"./Template":11}],6:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -658,7 +722,7 @@ class RpcCache {
 }
 exports.default = RpcCache;
 
-},{"pure-cache":53}],6:[function(require,module,exports){
+},{"pure-cache":54}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Schema_1 = require("../../Schema");
@@ -713,7 +777,7 @@ class RpcCollection {
 }
 exports.default = RpcCollection;
 
-},{"../../Schema":23,"../../Serialization":37}],7:[function(require,module,exports){
+},{"../../Schema":24,"../../Serialization":38}],8:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -806,7 +870,7 @@ class RpcOffer {
 }
 exports.default = RpcOffer;
 
-},{"./Asset":4}],8:[function(require,module,exports){
+},{"./Asset":5}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class RpcQueue {
@@ -953,7 +1017,7 @@ class RpcQueue {
 }
 exports.default = RpcQueue;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1004,7 +1068,7 @@ class RpcSchema {
 }
 exports.default = RpcSchema;
 
-},{"../../Schema":23,"./Collection":6}],10:[function(require,module,exports){
+},{"../../Schema":24,"./Collection":7}],11:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1079,7 +1143,7 @@ class RpcTemplate {
 }
 exports.default = RpcTemplate;
 
-},{"../../Serialization":37,"./Schema":9}],11:[function(require,module,exports){
+},{"../../Serialization":38,"./Schema":10}],12:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -1223,7 +1287,7 @@ class RpcApi {
 exports.default = RpcApi;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../Actions/Rpc":14,"../../Errors/RpcError":17,"./Asset":4,"./Cache":5,"./Collection":6,"./Offer":7,"./Queue":8,"./Schema":9,"./Template":10}],12:[function(require,module,exports){
+},{"../../Actions/Rpc":15,"../../Errors/RpcError":18,"./Asset":5,"./Cache":6,"./Collection":7,"./Offer":8,"./Queue":9,"./Schema":10,"./Template":11}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Generator_1 = require("./Generator");
@@ -1260,7 +1324,7 @@ class ExplorerActionGenerator extends Generator_1.ActionGenerator {
 }
 exports.default = ExplorerActionGenerator;
 
-},{"./Generator":13}],13:[function(require,module,exports){
+},{"./Generator":14}],14:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1382,7 +1446,7 @@ function toAttributeMap(obj, schema) {
 }
 exports.toAttributeMap = toAttributeMap;
 
-},{"../Errors/SerializationError":19}],14:[function(require,module,exports){
+},{"../Errors/SerializationError":20}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Generator_1 = require("./Generator");
@@ -1420,7 +1484,7 @@ class RpcActionGenerator extends Generator_1.ActionGenerator {
 }
 exports.default = RpcActionGenerator;
 
-},{"./Generator":13}],15:[function(require,module,exports){
+},{"./Generator":14}],16:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ApiError extends Error {
@@ -1433,14 +1497,14 @@ class ApiError extends Error {
 }
 exports.default = ApiError;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class DeserializationError extends Error {
 }
 exports.default = DeserializationError;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class RpcError extends Error {
@@ -1459,21 +1523,21 @@ class RpcError extends Error {
 }
 exports.default = RpcError;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SchemaError extends Error {
 }
 exports.default = SchemaError;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class SerializationError extends Error {
 }
 exports.default = SerializationError;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1526,7 +1590,7 @@ class MappingSchema {
 }
 exports.default = MappingSchema;
 
-},{"../Errors/SchemaError":18,"../Serialization/Binary":24}],21:[function(require,module,exports){
+},{"../Errors/SchemaError":19,"../Serialization/Binary":25}],22:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1550,7 +1614,7 @@ class ValueSchema {
 }
 exports.default = ValueSchema;
 
-},{"..":38,"../Errors/SchemaError":18}],22:[function(require,module,exports){
+},{"..":39,"../Errors/SchemaError":19}],23:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Binary_1 = require("../Serialization/Binary");
@@ -1576,7 +1640,7 @@ class VectorSchema {
 }
 exports.default = VectorSchema;
 
-},{"../Serialization/Binary":24}],23:[function(require,module,exports){
+},{"../Serialization/Binary":25}],24:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1626,7 +1690,7 @@ function ObjectSchema(schema) {
 }
 exports.ObjectSchema = ObjectSchema;
 
-},{"../Errors/SchemaError":18,"./MappingSchema":20,"./ValueSchema":21,"./VectorSchema":22}],24:[function(require,module,exports){
+},{"../Errors/SchemaError":19,"./MappingSchema":21,"./ValueSchema":22,"./VectorSchema":23}],25:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1761,7 +1825,7 @@ function byte_vector_to_int(bytes) {
 }
 exports.byte_vector_to_int = byte_vector_to_int;
 
-},{"../Errors/DeserializationError":16,"../Errors/SerializationError":19,"./Coders/Base":25,"big-integer":40}],25:[function(require,module,exports){
+},{"../Errors/DeserializationError":17,"../Errors/SerializationError":20,"./Coders/Base":26,"big-integer":41}],26:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 /* based on npm base-x module (removed buffer, added class structure) */
@@ -1898,7 +1962,7 @@ class BaseCoder {
 }
 exports.default = BaseCoder;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prepare = void 0;
@@ -1914,7 +1978,7 @@ function prepare(data) {
 }
 exports.prepare = prepare;
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1935,7 +1999,7 @@ class BooleanParser extends FixedParser_1.default {
 }
 exports.default = BooleanParser;
 
-},{"./FixedParser":30}],28:[function(require,module,exports){
+},{"./FixedParser":31}],29:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1953,7 +2017,7 @@ class ByteParser extends VariableParser_1.default {
 }
 exports.ByteParser = ByteParser;
 
-},{"./VariableParser":35}],29:[function(require,module,exports){
+},{"./VariableParser":36}],30:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -1986,7 +2050,7 @@ class FixedIntegerParser extends FixedParser_1.default {
 }
 exports.default = FixedIntegerParser;
 
-},{"./FixedParser":30,"big-integer":40}],30:[function(require,module,exports){
+},{"./FixedParser":31,"big-integer":41}],31:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2015,7 +2079,7 @@ class FixedParser {
 }
 exports.default = FixedParser;
 
-},{"../../Errors/DeserializationError":16,"../../Errors/SerializationError":19}],31:[function(require,module,exports){
+},{"../../Errors/DeserializationError":17,"../../Errors/SerializationError":20}],32:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2048,7 +2112,7 @@ class FloatingParser extends FixedParser_1.default {
 }
 exports.default = FloatingParser;
 
-},{"../../../lib/float":39,"./FixedParser":30}],32:[function(require,module,exports){
+},{"../../../lib/float":40,"./FixedParser":31}],33:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2066,7 +2130,7 @@ class IPFSParser extends VariableParser_1.default {
 }
 exports.default = IPFSParser;
 
-},{"../Binary":24,"./VariableParser":35}],33:[function(require,module,exports){
+},{"../Binary":25,"./VariableParser":36}],34:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2083,7 +2147,7 @@ class StringParser extends VariableParser_1.default {
 }
 exports.default = StringParser;
 
-},{"./VariableParser":35}],34:[function(require,module,exports){
+},{"./VariableParser":36}],35:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2124,7 +2188,7 @@ class VariableIntegerParser {
 }
 exports.default = VariableIntegerParser;
 
-},{"../../Errors/DeserializationError":16,"../../Errors/SerializationError":19,"../Binary":24,"big-integer":40}],35:[function(require,module,exports){
+},{"../../Errors/DeserializationError":17,"../../Errors/SerializationError":20,"../Binary":25,"big-integer":41}],36:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2148,7 +2212,7 @@ class VariableParser {
 }
 exports.default = VariableParser;
 
-},{"../../Errors/DeserializationError":16,"../Binary":24}],36:[function(require,module,exports){
+},{"../../Errors/DeserializationError":17,"../Binary":25}],37:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2185,7 +2249,7 @@ exports.ParserTypes = {
     double: new FloatingParser_1.default(true)
 };
 
-},{"./TypeParser/BooleanParser":27,"./TypeParser/ByteParser":28,"./TypeParser/FixedIntegerParser":29,"./TypeParser/FloatingParser":31,"./TypeParser/IPFSParser":32,"./TypeParser/StringParser":33,"./TypeParser/VariableIntegerParser":34}],37:[function(require,module,exports){
+},{"./TypeParser/BooleanParser":28,"./TypeParser/ByteParser":29,"./TypeParser/FixedIntegerParser":30,"./TypeParser/FloatingParser":32,"./TypeParser/IPFSParser":33,"./TypeParser/StringParser":34,"./TypeParser/VariableIntegerParser":35}],38:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2213,7 +2277,7 @@ function deserialize(data, schema) {
 }
 exports.deserialize = deserialize;
 
-},{"../Schema/MappingSchema":20,"./Binary":24,"./State":26}],38:[function(require,module,exports){
+},{"../Schema/MappingSchema":21,"./Binary":25,"./State":27}],39:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -2238,7 +2302,7 @@ Object.defineProperty(exports, "serialize", { enumerable: true, get: function ()
 const Types_1 = require("./Serialization/Types");
 Object.defineProperty(exports, "ParserTypes", { enumerable: true, get: function () { return Types_1.ParserTypes; } });
 
-},{"./API/Explorer":3,"./API/Rpc":11,"./Actions/Explorer":12,"./Actions/Generator":13,"./Actions/Rpc":14,"./Schema":23,"./Serialization":37,"./Serialization/Types":36}],39:[function(require,module,exports){
+},{"./API/Explorer":4,"./API/Rpc":12,"./Actions/Explorer":13,"./Actions/Generator":14,"./Actions/Rpc":15,"./Schema":24,"./Serialization":38,"./Serialization/Types":37}],40:[function(require,module,exports){
 /**
  * pure javascript functions to read and write 32-bit and 64-bit IEEE 754 floating-point
  *
@@ -2655,7 +2719,7 @@ function writeDouble( buf, v, offset, dirn ) {
 
 }).call(this);
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var bigInt = (function (undefined) {
     "use strict";
 
@@ -4110,12 +4174,12 @@ if (typeof define === "function" && define.amd) {
     });
 }
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 "use strict";
 // copyright defined in eosjs/LICENSE.txt
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 "use strict";
 /**
  * @module API
@@ -4543,7 +4607,7 @@ var Api = /** @class */ (function () {
 }()); // Api
 exports.Api = Api;
 
-},{"../src/abi.abi.json":50,"../src/transaction.abi.json":51,"./eosjs-serialize":47}],43:[function(require,module,exports){
+},{"../src/abi.abi.json":51,"../src/transaction.abi.json":52,"./eosjs-serialize":48}],44:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 /**
@@ -4948,7 +5012,7 @@ var JsonRpc = /** @class */ (function () {
 exports.JsonRpc = JsonRpc;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./eosjs-numeric":44,"./eosjs-rpcerror":46}],44:[function(require,module,exports){
+},{"./eosjs-numeric":45,"./eosjs-rpcerror":47}],45:[function(require,module,exports){
 "use strict";
 /**
  * @module Numeric
@@ -5370,12 +5434,12 @@ function signatureToString(signature) {
 }
 exports.signatureToString = signatureToString;
 
-},{"./ripemd":49}],45:[function(require,module,exports){
+},{"./ripemd":50}],46:[function(require,module,exports){
 "use strict";
 // copyright defined in eosjs/LICENSE.txt
 Object.defineProperty(exports, "__esModule", { value: true });
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 "use strict";
 /**
  * @module RPC-Error
@@ -5417,7 +5481,7 @@ var RpcError = /** @class */ (function (_super) {
 }(Error));
 exports.RpcError = RpcError;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 "use strict";
 /**
  * @module Serialize
@@ -6497,7 +6561,7 @@ function deserializeAction(contract, account, name, authorization, data, textEnc
 }
 exports.deserializeAction = deserializeAction;
 
-},{"./eosjs-numeric":44}],48:[function(require,module,exports){
+},{"./eosjs-numeric":45}],49:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var eosjs_api_1 = require("./eosjs-api");
@@ -6515,7 +6579,7 @@ exports.RpcError = eosjs_rpcerror_1.RpcError;
 var Serialize = require("./eosjs-serialize");
 exports.Serialize = Serialize;
 
-},{"./eosjs-api":42,"./eosjs-api-interfaces":41,"./eosjs-jsonrpc":43,"./eosjs-numeric":44,"./eosjs-rpc-interfaces":45,"./eosjs-rpcerror":46,"./eosjs-serialize":47}],49:[function(require,module,exports){
+},{"./eosjs-api":43,"./eosjs-api-interfaces":42,"./eosjs-jsonrpc":44,"./eosjs-numeric":45,"./eosjs-rpc-interfaces":46,"./eosjs-rpcerror":47,"./eosjs-serialize":48}],50:[function(require,module,exports){
 // https://gist.githubusercontent.com/wlzla000/bac83df6d3c51916c4dd0bc947e46947/raw/7ee3462b095ab22580ddaf191f44a590da6fe33b/RIPEMD-160.js
 
 /*
@@ -6918,7 +6982,7 @@ module.exports = {
 	RIPEMD160: RIPEMD160
 };
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports={
     "version": "eosio::abi/1.1",
     "structs": [
@@ -7113,7 +7177,7 @@ module.exports={
     ]
 }
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports={
     "version": "eosio::abi/1.0",
     "types": [
@@ -7232,7 +7296,7 @@ module.exports={
     ]
 }
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 (function (global){(function (){
 "use strict";
 
@@ -7260,11 +7324,11 @@ exports.Headers = global.Headers;
 exports.Request = global.Request;
 exports.Response = global.Response;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 !function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).PureCache=t()}(this,(function(){"use strict";function e(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function t(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}function i(e,i,n){return i&&t(e.prototype,i),n&&t(e,n),e}function n(e,t,i){return t in e?Object.defineProperty(e,t,{value:i,enumerable:!0,configurable:!0,writable:!0}):e[t]=i,e}function r(e){return e=e||Object.create(null),{on:function(t,i){(e[t]||(e[t]=[])).push(i)},off:function(t,i){e[t]&&e[t].splice(e[t].indexOf(i)>>>0,1)},emit:function(t,i){(e[t]||[]).slice().map((function(e){e(i)})),(e["*"]||[]).slice().map((function(e){e(t,i)}))}}}var s="expiry",o="add",a="get",u="remove",c="clear",h=function(e){if(e)throw new Error("Cannot use disposed instance.")},d={expiryCheckInterval:100},f=function(){function t(){var i=this,r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};e(this,t),n(this,"expire",(function(){h(i.disposed);for(var e=Date.now(),t=e;t>=i.lastExpiredTime;t-=1){var n=i.queue[t];n&&(delete i.queue[t],n.forEach((function(e){var t=e.key;return(0,e.onExpire)(t)})))}i.lastExpiredTime=e})),this.config=Object.assign({},d,r),this.queue={},this.disposed=!1,this.lastExpiredTime=Date.now()-1;var s=this.config.expiryCheckInterval;this.timer=setInterval(this.expire,s)}return i(t,[{key:"add",value:function(e,t,i){return h(this.disposed),this.queue[e]||(this.queue[e]=[]),this.queue[e].push({key:t,onExpire:i}),!0}},{key:"remove",value:function(e,t){h(this.disposed);var i=this.queue[e];if(i){var n=i.filter((function(e){return e.key!==t}));return n.length?this.queue[e]=n:delete this.queue[e],!0}return!1}},{key:"dispose",value:function(){return h(this.disposed),clearInterval(this.timer),this.timer=null,this.queue={},this.disposed=!0,!0}}]),t}(),l={defaultCacheExpiryIn:6e4,expiryCheckInterval:100};return function(){function t(){var i=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:f;e(this,t),this.config=Object.assign({},l,i);var s=r(),o=s.on,a=s.off,u=s.emit,c=[o,a,u];this.on=c[0],this.off=c[1],this.emit=c[2],this.cacheStore={},this.disposed=!1;var h=this.config.expiryCheckInterval;this.cacheExpirer=new n({expiryCheckInterval:h})}return i(t,[{key:"put",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",i=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"",n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:this.config.defaultCacheExpiryIn;h(this.disposed),this.cacheStore[t]&&this.remove(t);var r=Date.now(),a=n?r+n:null,u={value:i,addedAt:r,expiryAt:a};if(this.cacheStore[t]=u,a){var c=function(){e.remove(t),e.emit(s,{key:t,data:e.cacheStore[t]})};this.cacheExpirer.add(a,t,c)}return this.emit(o,{key:t,data:u}),u}},{key:"get",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"";h(this.disposed);var t=this.cacheStore[e];return t?(this.emit(a,{key:e,data:t}),t):null}},{key:"remove",value:function(e){h(this.disposed);var t=this.cacheStore[e];if(t){delete this.cacheStore[e];var i=t.expiryAt;return this.cacheExpirer.remove(i,e),this.emit(u,{key:e,data:t}),!0}return!1}},{key:"dispose",value:function(){var e=this;return h(this.disposed),Object.keys(this.cacheStore).forEach((function(t){return e.remove(t)})),this.emit(c,{}),this.cacheExpirer.dispose(),this.disposed=!0,!0}}]),t}()}));
 
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
 const waxjs = require("@waxio/waxjs/dist");
@@ -7272,8 +7336,12 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
+
+const detectEthereumProvider = require("@metamask/detect-provider");
+
 var bitcoins = 0;
 var bitcoinRate = 0;
+var accounts = [];
 // Every item in the game
 // TODO: items should be part of the Game variable
 
@@ -7731,6 +7799,7 @@ function setup() {
 }
 
 Game.getItem = async function (id) {
+  console.log(id);
   const assets = (await api.getAccount(wax.userAccount)).templates;
   const item = items.find((val) => {
     return val.name === id;
@@ -7801,10 +7870,14 @@ async function waitForTransaction(oldBitcoinRate) {
 //normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
-    await wax.login();
-    init();
-    await Game.setBitcoinPerSecondRateAtBeginning();
-    return true;
+    if (wax.userAccount === undefined) {
+      await wax.login();
+      init();
+      await Game.setBitcoinPerSecondRateAtBeginning();
+      return true;
+    } else {
+      return false;
+    }
   } catch (e) {
     console.log(e);
     return false;
@@ -7821,9 +7894,41 @@ document.getElementById("loginWaxWallet").onclick = async () => {
     }
     setup();
     showItems("block");
+    document.getElementById("loginWaxWallet").style.display = "block";
+    document.getElementsByClassName("itemHeadline")[1].innerText =
+    "Connected to WAX";
     return;
   }
+  showItems("block");
   document.getElementById("loginWaxWallet").style.display = "block";
 };
 
-},{"@waxio/waxjs/dist":2,"atomicassets":38,"node-fetch":52}]},{},[54]);
+/**
+ * Login für MetaMask
+ */
+
+document.getElementById("loginMetaMask").onclick = loginMetaMask;
+
+window.addEventListener("load", loginMetaMask);
+
+async function loginMetaMask() {
+  const provider = await detectEthereumProvider();
+  if (provider === window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      await ethereum.request({ method: "eth_requestAccounts" });
+      accounts = await ethereum.request({ method: "eth_accounts" });
+      console.log(accounts);
+      if (accounts) {
+        document.getElementsByClassName("itemHeadline")[0].innerText =
+          "Connected to MetaMask";
+      }
+    } catch (err) {
+      console.log(err);
+      document.getElementsByClassName("itemHeadline")[0].innerText =
+        "Connect to MetaMask";
+    }
+  }
+}
+
+},{"@metamask/detect-provider":1,"@waxio/waxjs/dist":3,"atomicassets":39,"node-fetch":53}]},{},[55]);

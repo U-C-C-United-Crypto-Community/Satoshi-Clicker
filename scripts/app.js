@@ -5,8 +5,12 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
+
+const detectEthereumProvider = require("@metamask/detect-provider");
+
 var bitcoins = 0;
 var bitcoinRate = 0;
+var accounts = [];
 // Every item in the game
 // TODO: items should be part of the Game variable
 
@@ -464,6 +468,7 @@ function setup() {
 }
 
 Game.getItem = async function (id) {
+  console.log(id);
   const assets = (await api.getAccount(wax.userAccount)).templates;
   const item = items.find((val) => {
     return val.name === id;
@@ -534,10 +539,14 @@ async function waitForTransaction(oldBitcoinRate) {
 //normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
-    await wax.login();
-    init();
-    await Game.setBitcoinPerSecondRateAtBeginning();
-    return true;
+    if (wax.userAccount === undefined) {
+      await wax.login();
+      init();
+      await Game.setBitcoinPerSecondRateAtBeginning();
+      return true;
+    } else {
+      return false;
+    }
   } catch (e) {
     console.log(e);
     return false;
@@ -554,7 +563,39 @@ document.getElementById("loginWaxWallet").onclick = async () => {
     }
     setup();
     showItems("block");
+    document.getElementById("loginWaxWallet").style.display = "block";
+    document.getElementsByClassName("itemHeadline")[1].innerText =
+    "Connected to WAX";
     return;
   }
+  showItems("block");
   document.getElementById("loginWaxWallet").style.display = "block";
 };
+
+/**
+ * Login für MetaMask
+ */
+
+document.getElementById("loginMetaMask").onclick = loginMetaMask;
+
+window.addEventListener("load", loginMetaMask);
+
+async function loginMetaMask() {
+  const provider = await detectEthereumProvider();
+  if (provider === window.ethereum) {
+    window.web3 = new Web3(ethereum);
+    try {
+      await ethereum.request({ method: "eth_requestAccounts" });
+      accounts = await ethereum.request({ method: "eth_accounts" });
+      console.log(accounts);
+      if (accounts) {
+        document.getElementsByClassName("itemHeadline")[0].innerText =
+          "Connected to MetaMask";
+      }
+    } catch (err) {
+      console.log(err);
+      document.getElementsByClassName("itemHeadline")[0].innerText =
+        "Connect to MetaMask";
+    }
+  }
+}
