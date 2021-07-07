@@ -5,7 +5,6 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
-
 const detectEthereumProvider = require("@metamask/detect-provider");
 
 var bitcoins = 0;
@@ -97,7 +96,6 @@ var bSec = null;
 function init() {
   const wallet = localStorage.getItem("waxWallet");
   const btcs = localStorage.getItem("bitcoins");
-  console.log(btcs);
   if (
     btcs === null ||
     btcs === undefined ||
@@ -425,9 +423,14 @@ function setup() {
       // If you have enough Bitcoins, it´ll buy one item
       if (parseFloat(bitcoins.toFixed(8)) >= price) {
         showItems("none");
-        await mint(id).catch((err) => {
-          console.log(err);
-        });
+
+        // mint throws undefined if RAM is unsufficient
+        const err = await mint(id);
+        if (err === undefined) {
+          showItems("block");
+          alert("Unsufficient RAM:\nThe item is not available...");
+          return;
+        }
         // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
         bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
 
@@ -457,7 +460,7 @@ function setup() {
 
         // Stops the interval
         Game.stopBsec();
-        oldBitcoinRate = bitcoinRate;
+        const oldBitcoinRate = bitcoinRate;
         // Setting a new price and show it
         await Game.setNewPrice();
         // Restarting the interval with the new rate
@@ -468,19 +471,15 @@ function setup() {
 }
 
 Game.getItem = async function (id) {
-  console.log(id);
-  const assets = (await api.getAccount(wax.userAccount)).templates;
+  assets = (await api.getAccount(wax.userAccount)).templates;
   const item = items.find((val) => {
     return val.name === id;
   });
   const asset = assets.find((val) => {
     return val.template_id === item.template_id;
   });
-  const template =
-    asset !== undefined
-      ? (await api.getTemplate("waxbtcclickr", asset.template_id))
-          .immutable_data
-      : null;
+  const template = (await api.getTemplate("waxbtcclickr", item.template_id))
+    .immutable_data;
   return { asset, template };
 };
 
@@ -489,20 +488,20 @@ async function mint(id) {
     return val.name === id;
   });
   const template_id = parseInt(item.template_id);
-  const actions = await (
-    await api.action
-  ).mintasset(
-    [{ actor: "1mbtu.wam", permission: "active" }],
-    "1mbtu.wam",
-    "waxbtcclickr",
-    "equipments",
-    template_id,
-    wax.userAccount,
-    {},
-    {},
-    0
-  );
-  await wax.api
+  const actions = await (await api.action)
+    .mintasset(
+      [{ actor: "1mbtu.wam", permission: "active" }],
+      "1mbtu.wam",
+      "waxbtcclickr",
+      "equipments",
+      template_id,
+      wax.userAccount,
+      {},
+      {},
+      0
+    )
+    .catch(console.log);
+  const result = await wax.api
     .transact(
       {
         actions: actions,
@@ -513,6 +512,7 @@ async function mint(id) {
       }
     )
     .catch(console.log);
+  return result;
 }
 
 function showItems(state) {
