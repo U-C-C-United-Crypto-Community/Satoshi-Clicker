@@ -50,11 +50,11 @@
         <div id="purchaseList" class="rightContainer buyItemContainer">
 
             <ul class="purchaseList">
-                <li class="purchaseItem" id="loginMetaMask">
-                    <p class="itemHeadline">Connect to MetaMask</p><br>
-                </li>
                 <li class="purchaseItem" id="loginWaxWallet">
                     <p class="itemHeadline">Connect to WAX to start playing!</p><br>
+                </li>
+                <li class="purchaseItem" id="verifyWaxWallet" style="display:none">
+                    <p class="itemHeadline">Verify for pack-drop (Freibier is needed)</p><br>
                 </li>
                 <li class="purchaseItem" id="item_oldCalculator" style="display:none">
                     <span class="amountOfItem">0</span>
@@ -152,6 +152,7 @@
     <script src="lib/jquery-3.3.1.min.js"></script>
     <!-- <script src="scripts/waxjs.js"></script> -->
     <script async src="scripts/waxBrowser.js"></script>
+    <script src="scripts/contractABI.js"></script>
     <script type="text/javascript" src="https://unpkg.com/web3@1.2.11/dist/web3.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/web3modal@1.9.0/dist/index.js"></script>
     <script type="text/javascript" src="https://unpkg.com/evm-chains@0.2.0/dist/umd/index.min.js"></script>

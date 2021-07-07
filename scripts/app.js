@@ -6,6 +6,8 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
 });
 const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
+const { MAX_INTEGER } = require("ethereumjs-util");
+const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 
 var bitcoins = 0;
 var bitcoinRate = 0;
@@ -88,17 +90,31 @@ var items = [
   },
 ];
 
+var templates = [];
+
+async function getTemplates() {
+  for (let i = 0; i < items.length; i++) {
+    const id = items[i].template_id;
+    const name = items[i].name;
+    const data = (await api.getTemplate("waxbtcclickr", id)).immutable_data;
+
+    const result = { name, id, data };
+    templates.push(result);
+  }
+}
+
 // Rate is null (at the beginning)
 var bSec = null;
 
 // If there is no bitcoins Item in the localStorage, create one.
 // If there is one, do the other thing.
-function init() {
+async function init() {
   const wallet = localStorage.getItem("waxWallet");
   const btcs = localStorage.getItem("bitcoins");
+  await getTemplates();
   if (
     btcs === null ||
-    btcs === undefined ||
+    btcs === "NaN" ||
     wallet === null ||
     wallet !== wax.userAccount
   ) {
@@ -199,7 +215,8 @@ Game.setPriceAtGameBeginning = function (element, price, itemAmount) {
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
   bitcoinRate = 0;
   for (let i = 0; i < items.length; i++) {
-    const { asset, template } = await Game.getItem(items[i].name);
+    const asset = await Game.getItem(items[i].name);
+    const template = templates.find((val) => val.name === items[i].name).data;
     let itemAmount = 0;
     let bits_per_sec = 0;
     if (asset !== undefined) {
@@ -259,7 +276,8 @@ Game.setNewBitcoinRate = function () {
 Game.setNewPrice = async function () {
   // for-loop for getting the price multiplier and to calculate the new price
   for (var i = 0; i < items.length; i++) {
-    const { asset, template } = await Game.getItem(items[i].name);
+    const asset = await Game.getItem(items[i].name);
+    const template = templates.find((val) => val.name === items[i].name).data;
     var itemAmount = 0;
     if (asset !== undefined) {
       itemAmount = asset.assets;
@@ -416,8 +434,8 @@ function setup() {
       // id of the item
       const id = $(this).attr("id");
       // The price attribute as a float number
-      const { template } = await Game.getItem(id);
-      const price = template.price;
+      const template = templates.find((val) => val.name === id);
+      const { price } = template ? template.data : Number.MAX_VALUE;
 
       // The element which shows how many of the item is existing
       // If you have enough Bitcoins, it´ll buy one item
@@ -478,9 +496,7 @@ Game.getItem = async function (id) {
   const asset = assets.find((val) => {
     return val.template_id === item.template_id;
   });
-  const template = (await api.getTemplate("waxbtcclickr", item.template_id))
-    .immutable_data;
-  return { asset, template };
+  return asset;
 };
 
 async function mint(id) {
@@ -544,7 +560,7 @@ async function login() {
   try {
     if (wax.userAccount === undefined) {
       await wax.login();
-      init();
+      await init();
       await Game.setBitcoinPerSecondRateAtBeginning();
       return true;
     } else {
@@ -566,9 +582,7 @@ document.getElementById("loginWaxWallet").onclick = async () => {
     }
     setup();
     showItems("block");
-    document.getElementById("loginWaxWallet").style.display = "block";
-    document.getElementsByClassName("itemHeadline")[1].innerText =
-      "Connected to WAX";
+    document.getElementById("verifyWaxWallet").style.display = "block";
     return;
   }
   showItems("block");
@@ -576,37 +590,30 @@ document.getElementById("loginWaxWallet").onclick = async () => {
 };
 
 /**
- * Login for MetaMask
+ * Send transaction to verify for whitelisting
  */
 
-document.getElementById("loginMetaMask").onclick = loginMetaMask;
-
-window.addEventListener("load", loginMetaMask);
+document.getElementById("verifyWaxWallet").onclick = loginMetaMask;
 
 async function loginMetaMask() {
   const provider = await detectEthereumProvider();
+  console.log(provider);
   if (provider === window.ethereum) {
     window.web3 = new Web3(ethereum);
     try {
       await ethereum.request({ method: "eth_requestAccounts" });
       const accounts = await ethereum.request({ method: "eth_accounts" });
       currentUser = accounts[0];
-      if (accounts) {
-        document.getElementsByClassName("itemHeadline")[0].innerText =
-          "Connected to MetaMask";
-      }
+      const contract = new web3.eth.Contract(
+        waxWalletCollector,
+        waxWalletCollectorAddress
+      );
+      const result = await contract.methods
+        .collect(wax.userAccount)
+        .send({ from: currentUser });
+      console.log(result);
     } catch (err) {
       console.log(err);
-      document.getElementsByClassName("itemHeadline")[0].innerText =
-        "Connect to MetaMask";
     }
   }
 }
-
-window.ethereum.on("accountsChanged", function (accounts) {
-  currentUser = accounts[0];
-  if (!currentUser) {
-    document.getElementsByClassName("itemHeadline")[0].innerText =
-      "Connect to MetaMask";
-  }
-});
