@@ -7341,7 +7341,7 @@ const detectEthereumProvider = require("@metamask/detect-provider");
 
 var bitcoins = 0;
 var bitcoinRate = 0;
-var accounts = [];
+var currentUser = null;
 // Every item in the game
 // TODO: items should be part of the Game variable
 
@@ -7851,7 +7851,10 @@ function showItems(state) {
   const loadingState = state === "none" ? "block" : "none";
   document.getElementById("Loading").style.display = loadingState;
 }
-
+/**
+ * Waits for the NFT to finish loading
+ * @param {number} oldBitcoinRate
+ */
 async function waitForTransaction(oldBitcoinRate) {
   await Game.setBitcoinPerSecondRateAtBeginning();
   Game.setNewBitcoinRate();
@@ -7896,7 +7899,7 @@ document.getElementById("loginWaxWallet").onclick = async () => {
     showItems("block");
     document.getElementById("loginWaxWallet").style.display = "block";
     document.getElementsByClassName("itemHeadline")[1].innerText =
-    "Connected to WAX";
+      "Connected to WAX";
     return;
   }
   showItems("block");
@@ -7904,7 +7907,7 @@ document.getElementById("loginWaxWallet").onclick = async () => {
 };
 
 /**
- * Login für MetaMask
+ * Login for MetaMask
  */
 
 document.getElementById("loginMetaMask").onclick = loginMetaMask;
@@ -7917,8 +7920,8 @@ async function loginMetaMask() {
     window.web3 = new Web3(ethereum);
     try {
       await ethereum.request({ method: "eth_requestAccounts" });
-      accounts = await ethereum.request({ method: "eth_accounts" });
-      console.log(accounts);
+      const accounts = await ethereum.request({ method: "eth_accounts" });
+      currentUser = accounts[0];
       if (accounts) {
         document.getElementsByClassName("itemHeadline")[0].innerText =
           "Connected to MetaMask";
@@ -7930,5 +7933,13 @@ async function loginMetaMask() {
     }
   }
 }
+
+window.ethereum.on("accountsChanged", function (accounts) {
+  currentUser = accounts[0];
+  if (!currentUser) {
+    document.getElementsByClassName("itemHeadline")[0].innerText =
+      "Connect to MetaMask";
+  }
+});
 
 },{"@metamask/detect-provider":1,"@waxio/waxjs/dist":3,"atomicassets":39,"node-fetch":53}]},{},[55]);
