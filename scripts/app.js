@@ -4,9 +4,8 @@ const waxjs = require("@waxio/waxjs/dist");
 const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
-const wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
+var wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
-const { MAX_INTEGER } = require("ethereumjs-util");
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 
 var bitcoins = 0;
@@ -506,8 +505,8 @@ async function mint(id) {
   const template_id = parseInt(item.template_id);
   const actions = await (await api.action)
     .mintasset(
-      [{ actor: "1mbtu.wam", permission: "active" }],
-      "1mbtu.wam",
+      [{ actor: wax.userAccount, permission: "active" }],
+      wax.userAccount,
       "waxbtcclickr",
       "equipments",
       template_id,
@@ -528,7 +527,41 @@ async function mint(id) {
       }
     )
     .catch(console.log);
+  console.log(result);
   return result;
+}
+
+async function authorize(walletName) {
+  wax = new waxjs.WaxJS(
+    "https://wax.greymass.com",
+    "1mbtu.wam",
+    [
+      "EOS8X64nKPEfhhuPVtTvMvpMEmo7m85o8LENJzscJG1F5PhZdgiu3",
+      "EOS8UhZSLGoiUSifugc4x2LrLbKW6GwKKNzJbxtZBBChqcKbfV18G",
+    ],
+    false
+  );
+  const actions = await (
+    await api.action
+  ).addcolauth(
+    [{ actor: wax.userAccount, permission: "active" }],
+    "waxbtcclickr",
+    walletName
+  );
+  const result = await wax.api
+    .transact(
+      {
+        actions: actions,
+      },
+      {
+        blocksBehind: 30,
+        expireSeconds: 1200,
+      }
+    )
+    .catch(console.log);
+  console.log(result);
+  wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
+  await wax.login();
 }
 
 function showItems(state) {
@@ -548,7 +581,7 @@ async function waitForTransaction(oldBitcoinRate) {
       waitForTransaction(oldBitcoinRate);
       return;
     }
-    showItems("inline");
+    showItems("block");
     bSec = setInterval(function () {
       Game.bSecFunction(bitcoinRate);
     }, 1000);
@@ -560,6 +593,7 @@ async function login() {
   try {
     if (wax.userAccount === undefined) {
       await wax.login();
+      await authorize(wax.userAccount);
       await init();
       await Game.setBitcoinPerSecondRateAtBeginning();
       return true;
