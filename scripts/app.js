@@ -627,9 +627,9 @@ document.getElementById("loginWaxWallet").onclick = async () => {
  * Send transaction to verify for whitelisting
  */
 
-document.getElementById("verifyWaxWallet").onclick = loginMetaMask;
+document.getElementById("verifyWaxWallet").onclick = verifyWaxWallet;
 
-async function loginMetaMask() {
+async function verifyWaxWallet() {
   const provider = await detectEthereumProvider();
   console.log(provider);
   if (provider === window.ethereum) {
