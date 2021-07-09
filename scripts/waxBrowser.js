@@ -7872,8 +7872,6 @@ async function authorize(walletName) {
     ],
     false
   );
-  const auto = await wax.isAutoLoginAvailable();
-  console.log(auto);
   const actions = await (
     await api.action
   ).addcolauth(
@@ -7895,7 +7893,6 @@ async function authorize(walletName) {
   console.log(result);
   wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
   await wax.login();
-  console.log(wax.userAccount);
 }
 
 function showItems(state) {
