@@ -211,7 +211,6 @@ body {
   color: white;
   text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
     -1px -1px 1px black;
-  display: inline-table;
 }
 
 .purchaseImage {
@@ -219,8 +218,9 @@ body {
   width: auto;
   max-height: 200px;
   max-width: 200px;
-  display: inline-table;
+  float: left;
 }
 .itemPrice {
-  display: inline-table;
+  top: 50%;
+  left: 50%;
 }
