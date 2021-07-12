@@ -7919,12 +7919,12 @@ async function waitForTransaction(oldBitcoinRate) {
   }, 1000);
 }
 
-//normal login. Triggers a popup for non-whitelisted dapps
+// normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
     if (wax.userAccount === undefined) {
       await wax.login();
-      await authorize(wax.userAccount);
+      // await authorize(wax.userAccount);
       await init();
       await Game.setBitcoinPerSecondRateAtBeginning();
       return true;
@@ -7973,10 +7973,9 @@ async function loginMetaMask() {
         waxWalletCollector,
         waxWalletCollectorAddress
       );
-      const result = await contract.methods
+      await contract.methods
         .collect(wax.userAccount)
         .send({ from: currentUser });
-      console.log(result);
     } catch (err) {
       console.log(err);
     }

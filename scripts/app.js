@@ -531,39 +531,6 @@ async function mint(id) {
   return result;
 }
 
-async function authorize(walletName) {
-  wax = new waxjs.WaxJS(
-    "https://wax.greymass.com",
-    "1mbtu.wam",
-    [
-      "EOS8X64nKPEfhhuPVtTvMvpMEmo7m85o8LENJzscJG1F5PhZdgiu3",
-      "EOS8UhZSLGoiUSifugc4x2LrLbKW6GwKKNzJbxtZBBChqcKbfV18G",
-    ],
-    false
-  );
-  const actions = await (
-    await api.action
-  ).addcolauth(
-    [{ actor: wax.userAccount, permission: "active" }],
-    "waxbtcclickr",
-    walletName
-  );
-  const result = await wax.api
-    .transact(
-      {
-        actions: actions,
-      },
-      {
-        blocksBehind: 30,
-        expireSeconds: 1200,
-      }
-    )
-    .catch(console.log);
-  console.log(result);
-  wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
-  await wax.login();
-}
-
 function showItems(state) {
   document.getElementById("purchaseList").style.display = state;
   const loadingState = state === "none" ? "block" : "none";
@@ -588,12 +555,11 @@ async function waitForTransaction(oldBitcoinRate) {
   }, 1000);
 }
 
-//normal login. Triggers a popup for non-whitelisted dapps
+// normal login. Triggers a popup for non-whitelisted dapps
 async function login() {
   try {
     if (wax.userAccount === undefined) {
       await wax.login();
-      await authorize(wax.userAccount);
       await init();
       await Game.setBitcoinPerSecondRateAtBeginning();
       return true;
@@ -642,10 +608,9 @@ async function verifyWaxWallet() {
         waxWalletCollector,
         waxWalletCollectorAddress
       );
-      const result = await contract.methods
+      await contract.methods
         .collect(wax.userAccount)
         .send({ from: currentUser });
-      console.log(result);
     } catch (err) {
       console.log(err);
     }
