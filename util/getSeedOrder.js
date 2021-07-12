@@ -4,11 +4,15 @@ import { hdkey } from "ethereumjs-wallet";
 import Web3 from "web3";
 import fs from "fs";
 
-const providerURL = `https://mainnet.infura.io/v3/86699891da194635a19df4e3ad7221ab`;
 const providerRPC = "http://localhost:8545/";
 const web3 = new Web3(providerRPC);
 const path = "m/44'/60'/0'/0/0";
-var result = [];
+const FILE_SIZE = 10 ** 5
+const UPDATE_COUNTER = 100000
+var current = [];
+var fileIndex = 0;
+var totalAmount = 0;
+var state;
 
 function swap(i, j, A) {
   const temp = A[i];
@@ -17,15 +21,14 @@ function swap(i, j, A) {
   return A;
 }
 
-async function generate(A) {
+function generate(A, c = [], i = 1, counter = 1) {
   const n = A.length;
-  let counter = 1;
-  let c = [];
-  for (let i = 0; i < n; i++) {
-    c[i] = 0;
+  if (c.length == 0) {
+    for (let i = 0; i < n; i++) {
+      c[i] = 0;
+    }
   }
-  await getSeedOrder(A);
-  let i = 1;
+  getSeedOrder(A);
   while (i < n) {
     if (c[i] < i) {
       if (i % 2 == 0) {
@@ -33,9 +36,10 @@ async function generate(A) {
       } else {
         swap(c[i], i, A);
       }
-      await getSeedOrder(A);
+      getSeedOrder(A);
       counter++;
       printProgress(counter);
+      saveFile(A, c, i, counter)
       c[i]++;
       i = 1;
     } else {
@@ -43,34 +47,67 @@ async function generate(A) {
       i++;
     }
   }
-  const addresses = JSON.stringify(result);
-  fs.writeFile("solutions.json", addresses, "utf8", (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
+
 }
 
-async function getSeedOrder(seedPhrase) {
+function getSeedOrder(seedPhrase) {
   const phrase = seedPhrase.join(" ");
   if (utils.HDNode.isValidMnemonic(phrase)) {
     const hdWallet = hdkey.fromMasterSeed(bip39.mnemonicToSeed(phrase));
     const wallet = hdWallet.derivePath(path).getWallet();
     const address = `0x${wallet.getAddress().toString("hex")}`;
-    const balance = await web3.eth.getBalance(address);
-    if (balance > 0) result.push({ phrase, address, balance });
+    current.push({ phrase, address });
   }
-}
-
-const indexes = process.argv.slice(2);
-if (indexes.length == 12) {
-  console.time("Heap Alg");
-  await generate(indexes);
-  console.timeEnd("Heap Alg");
 }
 
 function printProgress(progress) {
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
-  process.stdout.write("Search progress: " + progress / 479001600 + " %");
+  process.stdout.write("Search progress: " + (progress / 479001600 * 100).toFixed(3) + " %, Found: " + totalAmount + ", Saved files: " + fileIndex);
 }
+
+function saveFile(A, c, i, counter) {
+  if (counter % UPDATE_COUNTER == 0) {
+    let addresses = []
+
+    if (totalAmount >= FILE_SIZE * fileIndex || !fs.existsSync('./addresses/' + fileIndex + '.json')) {
+      fileIndex += 1
+      addresses = current
+    } else {
+      addresses = JSON.parse(fs.readFileSync('./addresses/' + fileIndex + '.json', 'utf8'))
+        .concat(current);
+    }
+    totalAmount += current.length
+    fs.writeFileSync("./addresses/" + fileIndex + ".json", JSON.stringify(addresses, null, 2), (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+    state = { A, c, i, counter, totalAmount, fileIndex }
+    fs.writeFileSync("./state.json", JSON.stringify(state, null, 2), (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+    current = []
+
+  }
+}
+
+
+const indexes = process.argv.slice(2);
+try {
+  state = JSON.parse(fs.readFileSync('./state.json', 'utf8'))
+  console.log("Loading state!")
+  totalAmount = state.totalAmount
+  fileIndex = state.fileIndex
+  generate(state.A, state.c, state.i, state.counter);
+} catch (e) {
+  console.log("No state found!")
+  if (indexes.length == 12) {
+    generate(indexes);
+  }
+
+}
+
+
