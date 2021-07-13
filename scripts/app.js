@@ -1,5 +1,6 @@
 const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
+const SecureLS = require("secure-ls");
 const waxjs = require("@waxio/waxjs/dist");
 const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
@@ -7,6 +8,7 @@ const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
 var wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
+const ls = new SecureLS();
 
 var bitcoins = 0;
 var bitcoinRate = 0;
@@ -108,8 +110,14 @@ var bSec = null;
 // If there is no bitcoins Item in the localStorage, create one.
 // If there is one, do the other thing.
 async function init() {
+
+  const keys = ls.getAllKeys()
+  if (keys.length == 0 || !keys.includes("bitcoins"))
+    ls.set("bitcoins", 0);
+
   const wallet = localStorage.getItem("waxWallet");
-  const btcs = localStorage.getItem("bitcoins");
+  const btcs = ls.get("bitcoins");
+  console.log(btcs)
   await getTemplates();
   if (
     btcs === null ||
@@ -120,16 +128,20 @@ async function init() {
     // Bitcoins are 0
     bitcoins = 0;
     waxWallet = wax.userAccount;
+
     // Set the localStorage Item for the first time
+    ls.clear();
     localStorage.clear();
-    localStorage.setItem("bitcoins", "0");
+
+    ls.set("bitcoins", 0);
+
     localStorage.setItem("waxWallet", waxWallet);
 
     // Write the current amount of Bitcoins on the page
     $(".bitcoinAmount").text(bitcoins.toFixed(8));
   } else {
     // Get the amount of Bitcoins and parse them to a float number
-    bitcoins = parseFloat(localStorage.getItem("bitcoins"));
+    bitcoins = parseFloat(ls.get("bitcoins"));
     console.log("Init", bitcoins);
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
@@ -333,7 +345,7 @@ Game.bSecFunction = function (rate) {
     $(".satoshiAmount").text(satoshiUnitNumber);
   }
   // Save bitcoin amount in the storage
-  localStorage.setItem("bitcoins", bitcoins.toString());
+  ls.set("bitcoins", bitcoins.toString());
 };
 
 /**
@@ -423,7 +435,7 @@ function setup() {
         $(".satoshiAmount").text(satoshiUnitNumber);
       }
       // Save the new amount of Bitcoins in the localStorage storage
-      localStorage.setItem("bitcoins", bitcoins.toString());
+      ls.set("bitcoins", bitcoins.toString());
     });
 
     // If any item from the list was clicked...
@@ -452,7 +464,7 @@ function setup() {
         bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
 
         // Save the new amount of Bitcoins in the localStorage storage
-        localStorage.setItem("bitcoins", bitcoins.toString());
+        ls.set("bitcoins", bitcoins.toString());
 
         // Changing the Bitcoins amount
         // Rounding the Bitcoin number at specific values
@@ -485,6 +497,7 @@ function setup() {
       }
     });
   });
+
 }
 
 Game.getItem = async function (id) {
@@ -601,18 +614,26 @@ async function verifyWaxWallet() {
   if (provider === window.ethereum) {
     window.web3 = new Web3(ethereum);
     try {
-      await ethereum.request({ method: "eth_requestAccounts" });
-      const accounts = await ethereum.request({ method: "eth_accounts" });
+      await ethereum.request({method: "eth_requestAccounts"});
+      const accounts = await ethereum.request({method: "eth_accounts"});
       currentUser = accounts[0];
       const contract = new web3.eth.Contract(
-        waxWalletCollector,
-        waxWalletCollectorAddress
+          waxWalletCollector,
+          waxWalletCollectorAddress
       );
       await contract.methods
-        .collect(wax.userAccount)
-        .send({ from: currentUser });
+          .collect(wax.userAccount)
+          .send({from: currentUser});
     } catch (err) {
       console.log(err);
     }
   }
+
 }
+
+
+
+
+
+
+

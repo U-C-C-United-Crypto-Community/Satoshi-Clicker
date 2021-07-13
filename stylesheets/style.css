@@ -113,6 +113,18 @@ body {
   animation: rotation 20s linear infinite;
   border-radius: 500px;
 }
+.purchaseImage {
+  height: auto;
+  width: auto;
+  max-height: 200px;
+  max-width: 200px;
+  float: left;
+
+}
+.itemPrice {
+  top: 50%;
+  left: 50%;
+}
 .bitcoin:hover {
   width: 27%;
   top: 23%;
@@ -173,10 +185,13 @@ body {
   border-right: 3px solid white;
   padding-left: 10px;
   background: linear-gradient(#ffe09f, #ffb84c);
+  overflow: auto;
+
 }
 .purchaseItem:hover {
   background: linear-gradient(90deg, #ffe09f, #ffb84c);
   cursor: pointer;
+  overflow: auto;
 }
 .amountOfItem {
   float: right;
@@ -185,8 +200,10 @@ body {
   color: rgba(0, 0, 0, 0.4);
   margin-top: -10px;
   margin-bottom: -50px;
+  display: inline-table;
 }
 .itemHeadline {
+
   font-size: 20pt;
   font-weight: bold;
   margin-bottom: 0px;
@@ -194,4 +211,16 @@ body {
   color: white;
   text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
     -1px -1px 1px black;
+}
+
+.purchaseImage {
+  height: auto;
+  width: auto;
+  max-height: 200px;
+  max-width: 200px;
+  float: left;
+}
+.itemPrice {
+  top: 50%;
+  left: 50%;
 }
