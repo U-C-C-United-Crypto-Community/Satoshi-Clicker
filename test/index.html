@@ -6,8 +6,8 @@
 </head>
 <body>
     <pre>Test</pre>
-    <script>
-      var units = [
+    <script type="module">
+      /*var units = [
         "",
         "Million",
         "Billion",
@@ -68,7 +68,47 @@
       // Rounding the bitcoin number at specific set values
       if(number > 1000000) {
         console.log(number._optimizeNumbers())
+      }*/
+
+
+      async function encrypt(data) {
+
+          let encoded = getMessageEncoding(data)
+
+          const fs = require('fs')
+
+
+          let iv = 0;
+          fs.readFile("./encrypt/iv.txt", (err, data) => {
+              if (err) throw err;
+
+              iv = data;
+          });
+          let key = 0;
+          fs.readFile("./encrypt/key.txt", (err, data) => {
+              if (err) throw err;
+
+              key = data;
+          });
+
+          const encrypted_content = await window.crypto.subtle.encrypt(
+              {
+                  name: "AES-CTR",
+                  counter: iv,
+                  length: 128
+              },
+              key,
+              data
+          );
+            console.log(encrypted_content)
       }
+
+      function getMessageEncoding(message) {
+          let enc = new TextEncoder();
+          return enc.encode(message)
+      }
+      encrypt("12345");
+      console.log("Finished");
 
           </script>
 </body>
