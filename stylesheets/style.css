@@ -224,3 +224,42 @@ body {
   top: 50%;
   left: 50%;
 }
+
+.modal {
+  display: none;
+  position: fixed;
+
+  z-index: 1;
+  width: 25%;
+  height: 25%;
+  border-top: 3px solid black;
+  border-bottom: 3px solid black;
+  border-right: 3px solid black;
+  border-left: 3px solid black;
+  padding-left: 10px;
+  background: linear-gradient(#ffe09f, #ffb84c);
+}
+
+.modal-content {
+  font-size: 10pt;
+  font-weight: bold;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  color: white;
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
+}
+
+.close {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  width: 9%;
+  height: 4%;
+  border: 3px solid black;
+  font-size: 10pt;
+  font-family: VCR OSD Mono, cursive;
+  background: #ffb84c;
+  color: white;
+  cursor: pointer;
+}

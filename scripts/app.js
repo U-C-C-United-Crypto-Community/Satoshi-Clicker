@@ -2,12 +2,14 @@ const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
 const SecureLS = require("secure-ls");
 const waxjs = require("@waxio/waxjs/dist");
+const DOMPurify = require("dompurify");
 const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
 var wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
+const dp = new DOMPurify();
 const ls = new SecureLS();
 
 var bitcoins = 0;
@@ -629,6 +631,84 @@ async function verifyWaxWallet() {
     }
   }
 
+}
+
+document.getElementById("donateButton").onclick = showDialog;
+
+async function showDialog() {
+  var modal = document.getElementById("myModal");
+  var span = document.getElementsByClassName("close")[0];
+  var content = document.getElementById("content");
+  var input = document.getElementById("quantity");
+
+  content.innerText = "How much WAX do you wanna donate?";
+
+  modal.style.display = "block"
+
+  span.onclick = function() {
+    modal.style.display = "none";
+    var userinput = dp.sanitize(input.value);
+    userinput = parseInt(userinput);
+    console.log(userinput)
+    if (typeof userinput != "number")
+      alert("Please input a number");
+    else {
+      sign(userinput);
+    }
+  }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+
+
+}
+
+
+async function sign(amount) {
+  if(wax.userAccount === undefined) {
+    await wax.login();
+  }
+
+  var quantity = amount.toString();
+
+  if (!quantity.includes(".")) {
+    quantity = quantity + ".";
+  }
+  if (!quantity.includes("00000000"))
+    quantity = quantity + "00000000";
+
+  quantity = quantity + " WAX"
+  console.log(quantity);
+
+  try {
+    const result = await wax.api.transact({
+      actions: [{
+        account: 'eosio',
+        name: 'delegatebw',
+        authorization: [{
+          actor: wax.userAccount,
+          permission: 'active',
+        }],
+        data: {
+          from: wax.userAccount,
+          receiver: wax.userAccount,
+          stake_net_quantity: quantity,
+          stake_cpu_quantity: '0.00000000 WAX',
+          transfer: false,
+          memo: 'This is a WaxJS/Cloud Wallet Demo.'
+        },
+      }]
+    }, {
+      blocksBehind: 3,
+      expireSeconds: 30
+    });
+    console.log(JSON.stringify(result, null, 2))
+  } catch(e) {
+    console.log(e.message);
+  }
 }
 
 
