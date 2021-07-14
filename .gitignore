@@ -1,3 +1,4 @@
 # JetBrains folders
 .idea
 node_modules
+.vscode
