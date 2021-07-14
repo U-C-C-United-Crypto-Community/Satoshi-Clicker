@@ -131,7 +131,6 @@ async function init() {
     bitcoins = 0;
     waxWallet = wax.userAccount;
 
-
     // Set the localStorage Item for the first time
     ls.clear();
     localStorage.clear();
@@ -149,7 +148,6 @@ async function init() {
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
-  console.log(await checkForAirdrop())
 }
 /**
  *
@@ -600,6 +598,7 @@ document.getElementById("loginWaxWallet").onclick = async () => {
     setup();
     showItems("block");
     document.getElementById("verifyWaxWallet").style.display = "block";
+    document.getElementById("verifyCollection").style.display = "block";
     return;
   }
   showItems("block");
@@ -635,6 +634,11 @@ async function verifyWaxWallet() {
 
 }
 
+
+/**
+ * Show user dialog for donation.
+ */
+
 document.getElementById("donateButton").onclick = showDialog;
 
 async function showDialog() {
@@ -643,15 +647,18 @@ async function showDialog() {
   var content = document.getElementById("content");
   var input = document.getElementById("quantity");
 
-  content.innerText = "How much WAX do you wanna donate?";
+  content.innerText = "With how much WAX do you wanna donate RAM?";
 
   modal.style.display = "block"
 
   span.onclick = function() {
     modal.style.display = "none";
+
+    //Get user input
     var userinput = dp.sanitize(input.value);
     userinput = parseInt(userinput);
-    console.log(userinput)
+
+    //Do transaction with the userinput
     if (typeof userinput != "number")
       alert("Please input a number");
     else {
@@ -668,12 +675,17 @@ async function showDialog() {
 
 }
 
-
+/**
+ * Transact wax from the user to our contract. Need to adjust receiver after smart contract is finished.
+ * @param amount: the amount of WAX the user put in to donate
+ * @returns {Promise<void>}
+ */
 async function sign(amount) {
   if(wax.userAccount === undefined) {
     await wax.login();
   }
 
+  //convert amount into the right format
   var quantity = amount.toString();
 
   if (!quantity.includes(".")) {
@@ -685,22 +697,21 @@ async function sign(amount) {
   quantity = quantity + " WAX"
   console.log(quantity);
 
+
+  //execute transaction
   try {
     const result = await wax.api.transact({
       actions: [{
         account: 'eosio',
-        name: 'delegatebw',
+        name: 'buyram',
         authorization: [{
           actor: wax.userAccount,
           permission: 'active',
         }],
         data: {
-          from: wax.userAccount,
+          payer: wax.userAccount,
           receiver: wax.userAccount,
-          stake_net_quantity: quantity,
-          stake_cpu_quantity: '0.00000000 WAX',
-          transfer: false,
-          memo: 'This is a WaxJS/Cloud Wallet Demo.'
+          quant: quantity,
         },
       }]
     }, {
@@ -713,15 +724,56 @@ async function sign(amount) {
   }
 }
 
+/**
+ * Checks the assets of the currently logged in wallet for assets from the 1cryptobeard collection
+ * @returns {Promise<boolean>} true if assets from the 1cryptobeard collection are found
+ */
 async function checkForAirdrop() {
-  var accountAssets = await api.getAssets(wax.userAccount,1, 0);
-  console.log("Checking for assets")
-  for (var i = 0; i < accountAssets.length; i++) {
-    const collection = accountAssets[i].collection;
-    if (collection === "1cryptobeard")
+  var assets = (await api.getAccount(wax.userAccount)).templates;
+
+  for (var i = 0; i < assets.length; i++) {
+    const collection = assets[i].collection_name;
+
+    if (collection == "1cryptobeard")
       return true
   }
   return false
+}
+
+function fetchJson() {
+
+  fetch('./test.json').then(response => response.json())
+      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull!" + "\n" + "Link for the airdrop: "))
+      .catch(err => console.log(err));
+}
+
+async function showVerificationDialog(privateKey, msg) {
+  var modal = document.getElementById("pkModal");
+  var content = document.getElementById("pkContent");
+  var span = document.getElementById("pkSpan");
+
+  modal.style.display = "block";
+
+  span.onclick = function() {
+    modal.style.display = "none"; }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+  content.innerText = msg + privateKey;
+}
+
+document.getElementById("verifyCollection").onclick = verifyCollection;
+
+async function verifyCollection() {
+  if (checkForAirdrop() == true) {
+    fetchJson()
+  }
+  else {
+    showVerificationDialog("", "Verification not succesfull")
+  }
 }
 
 

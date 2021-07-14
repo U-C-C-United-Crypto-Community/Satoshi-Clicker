@@ -228,7 +228,7 @@ body {
 .modal {
   display: none;
   position: fixed;
-
+  overflow: auto;
   z-index: 1;
   width: 25%;
   height: 25%;
@@ -241,11 +241,11 @@ body {
 }
 
 .modal-content {
-  font-size: 10pt;
+  font-size: 20pt;
   font-weight: bold;
   margin-bottom: 0px;
   margin-top: 10px;
-  color: white;
+  color: #ffffff;
   text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
   -1px -1px 1px black;
 }
@@ -262,4 +262,5 @@ body {
   background: #ffb84c;
   color: white;
   cursor: pointer;
+  overflow: auto;
 }

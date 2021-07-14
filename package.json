@@ -16,6 +16,7 @@
     "browserify": "^17.0.0",
     "browserify-fs": "^1.0.0",
     "dompurify": "^2.3.0",
+    "dotenv": "^10.0.0",
     "eth-keyring-controller": "^6.2.1",
     "ethereum-input-data-decoder": "^0.3.2",
     "ethereumjs-tx": "^2.1.2",
