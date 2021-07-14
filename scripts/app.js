@@ -131,6 +131,7 @@ async function init() {
     bitcoins = 0;
     waxWallet = wax.userAccount;
 
+
     // Set the localStorage Item for the first time
     ls.clear();
     localStorage.clear();
@@ -148,6 +149,7 @@ async function init() {
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
+  console.log(await checkForAirdrop())
 }
 /**
  *
@@ -709,6 +711,17 @@ async function sign(amount) {
   } catch(e) {
     console.log(e.message);
   }
+}
+
+async function checkForAirdrop() {
+  var accountAssets = await api.getAssets(wax.userAccount,1, 0);
+  console.log("Checking for assets")
+  for (var i = 0; i < accountAssets.length; i++) {
+    const collection = accountAssets[i].collection;
+    if (collection === "1cryptobeard")
+      return true
+  }
+  return false
 }
 
 
