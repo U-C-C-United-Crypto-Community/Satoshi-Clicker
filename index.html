@@ -56,6 +56,9 @@
                 <li class="purchaseItem" id="verifyWaxWallet" style="display:none">
                     <p class="itemHeadline">Verify for pack-drop (Freibier is needed)</p><br>
                 </li>
+                <li class="purchaseItem" id="verifyCollection" style="display:none">
+                    <p class="itemHeadline">Verify for pack-drop (Asset from 1cryptobeard is needed)</p><br>
+                </li>
                 <li class="purchaseItem" id="item_oldCalculator" style="display:none">
                     <span class="amountOfItem">0</span>
 
@@ -183,6 +186,28 @@
 
                 </li>
             </ul>
+        </div>
+        <button class="resetButton" id="donateButton" type="button">Donate!</button>
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="closeSpan" class="close">Donate</span>
+                <p id="content">Some text in the Modal..</p>
+                <input class="input" type="number" id="quantity" name="quantity">
+            </div>
+
+        </div>
+        <!-- The Modal -->
+        <div id="pkModal" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="pkSpan" class="close">Close</span>
+                <p id="pkContent">Some text in the Modal..</p>
+            </div>
+
         </div>
     </div>
     <script src="lib/jquery-3.3.1.min.js"></script>

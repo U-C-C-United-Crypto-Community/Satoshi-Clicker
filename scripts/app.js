@@ -2,12 +2,14 @@ const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
 const SecureLS = require("secure-ls");
 const waxjs = require("@waxio/waxjs/dist");
+const DOMPurify = require("dompurify");
 const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
   fetch,
 });
 var wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
+const dp = new DOMPurify();
 const ls = new SecureLS();
 
 var bitcoins = 0;
@@ -238,7 +240,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     var $element = $("#" + items[i].name);
 
     // Writing the amount on the page at the item´s element
-    $element.children()[0].textContent = itemAmount;
+    $element.children()[0].textContent = "Level:" + itemAmount;
 
     // Only calculate the new price if there is more than 0 items.
     // If there are not enough items, it will just continue, and if there are,
@@ -294,7 +296,7 @@ Game.setNewPrice = async function () {
       itemAmount = asset.assets;
     }
     var $element = $("#" + items[i].name);
-    $element.children()[0].textContent = itemAmount;
+    $element.children()[0].textContent = "Level:" + itemAmount;
 
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
@@ -596,6 +598,7 @@ document.getElementById("loginWaxWallet").onclick = async () => {
     setup();
     showItems("block");
     document.getElementById("verifyWaxWallet").style.display = "block";
+    document.getElementById("verifyCollection").style.display = "block";
     return;
   }
   showItems("block");
@@ -630,6 +633,156 @@ async function verifyWaxWallet() {
   }
 
 }
+
+
+/**
+ * Show user dialog for donation.
+ */
+
+document.getElementById("donateButton").onclick = showDialog;
+
+async function showDialog() {
+  var modal = document.getElementById("myModal");
+  var span = document.getElementById("closeSpan");
+  var content = document.getElementById("content");
+  var input = document.getElementById("quantity");
+
+  content.innerText = "With how much WAX do you wanna donate RAM?";
+
+  modal.style.display = "block"
+
+  span.onclick = function() {
+    modal.style.display = "none";
+
+    //Get user input
+    var userinput = dp.sanitize(input.value);
+
+    if (userinput != "")
+    userinput = parseFloat(userinput);
+
+    console.log(typeof userinput)
+    //Do transaction with the userinput
+    if (typeof userinput != "number")
+      alert("Please input a number");
+    else {
+      sign(userinput);
+    }
+  }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+
+
+}
+
+/**
+ * Transact wax from the user to our contract. Need to adjust receiver after smart contract is finished.
+ * @param amount: the amount of WAX the user put in to donate
+ * @returns {Promise<void>}
+ */
+async function sign(amount) {
+  if(wax.userAccount === undefined) {
+    await wax.login();
+  }
+
+  //convert amount into the right format
+  var quantity = amount.toString();
+
+  quantity = quantity + " WAX"
+  console.log(quantity);
+
+
+  //execute transaction
+  try {
+    const result = await wax.api.transact({
+      actions: [{
+        account: 'eosio',
+        name: 'buyram',
+        authorization: [{
+          actor: wax.userAccount,
+          permission: 'active',
+        }],
+        data: {
+          payer: wax.userAccount,
+          receiver: "1mbtu.wam",    //Später smart contract Name
+          quant: quantity,
+        },
+      }]
+    }, {
+      blocksBehind: 3,
+      expireSeconds: 30
+    });
+    console.log(JSON.stringify(result, null, 2))
+  } catch(e) {
+    console.log(e.message);
+  }
+}
+
+/**
+ * Checks the assets of the currently logged in wallet for assets from the 1cryptobeard collection
+ * @returns {Promise<boolean>} true if assets from the 1cryptobeard collection are found
+ */
+async function checkForAirdrop() {
+  var assets = (await api.getAccount(wax.userAccount)).templates;
+
+  for (var i = 0; i < assets.length; i++) {
+    const collection = assets[i].collection_name;
+
+    if (collection == "1cryptobeard")
+      return true
+  }
+  return false
+}
+
+/**
+ * Fetches json with the private key.
+ */
+function fetchJson() {
+
+  fetch('./test.json').then(response => response.json())
+      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull!" + "\n" + "Link for the airdrop: "))
+      .catch(err => console.log(err));
+}
+
+/**
+ *
+ * @param privateKey
+ * @param msg if the authentification was succesfull or not
+ * @returns {Promise<void>}
+ */
+
+async function showVerificationDialog(privateKey, msg) {
+  var modal = document.getElementById("pkModal");
+  var mcontent = document.getElementById("pkContent");
+  var span = document.getElementById("pkSpan");
+
+  modal.style.display = "block";
+
+  span.onclick = function() {
+    modal.style.display = "none"; }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+  mcontent.innerText = msg + privateKey;
+}
+
+document.getElementById("verifyCollection").onclick = verifyCollection;
+
+async function verifyCollection() {
+  if (checkForAirdrop() == true) {
+    fetchJson()
+  }
+  else {
+    showVerificationDialog("", "Verification not succesfull")
+  }
+}
+
 
 
 

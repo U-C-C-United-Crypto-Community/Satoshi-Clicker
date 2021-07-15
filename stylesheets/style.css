@@ -179,6 +179,7 @@ body {
 
 /* Item list item */
 .purchaseItem {
+  position: relative;
   width: 99%;
   border-top: 3px solid white;
   border-bottom: 3px solid white;
@@ -194,13 +195,15 @@ body {
   overflow: auto;
 }
 .amountOfItem {
-  float: right;
-  font-size: 66pt;
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 50pt;
   margin-right: 15px;
   color: rgba(0, 0, 0, 0.4);
-  margin-top: -10px;
-  margin-bottom: -50px;
-  display: inline-table;
+
+  margin-bottom: 10px;
 }
 .itemHeadline {
 
@@ -221,6 +224,57 @@ body {
   float: left;
 }
 .itemPrice {
-  top: 50%;
-  left: 50%;
+  position: absolute;
+  top: 0;
+  font-size: 20pt;
+}
+
+.modal {
+  overflow: auto;
+  font-family: "VCR OSD Mono", cursive;
+  display: none;
+  position: fixed;
+  z-index: 1;
+  width: auto;
+  height: 20%;
+  border-top: 3px solid black;
+  border-bottom: 3px solid black;
+  border-right: 3px solid black;
+  border-left: 3px solid black;
+  padding-left: 10px;
+  background: linear-gradient(#ffe09f, #ffb84c);
+}
+
+.modal-content {
+  font-size: 20pt;
+  font-weight: bold;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  color: #ffffff;
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
+}
+
+.close {
+  display: block;
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  width: auto;
+  height: auto;
+  border: 3px solid black;
+  font-size: 20pt;
+  font-family: VCR OSD Mono, cursive;
+  background: #ffb84c;
+  color: white;
+  cursor: pointer;
+}
+
+.input {
+
+  font-size: 20pt;
+  width: 90%;
+  height: auto;
+  margin: 8px 0;
+  box-sizing: border-box;
 }
