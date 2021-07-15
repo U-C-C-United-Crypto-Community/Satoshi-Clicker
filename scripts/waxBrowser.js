@@ -13986,10 +13986,16 @@ const fetch = require("node-fetch");
 const SecureLS = require("secure-ls");
 const waxjs = require("@waxio/waxjs/dist");
 const DOMPurify = require("dompurify");
-const api = new ExplorerApi("https://wax.api.atomicassets.io", "atomicassets", {
+
+const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
+const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
+const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
-var wax = new waxjs.WaxJS("https://wax.greymass.com", null, null, false);
+
+const WAX_MAINNET = "https://wax.greymass.com";
+const WAX_TESTNET = "https://waxtestnet.greymass.com";
+var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 const dp = new DOMPurify();
@@ -14095,14 +14101,12 @@ var bSec = null;
 // If there is no bitcoins Item in the localStorage, create one.
 // If there is one, do the other thing.
 async function init() {
-
-  const keys = ls.getAllKeys()
-  if (keys.length == 0 || !keys.includes("bitcoins"))
-    ls.set("bitcoins", 0);
+  const keys = ls.getAllKeys();
+  if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
 
   const wallet = localStorage.getItem("waxWallet");
   const btcs = ls.get("bitcoins");
-  console.log(btcs)
+  console.log(btcs);
   await getTemplates();
   if (
     btcs === null ||
@@ -14482,7 +14486,6 @@ function setup() {
       }
     });
   });
-
 }
 
 Game.getItem = async function (id) {
@@ -14600,23 +14603,21 @@ async function verifyWaxWallet() {
   if (provider === window.ethereum) {
     window.web3 = new Web3(ethereum);
     try {
-      await ethereum.request({method: "eth_requestAccounts"});
-      const accounts = await ethereum.request({method: "eth_accounts"});
+      await ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await ethereum.request({ method: "eth_accounts" });
       currentUser = accounts[0];
       const contract = new web3.eth.Contract(
-          waxWalletCollector,
-          waxWalletCollectorAddress
+        waxWalletCollector,
+        waxWalletCollectorAddress
       );
       await contract.methods
-          .collect(wax.userAccount)
-          .send({from: currentUser});
+        .collect(wax.userAccount)
+        .send({ from: currentUser });
     } catch (err) {
       console.log(err);
     }
   }
-
 }
-
 
 /**
  * Show user dialog for donation.
@@ -14632,33 +14633,29 @@ async function showDialog() {
 
   content.innerText = "With how much WAX do you wanna donate RAM?";
 
-  modal.style.display = "block"
+  modal.style.display = "block";
 
-  span.onclick = function() {
+  span.onclick = function () {
     modal.style.display = "none";
 
     //Get user input
     var userinput = dp.sanitize(input.value);
 
-    if (userinput != "")
-    userinput = parseFloat(userinput);
+    if (userinput != "") userinput = parseFloat(userinput);
 
-    console.log(typeof userinput)
+    console.log(typeof userinput);
     //Do transaction with the userinput
-    if (typeof userinput != "number")
-      alert("Please input a number");
+    if (typeof userinput != "number") alert("Please input a number");
     else {
       sign(userinput);
     }
-  }
+  };
 
-  window.onclick = function(event) {
+  window.onclick = function (event) {
     if (event.target == modal) {
       modal.style.display = "none";
     }
-  }
-
-
+  };
 }
 
 /**
@@ -14667,39 +14664,45 @@ async function showDialog() {
  * @returns {Promise<void>}
  */
 async function sign(amount) {
-  if(wax.userAccount === undefined) {
+  if (wax.userAccount === undefined) {
     await wax.login();
   }
 
   //convert amount into the right format
   var quantity = amount.toString();
 
-  quantity = quantity + " WAX"
+  quantity = quantity + " WAX";
   console.log(quantity);
-
 
   //execute transaction
   try {
-    const result = await wax.api.transact({
-      actions: [{
-        account: 'eosio',
-        name: 'buyram',
-        authorization: [{
-          actor: wax.userAccount,
-          permission: 'active',
-        }],
-        data: {
-          payer: wax.userAccount,
-          receiver: "1mbtu.wam",    //Später smart contract Name
-          quant: quantity,
-        },
-      }]
-    }, {
-      blocksBehind: 3,
-      expireSeconds: 30
-    });
-    console.log(JSON.stringify(result, null, 2))
-  } catch(e) {
+    const result = await wax.api.transact(
+      {
+        actions: [
+          {
+            account: "eosio",
+            name: "buyram",
+            authorization: [
+              {
+                actor: wax.userAccount,
+                permission: "active",
+              },
+            ],
+            data: {
+              payer: wax.userAccount,
+              receiver: "1mbtu.wam", //Später smart contract Name
+              quant: quantity,
+            },
+          },
+        ],
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 30,
+      }
+    );
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
     console.log(e.message);
   }
 }
@@ -14714,20 +14717,24 @@ async function checkForAirdrop() {
   for (var i = 0; i < assets.length; i++) {
     const collection = assets[i].collection_name;
 
-    if (collection == "1cryptobeard")
-      return true
+    if (collection == "1cryptobeard") return true;
   }
-  return false
+  return false;
 }
 
 /**
  * Fetches json with the private key.
  */
 function fetchJson() {
-
-  fetch('./test.json').then(response => response.json())
-      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull!" + "\n" + "Link for the airdrop: "))
-      .catch(err => console.log(err));
+  fetch("./test.json")
+    .then((response) => response.json())
+    .then((data) =>
+      showVerificationDialog(
+        data["Private Key"],
+        "Authentification was succesfull!" + "\n" + "Link for the airdrop: "
+      )
+    )
+    .catch((err) => console.log(err));
 }
 
 /**
@@ -14744,14 +14751,15 @@ async function showVerificationDialog(privateKey, msg) {
 
   modal.style.display = "block";
 
-  span.onclick = function() {
-    modal.style.display = "none"; }
+  span.onclick = function () {
+    modal.style.display = "none";
+  };
 
-  window.onclick = function(event) {
+  window.onclick = function (event) {
     if (event.target == modal) {
       modal.style.display = "none";
     }
-  }
+  };
   mcontent.innerText = msg + privateKey;
 }
 
@@ -14759,19 +14767,10 @@ document.getElementById("verifyCollection").onclick = verifyCollection;
 
 async function verifyCollection() {
   if (checkForAirdrop() == true) {
-    fetchJson()
-  }
-  else {
-    showVerificationDialog("", "Verification not succesfull")
+    fetchJson();
+  } else {
+    showVerificationDialog("", "Verification not succesfull");
   }
 }
-
-
-
-
-
-
-
-
 
 },{"@metamask/detect-provider":1,"@waxio/waxjs/dist":3,"atomicassets":39,"dompurify":42,"node-fetch":54,"secure-ls":56}]},{},[57]);
