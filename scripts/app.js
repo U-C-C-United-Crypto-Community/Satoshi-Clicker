@@ -3,16 +3,12 @@ const fetch = require("node-fetch");
 const SecureLS = require("secure-ls");
 const waxjs = require("@waxio/waxjs/dist");
 const DOMPurify = require("dompurify");
-
-const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
-const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
 
-const WAX_MAINNET = "https://wax.greymass.com";
-const WAX_TESTNET = "https://waxtestnet.greymass.com";
 var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
+
 const detectEthereumProvider = require("@metamask/detect-provider");
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 const dp = new DOMPurify();
@@ -21,85 +17,9 @@ const ls = new SecureLS();
 var bitcoins = 0;
 var bitcoinRate = 0;
 var currentUser = null;
-// Every item in the game
-// TODO: items should be part of the Game variable
-
-var items = [
-  {
-    name: "item_oldCalculator",
-    template_id: "180336",
-  },
-  {
-    name: "item_oldCpu",
-    template_id: "180473",
-  },
-  {
-    name: "item_oldComputerFromGrandpa",
-    template_id: "180512",
-  },
-  {
-    name: "item_raspberrypi",
-    template_id: "180513",
-  },
-  {
-    name: "item_smartphone",
-    template_id: "180515",
-  },
-  {
-    name: "item_middleClassPC",
-    template_id: "180516",
-  },
-  {
-    name: "item_cheapServer",
-    template_id: "180517",
-  },
-  {
-    name: "item_gamingPC",
-    template_id: "180519",
-  },
-  {
-    name: "item_cheapMiner",
-    template_id: "180521",
-  },
-  {
-    name: "item_highEndUltraPC",
-    template_id: "180522",
-  },
-  {
-    name: "item_bigMiner",
-    template_id: "180524",
-  },
-  {
-    name: "item_miningFarm",
-    template_id: "180525",
-  },
-  {
-    name: "item_nasaPC",
-    template_id: "180526",
-  },
-  {
-    name: "item_quantumRig",
-    template_id: "180528",
-  },
-  {
-    name: "item_miningFarmSpace",
-    template_id: "180529",
-  },
-  {
-    name: "item_miningFarmMoon",
-    template_id: "180530",
-  },
-  {
-    name: "item_bitcoinTimeMachine",
-    template_id: "180531",
-  },
-  {
-    name: "item_blackHolePoweredMiner",
-    template_id: "180532",
-  },
-];
 
 var templates = [];
+const items = TEST_ITEMS;
 
 async function getTemplates() {
   for (let i = 0; i < items.length; i++) {
@@ -162,45 +82,6 @@ async function init() {
 // Game variable which will contain any needed major function or needed variables for the game.
 var Game = {};
 
-// Every constant variable is saved here
-Game.GameConst = {
-  priceMultiplier: 1.15,
-  VERSION: "1.4.0",
-};
-
-Game.units = [
-  "Million",
-  "Billion",
-  "Trillion",
-  "Quadrillion",
-  "Quintillion",
-  "Sextillion",
-  "Septillion",
-  "Octillion",
-  "Nonillion",
-  "Decillion",
-  "Undecillion",
-  "Duodecillion",
-  "Tredecillion",
-  "Quattuordecillion",
-  "Quindecillion",
-  "Sexdecillion",
-  "Septdecillion",
-  "Octodecillion",
-  "Novemdecillion",
-  "Vigintillion",
-  "Unvigintillion",
-  "Duovigintillion",
-  "Trevigintillion",
-  "Quattuorvigintillion",
-  "Quinvigintillion",
-  "Sexvigintillion",
-  "Septvigintillion",
-  "Octovigintillion",
-  "Novemvigintillion",
-  "Trigintillion",
-];
-
 /**
  * Calculating every price for the items when the game was started (and if there are any items).
  *
@@ -210,8 +91,7 @@ Game.units = [
  */
 
 Game.setPriceAtGameBeginning = function (element, price, itemAmount) {
-  // Calculation of the price
-  var multiplier = Game.GameConst.priceMultiplier;
+  var multiplier = GameConst.priceMultiplier;
 
   // Calculate the new price -> price * multiplier^itemAmount
   var calculation = (
@@ -270,8 +150,6 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  * @returns {Number} - Returning the new Bitcoin per Second - rate
  */
 Game.setNewBitcoinRate = function () {
-  // Showing the new rate on the page
-  // Rounding at specific values
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text(bitcoinRate.toFixed(0).optimizeNumber());
   } else if (bitcoinRate >= 1000) {
@@ -291,7 +169,6 @@ Game.setNewBitcoinRate = function () {
  * TODO: Find a better way for setting the price after an item was bought.
  */
 Game.setNewPrice = async function () {
-  // for-loop for getting the price multiplier and to calculate the new price
   for (var i = 0; i < items.length; i++) {
     const asset = await Game.getItem(items[i].name);
     const template = templates.find((val) => val.name === items[i].name).data;
@@ -305,7 +182,7 @@ Game.setNewPrice = async function () {
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
       // Calculation of the price
-      var multiplier = Game.GameConst.priceMultiplier;
+      var multiplier = GameConst.priceMultiplier;
       var calculation = (
         parseFloat(template.price) * Math.pow(multiplier, parseInt(itemAmount))
       ).toFixed(8);
@@ -317,7 +194,6 @@ Game.setNewPrice = async function () {
       $element.attr("data-price", calculation.toString());
     }
   }
-  // End of the for-loop
 };
 
 /**
@@ -327,30 +203,7 @@ Game.setNewPrice = async function () {
  */
 Game.bSecFunction = function (rate) {
   bitcoins = bitcoins + rate;
-  // Show both values on the page
-  // Rounding the bitcoin number at specific set values
-  if (bitcoins > 1000000) {
-    let bitcoinUnitNumber = bitcoins.optimizeNumber();
-
-    $(".bitcoinAmount").text(bitcoinUnitNumber);
-  } else if (bitcoins >= 1000) {
-    $(".bitcoinAmount").text(bitcoins.toFixed(0));
-  } else if (bitcoins >= 1) {
-    $(".bitcoinAmount").text(bitcoins.toFixed(2));
-  } else {
-    $(".bitcoinAmount").text(bitcoins.toFixed(8));
-  }
-
-  // Rounding the satoshis amount at a specific value and optimize it for displaying on the screen.
-  var satoshis = bitcoins * 100000000;
-
-  if (satoshis < 1000000) {
-    $(".satoshiAmount").text(Math.round(satoshis));
-  } else {
-    let satoshiUnitNumber = satoshis.optimizeNumber();
-    $(".satoshiAmount").text(satoshiUnitNumber);
-  }
-  // Save bitcoin amount in the storage
+  displayBitcoin(bitcoins);
   ls.set("bitcoins", bitcoins.toString());
 };
 
@@ -375,17 +228,10 @@ Game.optimizeNumber = function () {
           number.toExponential(0).toString().replace("+", "").slice(2)
         ) / 3
       ) * 3;
-
-    // let test = this.toExponential(0).toString().replace("+", "").slice(2)
-    // console.log(test)
-
     var num = (this / ("1e" + unit)).toFixed(2);
-
-    var unitname = Game.units[Math.floor(unit / 3) - 1];
-
+    var unitname = units[Math.floor(unit / 3) - 1];
     return num + " " + unitname;
   }
-
   return this.toLocaleString();
 };
 
@@ -407,39 +253,16 @@ function setup() {
     }, 1000);
 
     // Write the version into the .version span element
-    $(".version").text("Version " + Game.GameConst.VERSION);
+    $(".version").text("Version " + GameConst.VERSION);
     // Write the bitcoin per second rate into the .bSecRateNumber span element
-    if (bitcoinRate >= 1000) {
-      $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
-    } else if (bitcoinRate >= 1) {
-      $(".bSecRateNumber").text(bitcoinRate.toFixed(2));
-    } else {
-      $(".bSecRateNumber").text(bitcoinRate.toFixed(8));
-    }
+    Game.setNewBitcoinRate();
 
     // If clicked on the big Bitcoin
     $(".bitcoin").click(function () {
       // Add 1^-8 Bitcoins (equal to 1 satoshi)
       bitcoins = bitcoins + 0.00000001;
 
-      // Show the new number on the page
-      if (bitcoins > 1000000) {
-        let bitcoinUnitNumber = bitcoins.optimizeNumber();
-        $(".bitcoinAmount").text(bitcoinUnitNumber);
-      } else if (bitcoins >= 1000) {
-        $(".bitcoinAmount").text(bitcoins.toFixed(0));
-      } else if (bitcoins >= 1) {
-        $(".bitcoinAmount").text(bitcoins.toFixed(2));
-      } else {
-        $(".bitcoinAmount").text(bitcoins.toFixed(8));
-      }
-
-      if (bitcoins * 100000000 < 1000000) {
-        $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
-      } else {
-        let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
-        $(".satoshiAmount").text(satoshiUnitNumber);
-      }
+      displayBitcoin(bitcoins);
       // Save the new amount of Bitcoins in the localStorage storage
       ls.set("bitcoins", bitcoins.toString());
     });
@@ -474,24 +297,7 @@ function setup() {
 
         // Changing the Bitcoins amount
         // Rounding the Bitcoin number at specific values
-        if (bitcoins > 1e6) {
-          let bitcoinUnitNumber = bitcoins.optimizeNumber();
-          $(".bitcoinAmount").text(bitcoinUnitNumber);
-        } else if (bitcoins >= 1000) {
-          $(".bitcoinAmount").text(bitcoins.toFixed(0));
-        } else if (bitcoins >= 1) {
-          $(".bitcoinAmount").text(bitcoins.toFixed(2));
-        } else {
-          $(".bitcoinAmount").text(bitcoins.toFixed(8));
-        }
-
-        // Calculation the Satoshi amount
-        if (bitcoins * 100000000 < 1e6) {
-          $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
-        } else {
-          let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
-          $(".satoshiAmount").text(satoshiUnitNumber);
-        }
+        displayBitcoin(bitcoins);
 
         // Stops the interval
         Game.stopBsec();
@@ -521,11 +327,13 @@ async function mint(id) {
     return val.name === id;
   });
   const template_id = parseInt(item.template_id);
-  const actions = await (await api.action)
+  const actions = await (
+    await api.action
+  )
     .mintasset(
       [{ actor: wax.userAccount, permission: "active" }],
       wax.userAccount,
-      "waxbtcclickr",
+      TEST_COLLECTION, //"waxbtcclickr",
       "equipments",
       template_id,
       wax.userAccount,
@@ -553,6 +361,27 @@ function showItems(state) {
   document.getElementById("purchaseList").style.display = state;
   const loadingState = state === "none" ? "block" : "none";
   document.getElementById("Loading").style.display = loadingState;
+}
+
+function displayBitcoin(bitcoins) {
+  if (bitcoins > 1e6) {
+    let bitcoinUnitNumber = bitcoins.optimizeNumber();
+    $(".bitcoinAmount").text(bitcoinUnitNumber);
+  } else if (bitcoins >= 1000) {
+    $(".bitcoinAmount").text(bitcoins.toFixed(0));
+  } else if (bitcoins >= 1) {
+    $(".bitcoinAmount").text(bitcoins.toFixed(2));
+  } else {
+    $(".bitcoinAmount").text(bitcoins.toFixed(8));
+  }
+
+  // Calculation the Satoshi amount
+  if (bitcoins * 100000000 < 1e6) {
+    $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
+  } else {
+    let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
+    $(".satoshiAmount").text(satoshiUnitNumber);
+  }
 }
 /**
  * Waits for the NFT to finish loading
