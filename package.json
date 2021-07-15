@@ -15,6 +15,7 @@
     "bip39": "^2.6.0",
     "browserify": "^17.0.0",
     "browserify-fs": "^1.0.0",
+    "browserslist": "^4.16.6",
     "dompurify": "^2.3.0",
     "dotenv": "^10.0.0",
     "eth-keyring-controller": "^6.2.1",
@@ -42,6 +43,7 @@
   "homepage": "https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker#readme",
   "devDependencies": {
     "@types/file-saver": "^2.0.3",
-    "@types/node": "^12.20.15"
+    "@types/node": "^12.20.15",
+    "es-check": "^5.2.4"
   }
 }

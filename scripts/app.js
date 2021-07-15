@@ -240,7 +240,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     var $element = $("#" + items[i].name);
 
     // Writing the amount on the page at the item´s element
-    $element.children()[0].textContent = itemAmount;
+    $element.children()[0].textContent = "Level:" + itemAmount;
 
     // Only calculate the new price if there is more than 0 items.
     // If there are not enough items, it will just continue, and if there are,
@@ -296,7 +296,7 @@ Game.setNewPrice = async function () {
       itemAmount = asset.assets;
     }
     var $element = $("#" + items[i].name);
-    $element.children()[0].textContent = itemAmount;
+    $element.children()[0].textContent = "Level:" + itemAmount;
 
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
@@ -643,7 +643,7 @@ document.getElementById("donateButton").onclick = showDialog;
 
 async function showDialog() {
   var modal = document.getElementById("myModal");
-  var span = document.getElementsByClassName("close")[0];
+  var span = document.getElementById("closeSpan");
   var content = document.getElementById("content");
   var input = document.getElementById("quantity");
 
@@ -656,8 +656,11 @@ async function showDialog() {
 
     //Get user input
     var userinput = dp.sanitize(input.value);
-    userinput = parseInt(userinput);
 
+    if (userinput != "")
+    userinput = parseFloat(userinput);
+
+    console.log(typeof userinput)
     //Do transaction with the userinput
     if (typeof userinput != "number")
       alert("Please input a number");
@@ -688,12 +691,6 @@ async function sign(amount) {
   //convert amount into the right format
   var quantity = amount.toString();
 
-  if (!quantity.includes(".")) {
-    quantity = quantity + ".";
-  }
-  if (!quantity.includes("00000000"))
-    quantity = quantity + "00000000";
-
   quantity = quantity + " WAX"
   console.log(quantity);
 
@@ -710,7 +707,7 @@ async function sign(amount) {
         }],
         data: {
           payer: wax.userAccount,
-          receiver: wax.userAccount,
+          receiver: "1mbtu.wam",    //Später smart contract Name
           quant: quantity,
         },
       }]
@@ -740,6 +737,9 @@ async function checkForAirdrop() {
   return false
 }
 
+/**
+ * Fetches json with the private key.
+ */
 function fetchJson() {
 
   fetch('./test.json').then(response => response.json())
@@ -747,9 +747,16 @@ function fetchJson() {
       .catch(err => console.log(err));
 }
 
+/**
+ *
+ * @param privateKey
+ * @param msg if the authentification was succesfull or not
+ * @returns {Promise<void>}
+ */
+
 async function showVerificationDialog(privateKey, msg) {
   var modal = document.getElementById("pkModal");
-  var content = document.getElementById("pkContent");
+  var mcontent = document.getElementById("pkContent");
   var span = document.getElementById("pkSpan");
 
   modal.style.display = "block";
@@ -762,7 +769,7 @@ async function showVerificationDialog(privateKey, msg) {
       modal.style.display = "none";
     }
   }
-  content.innerText = msg + privateKey;
+  mcontent.innerText = msg + privateKey;
 }
 
 document.getElementById("verifyCollection").onclick = verifyCollection;
@@ -775,6 +782,7 @@ async function verifyCollection() {
     showVerificationDialog("", "Verification not succesfull")
   }
 }
+
 
 
 
