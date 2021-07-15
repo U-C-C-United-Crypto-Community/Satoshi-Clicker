@@ -148,6 +148,7 @@ async function init() {
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
+  await createLeaderboard();
 }
 /**
  *
@@ -783,7 +784,25 @@ async function verifyCollection() {
   }
 }
 
+/**
+ * function for creating the leaderboard
+ */
+async function createLeaderboard() {
+  var accounts = await api.getAccounts({ collection_name: "waxbtcclickr", schema_name: "equipments", template_id: "180532", });
+  console.log(accounts);
+  var scores = new Map();
+  for (var i = 0; i < accounts.length; i++) {
+    scores.set(accounts[i].account, accounts[i].assets);
+  }
+  scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
+  var counter = 1;
 
+  for (let [key, value] of scores) {
+    var currentText = document.getElementById("lb" + counter);
+    currentText.innerText = counter + ". " + key + " - " + value;
+    counter++;
+  }
+}
 
 
 
