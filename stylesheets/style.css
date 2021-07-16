@@ -10,15 +10,24 @@
 }
 
 @font-face {
-  font-family: VCR OSD Mono;
-  src: url("../fonts/VCR_OSD_MONO.ttf");
+  font-family: 'Rajdhani-SemiBold';
+  src: url('../fonts/Rajdhani-SemiBold.eot');
+  src: url('../fonts/Rajdhani-SemiBold.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/Rajdhani-SemiBold.svg#Rajdhani-SemiBold') format('svg'),
+  url('../fonts/Rajdhani-SemiBold.ttf') format('truetype'),
+  url('../fonts/Rajdhani-SemiBold.woff') format('woff'),
+  url('../fonts/Rajdhani-SemiBold.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
 }
 
 /* Body */
 /* Solution for disabling text selection found on StackOverflow:
 https://stackoverflow.com/questions/3779534/how-do-i-disable-text-selection-with-css-or-javascript */
 body {
-  background: #ffe09f;
+
+  background: rgb(50,77,106);
+  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -38,23 +47,32 @@ body {
   height: 100%;
   max-height: 96vh;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: visible;
 }
 
 .version {
-  font-family: VCR OSD Mono, cursive;
+  font-family: Rajdhani-SemiBold,sans-serif;
+  color: white;
+  font-size: 15pt;
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
 }
 
 .resetButton {
+  font-weight: bold;
+  outline: 3px solid #7c7072;
   position: absolute;
   bottom: 5px;
   left: 5px;
   width: 9%;
   height: 4%;
-  border: 3px solid black;
+  border: 1px solid black;
   font-size: 12pt;
-  font-family: VCR OSD Mono, cursive;
-  background: #ffb84c;
+  font-family: Rajdhani-SemiBold,sans-serif;
+  background: rgb(84,33,29);
+  background: linear-gradient(90deg, rgba(84,33,29,1) 0%, rgba(66,31,29,1) 50%, rgba(23,22,18,1) 100%);
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
   color: white;
   cursor: pointer;
 }
@@ -69,7 +87,6 @@ body {
 /* All items which you can buy */
 .rightContainer {
   width: calc(100% * 0.25);
-  border: 4px solid white;
   max-height: 96vh;
   overflow-y: auto;
   overflow-x: hidden;
@@ -77,29 +94,30 @@ body {
 }
 
 .bitcoinAmountDisplay {
-  text-align: center;
-  font-family: VCR OSD Mono, cursive;
+  text-align: left;
+  font-family: Rajdhani-SemiBold,sans-serif;
   font-size: 45pt;
-  color: white;
-  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
-    -1px -1px 1px black;
+  color: #5ed4fa;
+  padding-left: 10%;
+
   margin: 20px 0 0 0px;
 }
 .satoshiAmountDisplay {
-  text-align: center;
-  font-family: VCR OSD Mono, cursive;
+  text-align: left;
+  font-family: Rajdhani-SemiBold,sans-serif;
   font-size: 15pt;
   color: white;
+  padding-left: 10%;
   text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
     -1px -1px 1px black;
-  padding: 0 !important;
   margin: 0 0 -15px 0px;
 }
 .bSecRate {
-  text-align: center;
-  font-family: VCR OSD Mono, cursive;
+  text-align: left;
+  font-family: Rajdhani-SemiBold,sans-serif;
   font-size: 25pt;
   color: white;
+  padding-left: 10%;
   text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
     -1px -1px 1px black;
 }
@@ -117,18 +135,6 @@ body {
   animation: rotation 20s linear infinite;
   border-radius: 500px;
 }
-.purchaseImage {
-  height: auto;
-  width: auto;
-  max-height: 200px;
-  max-width: 200px;
-  float: left;
-
-}
-.itemPrice {
-  top: 50%;
-  left: 50%;
-}
 .bitcoin:hover {
   width: 27%;
   top: 23%;
@@ -144,9 +150,9 @@ body {
 /* Item list */
 .purchaseList {
   list-style-type: none;
-  font-family: "VCR OSD Mono", cursive;
+  font-family: Rajdhani-SemiBold,sans-serif;
   margin: 0;
-  padding: 0;
+  padding-right: 20px;
   -webkit-transition: all 0.5s ease;
   -moz-transition: all 0.5s ease;
   transition: all 0.5s ease;
@@ -181,7 +187,6 @@ body {
   }
   .rightContainer {
     width: 99%;
-    border: 4px solid white;
     max-height: 96vh;
     overflow-y: auto;
     overflow-x: hidden;
@@ -197,8 +202,9 @@ body {
     height: 3%;
     border: 3px solid black;
     font-size: 12pt;
-    font-family: VCR OSD Mono, cursive;
-    background: #ffb84c;
+    font-family: Rajdhani-SemiBold,sans-serif;
+    background: rgb(50,77,106);
+    background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
     color: white;
     cursor: pointer;
   }
@@ -206,31 +212,40 @@ body {
 
 /* Item list item */
 .purchaseItem {
+  background-image: url('../images/select-background.png');
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
   position: relative;
   width: 99%;
-  border-top: 3px solid white;
-  border-bottom: 3px solid white;
-  border-right: 3px solid white;
+  outline: 3px solid #919297;
+  border-style: double;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
   padding-left: 10px;
-  background: linear-gradient(#ffe09f, #ffb84c);
+  background: rgb(50,77,106);
+  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
   overflow: auto;
-
+  margin:0 0 10px 0;
 }
 .purchaseItem:hover {
-  background: linear-gradient(90deg, #ffe09f, #ffb84c);
+  background: rgb(50,77,106);
+  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
   cursor: pointer;
   overflow: auto;
 }
 .amountOfItem {
 
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  font-size: 50pt;
+  text-align: left;
+  font-size: 15pt;
   margin-right: 15px;
-  color: rgba(0, 0, 0, 0.4);
+  color: white;
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
 
-  margin-bottom: 10px;
 }
 .itemHeadline {
 
@@ -238,28 +253,30 @@ body {
   font-weight: bold;
   margin-bottom: 0px;
   margin-top: 10px;
-  color: white;
-  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
-    -1px -1px 1px black;
+  text-align: left;
+  width: fit-content;
+  color: #5ed4fa;
 }
 
 .purchaseImage {
   height: auto;
   width: auto;
-  max-height: 200px;
-  max-width: 200px;
-  float: left;
+  max-height: 150px;
+  max-width: 150px;
+  float: right;
+
 }
 .itemPrice {
-  position: absolute;
-  top: 0;
-  right: 0;
-  font-size: 20pt;
+ text-align: left;
+  font-size: 15pt;
+  color: white;
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
 }
 
 .modal {
   overflow: auto;
-  font-family: "VCR OSD Mono", cursive;
+  font-family: Rajdhani-SemiBold,sans-serif;
   display: none;
   position: fixed;
   z-index: 1;
@@ -270,7 +287,8 @@ body {
   border-right: 3px solid black;
   border-left: 3px solid black;
   padding-left: 10px;
-  background: linear-gradient(#ffe09f, #ffb84c);
+  background: rgb(50,77,106);
+  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
 }
 
 .modal-content {
@@ -292,8 +310,9 @@ body {
   height: auto;
   border: 3px solid black;
   font-size: 20pt;
-  font-family: VCR OSD Mono, cursive;
-  background: #ffb84c;
+  font-family: Rajdhani-SemiBold,sans-serif;
+  background: rgb(50,77,106);
+  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
   color: white;
   cursor: pointer;
 }
@@ -308,7 +327,7 @@ body {
 }
 
 .lbmodal {
-  font-family: "VCR OSD Mono", cursive;
+  font-family: Rajdhani-SemiBold,sans-serif;
   display: block;
   position: fixed;
   z-index: 1;
@@ -319,9 +338,33 @@ body {
   border-right: 3px solid white;
   border-left: 3px solid white;
   padding-left: 10px;
-  background: linear-gradient(#ffe09f, #ffb84c);
+  background: rgb(50,77,106);
+  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
   overflow: auto;
   height: auto;
 }
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+
+
 
 

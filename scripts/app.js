@@ -241,7 +241,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     var $element = $("#" + items[i].name);
 
     // Writing the amount on the page at the item´s element
-    $element.children()[0].textContent = "Level:" + itemAmount;
+    $element.children()[3].textContent = "Level: " + itemAmount;
 
     // Only calculate the new price if there is more than 0 items.
     // If there are not enough items, it will just continue, and if there are,
@@ -297,7 +297,7 @@ Game.setNewPrice = async function () {
       itemAmount = asset.assets;
     }
     var $element = $("#" + items[i].name);
-    $element.children()[0].textContent = "Level:" + itemAmount;
+    $element.children()[3].textContent = "Level: " + itemAmount;
 
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
