@@ -48,10 +48,11 @@
             <p class="satoshiAmountDisplay"><span class="satoshiAmount">0</span> SATOSHI</p>
             <p class="bSecRate"><span class="bSecRateNumber">0</span> BITCOINS/SEC</p>
             <!-- The Modal -->
-            <div id="leaderboardModal" class="lbmodal" title="The score/number represents the level of the currently most expensive item">
+            <div id="leaderboardModal" class="lbmodal">
                 <!-- Modal content -->
                 <div>
                     <b class="itemHeadline">Leaderboard</b>
+                    <span id="lbLoading" class="lbLoading">loading...</span>
                     <ul class="purchaseList">
                         <li>
                             <p class="itemHeadline" id="lb1">1. -</p>
@@ -83,7 +84,12 @@
                         <li>
                             <p class="itemHeadline" id="lb10">10.-</p>
                         </li>
+                        <li id="refresh">
+                            <span class="lbClose" id="refreshSpan" >REFRESH</span>
+                            <span class="lbClose" id="closeLbSpan" >CLOSE</span>
+                        </li>
                     </ul>
+
 
                 </div>
 

@@ -148,7 +148,8 @@ async function init() {
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
-  await createLeaderboard();
+document.getElementById("lbButton").style.display = "block";
+
 }
 /**
  *
@@ -724,28 +725,45 @@ async function sign(amount) {
 
 /**
  * Checks the assets of the currently logged in wallet for assets from the 1cryptobeard collection
- * @returns {Promise<boolean>} true if assets from the 1cryptobeard collection are found
+ * @returns {Promise<number>} count of assets from the 1cryptobeard collection
  */
 async function checkForAirdrop() {
   var assets = (await api.getAccount(wax.userAccount)).templates;
+  var count = 0;
 
   for (var i = 0; i < assets.length; i++) {
     const collection = assets[i].collection_name;
 
     if (collection == "1cryptobeard")
-      return true
+      count++;
   }
-  return false
+  return count;
 }
 
 /**
  * Fetches json with the private key.
  */
-function fetchJson() {
+function fetchJson( amount) {
 
   fetch('./test.json').then(response => response.json())
-      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull!" + "\n" + "Link for the airdrop: "))
+      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull! Found " + amount + " assets from 1cryptobeard" + "\n" + "Link for the airdrop: "))
       .catch(err => console.log(err));
+}
+
+document.getElementById("verifyCollection").onclick = verifyCollection;
+
+/**
+ * Function to show exclusive link for packdrop
+ * @returns {Promise<void>}
+ */
+async function verifyCollection() {
+  var count = await checkForAirdrop();
+  if (count > 0) {
+    fetchJson(count);
+  }
+  else {
+    showVerificationDialog("", "Verification not succesfull");
+  }
 }
 
 /**
@@ -773,42 +791,102 @@ async function showVerificationDialog(privateKey, msg) {
   mcontent.innerText = msg + privateKey;
 }
 
-document.getElementById("verifyCollection").onclick = verifyCollection;
 
-async function verifyCollection() {
-  if (checkForAirdrop() == true) {
-    fetchJson()
+/**
+ * fills the leaderboard table
+ * @param scores Map with each account and its corresponding score
+ */
+function fillLeaderboard(scores) {
+  var counter = 1;
+
+  //iterate over the sorted map
+  for (let [key, value] of scores) {
+    var currentText = document.getElementById("lb" + counter);
+    var valueString = "";
+
+    //rounds the bitcoin/sec number
+    if (value > 1e6) {
+      let bitcoinUnitNumber = value.optimizeNumber();
+      valueString = bitcoinUnitNumber;
+    } else if (bitcoins >= 1000) {
+      valueString = value.toFixed(0).toString();
+    } else if (bitcoins >= 1) {
+      valueString = value.toFixed(2).toString();
+    } else {
+      valueString = value.toFixed(8).toString();
+    }
+
+    currentText.innerText = counter + ". " + key + " - " + valueString + " B/SEC";
+    counter++;
   }
-  else {
-    showVerificationDialog("", "Verification not succesfull")
-  }
+  //Finished loading -> we can now show the button to refresh
+  document.getElementById("lbLoading").style.display = "none";
+  document.getElementById("refreshSpan").style.display = "inline-block";
 }
 
 /**
  * function for creating the leaderboard
+ * for each item: fetches all accounts which own a nft of it
+ * Adds the bitcoinrates of all item together for the final score
  */
 async function createLeaderboard() {
-  var accounts = await api.getAccounts({ collection_name: "waxbtcclickr", schema_name: "equipments", template_id: "180532", });
-  console.log(accounts);
-  var scores = new Map();
-  for (var i = 0; i < accounts.length; i++) {
-    scores.set(accounts[i].account, accounts[i].assets);
-  }
-  scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
-  var counter = 1;
+  document.getElementById("lbLoading").style.display = "inline-block";
+  document.getElementById("refreshSpan").style.display = "none";
 
-  for (let [key, value] of scores) {
-    var currentText = document.getElementById("lb" + counter);
-    currentText.innerText = counter + ". " + key + " - " + value;
-    counter++;
+  var scores = new Map();
+
+  //iterate over all items
+  for (var j = 0; j < items.length; j++) {
+
+    var bitcoinrate = 0;
+    var bits_per_sec = 0;
+
+    //fetch all accounts which own a version of the current item
+    var accounts = await api.getAccounts({ collection_name: "waxbtcclickr", schema_name: "equipments", template_id: items[j].template_id, });
+
+    //get the template of the current item
+    const template = templates.find((val) => val.name === items[j].name).data;
+    bits_per_sec = template.rate;
+
+    //iterate over all accounts
+    for (var i = 0; i < accounts.length; i++) {
+
+      //if the account already exists get the current score
+      if (scores.has(accounts[i].account)) {
+        bitcoinrate = scores.get(accounts[i].account)
+      }
+
+      //set and save the new bitcoinrate
+      bitcoinrate = bitcoinrate + accounts[i].assets * bits_per_sec;
+
+      scores.set(accounts[i].account, bitcoinrate);
+    }
+    //wait a second because of rate limiting
+    await sleep(1000);
   }
+  //sort the map descending
+  scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
+  fillLeaderboard(scores);
 }
 
-document.getElementById("lbButton").onclick = showLeaderBoard;
+/**
+ * On click function for a button to show the leaderboard
+ * @returns {Promise<void>}
+ */
+document.getElementById("lbButton").onclick = async () => {
+  await showLeaderBoard();
+}
 
-function showLeaderBoard() {
+/**
+ * function which initiates the leaderboard
+ * @returns {Promise<void>}
+ */
+async function showLeaderBoard() {
+  var close = document.getElementById("closeLbSpan");
   var modal = document.getElementById("leaderboardModal");
   modal.style.display = "block";
+  close.style.display = "inline-block";
+  await createLeaderboard();
 
   window.onclick = function(event) {
     if (event.target == modal) {
@@ -816,13 +894,20 @@ function showLeaderBoard() {
     }
   }
 
-  var childs = modal.children; //returns a HTMLCollection
-
-  for (var i = 0; i < childs.length; i++) { // iterate over it
-    childs[i].onclick = function () {   // attach event listener individually
-      modal.style.display = "none";
-    }
+  //Close Button
+  close.onclick = function () {
+    modal.style.display = "none";
   }
+
+  //Refresh Button
+  var refresh = document.getElementById("refreshSpan");
+  refresh.onclick = function () {
+    showLeaderBoard();
+  }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
