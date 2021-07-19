@@ -14787,6 +14787,27 @@ async function createLeaderboard() {
   }
 }
 
+document.getElementById("lbButton").onclick = showLeaderBoard;
+
+function showLeaderBoard() {
+  var modal = document.getElementById("leaderboardModal");
+  modal.style.display = "block";
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+
+  var childs = modal.children; //returns a HTMLCollection
+
+  for (var i = 0; i < childs.length; i++) { // iterate over it
+    childs[i].onclick = function () {   // attach event listener individually
+      modal.style.display = "none";
+    }
+  }
+}
+
 
 
 

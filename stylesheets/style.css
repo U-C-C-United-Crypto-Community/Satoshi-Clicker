@@ -158,65 +158,8 @@ body {
   transition: all 0.5s ease;
 }
 
-/* Optimization for smaller screens */
-
-@media screen and (max-width: 1028px) {
-  /* BITCOIN */
-  .bitcoin {
-    width: 35%;
-    display: block;
-    position: absolute;
-    left: 30%;
-    right: 30%;
-    margin: 0 auto;
-    top: 35%;
-    transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
-    animation: rotation 20s linear infinite;
-    border-radius: 500px;
-  }
-  .bitcoin:hover {
-    width: 37%;
-    top: 33%;
-    transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
-    cursor: pointer;
-  }
-  .bitcoin:active {
-    width: 33%;
-    top: 37%;
-    transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
-  }
-  .rightContainer {
-    width: 99%;
-    max-height: 96vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    height: 25%;
-    position: absolute;
-    bottom: 0;
-  }
-  .resetButton {
-
-    top: 5px;
-    left: 92%;
-    width: auto;
-    height: 3%;
-    border: 3px solid black;
-    font-size: 12pt;
-    font-family: Rajdhani-SemiBold,sans-serif;
-    background: rgb(50,77,106);
-    background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
-    color: white;
-    cursor: pointer;
-  }
-}
-
 /* Item list item */
 .purchaseItem {
-  background-image: url('../images/select-background.png');
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
   position: relative;
   width: 99%;
   outline: 3px solid #919297;
@@ -267,7 +210,7 @@ body {
 
 }
 .itemPrice {
- text-align: left;
+  text-align: left;
   font-size: 15pt;
   color: white;
   text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
@@ -328,7 +271,7 @@ body {
 
 .lbmodal {
   font-family: Rajdhani-SemiBold,sans-serif;
-  display: block;
+  display: none;
   position: fixed;
   z-index: 1;
   width: auto;
@@ -344,6 +287,101 @@ body {
   height: auto;
 }
 
+.lbButton{
+  font-weight: bold;
+  outline: 3px solid #7c7072;
+  position: absolute;
+  bottom: 5%;
+  left: 5px;
+  width: 9%;
+  height: 4%;
+  border: 1px solid black;
+  font-size: 12pt;
+  font-family: Rajdhani-SemiBold,sans-serif;
+  background: rgb(84,33,29);
+  background: linear-gradient(90deg, rgba(84,33,29,1) 0%, rgba(66,31,29,1) 50%, rgba(23,22,18,1) 100%);
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
+  color: white;
+  cursor: pointer;
+}
+
+/* Optimization for smaller screens */
+
+@media screen and (max-width: 1028px) {
+  /* BITCOIN */
+  .bitcoin {
+    width: 35%;
+    display: block;
+    position: absolute;
+    left: 30%;
+    right: 30%;
+    margin: 0 auto;
+    top: 35%;
+    transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
+    animation: rotation 20s linear infinite;
+    border-radius: 500px;
+  }
+  .bitcoin:hover {
+    width: 37%;
+    top: 33%;
+    transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  .bitcoin:active {
+    width: 33%;
+    top: 37%;
+    transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
+  }
+  .rightContainer {
+    width: 99%;
+    max-height: 96vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 25%;
+    position: absolute;
+    bottom: 0;
+  }
+  .resetButton {
+    margin-right: 10px;
+    top: 10px;
+    left: 85%;
+    width: 12%;
+    height: 3%;
+    border: 3px solid black;
+    font-size: 12pt;
+    font-family: Rajdhani-SemiBold,sans-serif;
+    background: rgb(84,33,29);
+    background: linear-gradient(90deg, rgba(84,33,29,1) 0%, rgba(66,31,29,1) 50%, rgba(23,22,18,1) 100%);
+    color: white;
+    cursor: pointer;
+  }
+  .leftContainer{
+    width: 30%;
+  }
+  .mainGameContent {
+    width: 40%;
+  }
+  .lbButton {
+    margin-right: 10px;
+    top: 5%;
+    left: 85%;
+    width: 12%;
+    height: 3%;
+    border: 3px solid black;
+    font-size: 12pt;
+    font-family: Rajdhani-SemiBold,sans-serif;
+    background: rgb(84,33,29);
+    background: linear-gradient(90deg, rgba(84,33,29,1) 0%, rgba(66,31,29,1) 50%, rgba(23,22,18,1) 100%);
+    color: white;
+    cursor: pointer;
+  }
+  .lbmodal {
+    margin-right: 10px;
+    top: 10%;
+    left: 75%;
+  }
+}
 /* width */
 ::-webkit-scrollbar {
   width: 10px;
