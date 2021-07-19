@@ -381,6 +381,11 @@ body {
     top: 10%;
     left: 75%;
   }
+  .modal {
+    margin-right: 10px;
+    top: 10%;
+    left: 75%;
+  }
 }
 /* width */
 ::-webkit-scrollbar {
