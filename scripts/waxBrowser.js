@@ -14132,7 +14132,6 @@ async function init() {
     $(".satoshiAmount").text("loading...");
   }
 document.getElementById("lbButton").style.display = "block";
-generateRefLink();
 detectRef();
 }
 /**
@@ -14816,7 +14815,6 @@ function fillLeaderboard(scores) {
 async function createLeaderboard() {
   document.getElementById("lbLoading").style.display = "inline-block";
   document.getElementById("refreshSpan").style.display = "none";
-  console.log(await api.getAccounts({ collection_name: "waxbtcclickr", schema_name: "equipments"}));
 
   var scores = new Map();
 
@@ -14894,12 +14892,13 @@ async function showLeaderBoard() {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+document.getElementById("refButton").onclick = generateRefLink;
 
 function generateRefLink() {
   let url = new URL(window.location.href);
 
   url.searchParams.set('ref', wax.userAccount);
-  console.log(url);
+  showVerificationDialog("", url);
 }
 
 function detectRef() {
