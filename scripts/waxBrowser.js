@@ -14132,7 +14132,8 @@ async function init() {
     $(".satoshiAmount").text("loading...");
   }
 document.getElementById("lbButton").style.display = "block";
-
+generateRefLink();
+detectRef();
 }
 /**
  *
@@ -14815,6 +14816,7 @@ function fillLeaderboard(scores) {
 async function createLeaderboard() {
   document.getElementById("lbLoading").style.display = "inline-block";
   document.getElementById("refreshSpan").style.display = "none";
+  console.log(await api.getAccounts({ collection_name: "waxbtcclickr", schema_name: "equipments"}));
 
   var scores = new Map();
 
@@ -14893,6 +14895,45 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function generateRefLink() {
+  let url = new URL(window.location.href);
+
+  url.searchParams.set('ref', wax.userAccount);
+  console.log(url);
+}
+
+function detectRef() {
+  var receivedRef = false;
+  const keys = ls.getAllKeys();
+  if (keys.length == 0 || !keys.includes("ref"))
+    ls.set("ref", false);
+  else {
+    receivedRef = ls.get("ref");
+  }
+
+  let url = new URL(window.location.href);
+  if (url.searchParams.has("ref") && !receivedRef)
+  {
+    var ref;
+
+    for (let [name, value] of url.searchParams) {
+      if (dp.sanitize(name) == "ref")
+      ref = dp.sanitize(value);
+    }
+    console.log(ref);
+
+    if (ref != wax.userAccount) {
+      console.log("Reflink detected");
+      //mintasset for both
+      ls.set("ref", true);
+    } else {
+      console.log("You cant refer yourself!");
+    }
+  }
+  else {
+    console.log("No reflink detected or you already received a ref");
+  }
+}
 
 
 
