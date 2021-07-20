@@ -14212,7 +14212,7 @@ Game.optimizeNumber = function () {
         ) / 3
       ) * 3;
     var num = (this / ("1e" + unit)).toFixed(2);
-    var unitname = units[Math.floor(unit / 3) - 1];
+    var unitname = UNITS[Math.floor(unit / 3) - 1];
     return num + " " + unitname;
   }
   return this.toLocaleString();
@@ -14325,6 +14325,7 @@ async function mint(id) {
       0
     )
     .catch(console.log);
+  console.log(actions, wax.userAccount);
   const result = await wax.api
     .transact(
       {
