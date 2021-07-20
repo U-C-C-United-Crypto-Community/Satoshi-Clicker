@@ -14717,7 +14717,7 @@ async function checkForAirdrop() {
   for (var i = 0; i < assets.length; i++) {
     const collection = assets[i].collection_name;
 
-    if (collection == "1cryptobeard" || collection == "waxbtcclickr")
+    if (collection == "1cryptobeard")
       count++;
   }
   return count;
@@ -14892,6 +14892,7 @@ async function showLeaderBoard() {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 
 
 
