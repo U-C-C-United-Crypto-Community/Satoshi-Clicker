@@ -79,8 +79,14 @@ async function getTransactionsByAccount(
 
 const account = "0x7F609eb8CEB525b7a0653E887CEba8517766a3E2";
 
-const txs = await getTransactionsByAccount(account, null, null);
-for (let i = 0; i < txs.length; i++) {
-  const tx = await web3.eth.getTransaction(txs[i]);
-  console.log(tx);
-}
+// const txs = await getTransactionsByAccount(account, null, null);
+// for (let i = 0; i < txs.length; i++) {
+//   const tx = await web3.eth.getTransaction(txs[i]);
+//   console.log(tx);
+// }
+let blockNum;
+web3.eth.getBlockNumber().then((val) => {
+  blockNum = val;
+  // console.log(blockNum);
+});
+setTimeout(() => console.log(blockNum), 2000);
