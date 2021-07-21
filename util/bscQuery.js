@@ -1,41 +1,24 @@
 import Web3 from "web3";
 import { waxWalletCollector } from "./contractABI.js";
 import InputDataDecoder from "ethereum-input-data-decoder";
+import EthDater from "ethereum-block-by-date";
 
 const decoder = new InputDataDecoder("./abi.json");
 const mainnet = "https://bsc-dataseed.binance.org/";
 const testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/";
 const web3 = new Web3(mainnet);
+const dater = new EthDater(web3);
 
 const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
+const freibierAddress = "0x26046abedf7117af40ca645350eb857d170bf71f";
 
-async function getBEP20TransactionsByAddress() {
-  const currentBlockNumber = await web3.eth.getBlockNumber();
-  // if no block to start looking from is provided, look at tx from the last day
-  // 86400s in a day / eth block time 10s ~ 8640 blocks a day
-  const fromBlock = currentBlockNumber - 5000;
-  const toBlock = currentBlockNumber;
+async function getWAXAddress() {
   const contract = new web3.eth.Contract(
     waxWalletCollector,
     waxWalletCollectorAddress
   );
-  const transferEvents = await contract.getPastEvents("Collect", {
-    fromBlock,
-    toBlock,
-  });
-  return transferEvents.map(({ transactionHash }) => {
-    return { transactionHash };
-  });
-}
-
-async function collect() {
-  const events = await getBEP20TransactionsByAddress();
-  for (let i = 0; i < events.length; i++) {
-    const { transactionHash } = events[i];
-    const result = await web3.eth.getTransaction(transactionHash);
-    const { inputs } = decoder.decodeData(result.input);
-    console.log(inputs);
-  }
+  const result = await contract.methods.getWAX().send({ from: currentUser });
+  return result;
 }
 
 async function getTransactionsByAccount(
@@ -45,12 +28,14 @@ async function getTransactionsByAccount(
 ) {
   if (endBlockNumber == null) {
     endBlockNumber = await web3.eth.getBlockNumber();
-    console.log("Using endBlockNumber: " + endBlockNumber);
   }
+  console.log("Using endBlockNumber: " + endBlockNumber);
+
   if (startBlockNumber == null) {
     startBlockNumber = endBlockNumber - 2000;
-    console.log("Using startBlockNumber: " + startBlockNumber);
   }
+  console.log("Using startBlockNumber: " + startBlockNumber);
+
   console.log(
     'Searching for transactions to/from account "' +
       myaccount +
@@ -59,34 +44,30 @@ async function getTransactionsByAccount(
       " and " +
       endBlockNumber
   );
-  let result = [];
+  let amountOfTx = 0;
   for (var i = startBlockNumber; i <= endBlockNumber; i++) {
-    if (i % 1000 == 0) {
-      console.log("Searching block " + i);
-    }
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write("Searching block " + i);
     var block = await web3.eth.getBlock(i, true);
     if (block != null && block.transactions != null) {
       block.transactions.forEach(function (e) {
-        if (myaccount == "*" || myaccount == e.from || myaccount == e.to) {
-          result.push(e.hash);
-          console.log(e);
+        if (myaccount == e.from && freibierAddress == e.to) {
+          amountOfTx++;
         }
       });
     }
   }
-  return result;
+  return amountOfTx;
 }
 
-const account = "0x7F609eb8CEB525b7a0653E887CEba8517766a3E2";
+const account = "0x3FBF9bFB297A32acd6889a73EbCe18f84d968e44";
 
-// const txs = await getTransactionsByAccount(account, null, null);
-// for (let i = 0; i < txs.length; i++) {
-//   const tx = await web3.eth.getTransaction(txs[i]);
-//   console.log(tx);
-// }
-let blockNum;
-web3.eth.getBlockNumber().then((val) => {
-  blockNum = val;
-  // console.log(blockNum);
-});
-setTimeout(() => console.log(blockNum), 2000);
+// console.time("Scan");
+// const txs = await getTransactionsByAccount(account, 9150401, null);
+// console.log(txs);
+// console.timeEnd("Scan");
+
+// const start = await dater.getDate("2021-07-20T15:00:00Z");
+// const end = await dater.getDate("2021-07-13T15:00:00Z");
+// console.log(start.block, end.block);
