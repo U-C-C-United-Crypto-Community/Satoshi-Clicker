@@ -80,8 +80,8 @@
                         <p class="lbHeadline" id="lb10">10.-</p>
                     </li>
                     <li id="refresh">
-                        <span class="lbClose" id="refreshSpan" >REFRESH</span>
-                        <span class="lbClose" id="closeLbSpan" >CLOSE</span>
+                        <span class="lbClose" id="refreshSpan">REFRESH</span>
+                        <span class="lbClose" id="closeLbSpan">CLOSE</span>
                     </li>
                 </ul>
 
@@ -99,8 +99,11 @@
         <div class="mainGameContent">
 
             <img class="bitcoin" src="images/bitcoin-8bit.png">
-            <p style="position: absolute; text-align: center; bottom: 0;left: 48%; font-family: Rajdhani-SemiBold,sans-serif;font-size: 15pt; color: white">&copy; Zum
-                <a style="font-family: Rajdhani-SemiBold,sans-serif; color: white" href="https://daubit.org/impressum.html" target="_blank">Impressum</a>
+            <p
+                style="position: absolute; text-align: center; bottom: 0;left: 48%; font-family: Rajdhani-SemiBold,sans-serif;font-size: 15pt; color: white">
+                &copy; Zum
+                <a style="font-family: Rajdhani-SemiBold,sans-serif; color: white"
+                    href="https://daubit.org/impressum.html" target="_blank">Impressum</a>
             </p>
         </div>
         <span class="satoshiAmountDisplay" id="Loading"
@@ -255,6 +258,12 @@
 
         </div>
     </div>
+    <div id="login-ui">
+        <button id="anchorLogin">Login</button>
+    </div>
+    <script src="https://unpkg.com/anchor-link@3"></script>
+    <script src="https://unpkg.com/anchor-link-browser-transport@3"></script>
+    <script src="scripts/anchor.js"></script>
     <script src="lib/jquery-3.3.1.min.js"></script>
     <!-- <script src="scripts/waxjs.js"></script> -->
     <script async src="scripts/waxBrowser.js"></script>
