@@ -11,11 +11,15 @@
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "@waxio/waxjs": "^0.0.15",
+    "anchor-link": "^3.2.3",
+    "anchor-link-browser-transport": "^3.1.3",
+    "anchor-link-console-transport": "^1.0.0",
     "atomicassets": "^1.3.1",
     "bip39": "^2.6.0",
     "browserify": "^17.0.0",
     "browserify-fs": "^1.0.0",
     "browserslist": "^4.16.6",
+    "core-js": "^3.15.2",
     "dompurify": "^2.3.0",
     "dotenv": "^10.0.0",
     "eth-keyring-controller": "^6.2.1",
@@ -42,6 +46,9 @@
   },
   "homepage": "https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker#readme",
   "devDependencies": {
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.14.8",
+    "@babel/preset-env": "^7.14.8",
     "@types/file-saver": "^2.0.3",
     "@types/node": "^12.20.15",
     "es-check": "^5.2.4"

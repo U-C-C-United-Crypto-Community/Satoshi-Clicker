@@ -197,7 +197,8 @@ body {
   margin-top: 10px;
   text-align: left;
   width: fit-content;
-  color: #5ed4fa;
+  color: black;
+
 }
 
 .purchaseImage {
@@ -217,6 +218,13 @@ body {
 }
 
 .modal {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  -o-user-select: text;
+  user-select: text;
+
   overflow: auto;
   font-family: Rajdhani-SemiBold,sans-serif;
   display: none;
@@ -229,8 +237,8 @@ body {
   border-right: 3px solid black;
   border-left: 3px solid black;
   padding-left: 10px;
-  background: rgb(50,77,106);
-  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
+  background: rgb(121,212,249);
+  background: linear-gradient(90deg, rgba(121,212,249,1) 0%, rgba(78,132,220,1) 50%, rgba(56,90,204,1) 100%);
 }
 
 .modal-content {
@@ -238,9 +246,7 @@ body {
   font-weight: bold;
   margin-bottom: 0px;
   margin-top: 10px;
-  color: #ffffff;
-  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
-  -1px -1px 1px black;
+  color: black;
 }
 
 .close {
@@ -254,8 +260,10 @@ body {
   border: 3px solid black;
   font-size: 20pt;
   font-family: Rajdhani-SemiBold,sans-serif;
-  background: rgb(50,77,106);
-  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
+  background: rgb(219,237,244);
+  background: linear-gradient(90deg, rgba(219,237,244,1) 0%, rgba(170,185,196,1) 50%, rgba(123,135,150,1) 100%);
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
   color: white;
   cursor: pointer;
 }
@@ -281,8 +289,8 @@ body {
   border-right: 3px solid white;
   border-left: 3px solid white;
   padding-left: 10px;
-  background: rgb(50,77,106);
-  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
+  background: rgb(121,212,249);
+  background: linear-gradient(90deg, rgba(121,212,249,1) 0%, rgba(78,132,220,1) 50%, rgba(56,90,204,1) 100%);
   overflow: auto;
   height: auto;
 }
@@ -316,8 +324,10 @@ body {
   border: 3px solid black;
   font-size: 20pt;
   font-family: Rajdhani-SemiBold,sans-serif;
-  background: rgb(50,77,106);
-  background: linear-gradient(90deg, rgba(50,77,106,1) 0%, rgba(41,54,71,1) 50%, rgba(23,25,24,1) 100%);
+  background: rgb(219,237,244);
+  background: linear-gradient(90deg, rgba(219,237,244,1) 0%, rgba(170,185,196,1) 50%, rgba(123,135,150,1) 100%);
+  text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+  -1px -1px 1px black;
   color: white;
   cursor: pointer;
   display: none;
@@ -351,7 +361,7 @@ body {
   margin-top: 10px;
   text-align: left;
   width: fit-content;
-  color: #5ed4fa;
+  color: black;
 }
 
 .reflinkButton {
@@ -372,6 +382,95 @@ body {
   -1px -1px 1px black;
   color: white;
   cursor: pointer;
+  display: none;
+}
+
+.purchaseItemUltimate {
+  position: relative;
+  width: 99%;
+  outline: 3px solid #919297;
+  border-style: double;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 10px;
+  background: rgb(252,243,196);
+  background: linear-gradient(90deg, rgba(252,243,196,1) 0%, rgba(237,185,89,1) 50%, rgba(228,149,23,1) 100%);
+  overflow: auto;
+  margin:0 0 10px 0;
+}
+.purchaseItemUltimate:hover {
+  background: rgb(252,243,196);
+  background: linear-gradient(90deg, rgba(252,243,196,1) 0%, rgba(237,185,89,1) 50%, rgba(228,149,23,1) 100%);
+  cursor: pointer;
+  overflow: auto;
+}
+
+.purchaseItemCommon {
+  position: relative;
+  width: 99%;
+  outline: 3px solid #919297;
+  border-style: double;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 10px;
+  background: rgb(121,212,249);
+  background: linear-gradient(90deg, rgba(121,212,249,1) 0%, rgba(78,132,220,1) 50%, rgba(56,90,204,1) 100%);
+  overflow: auto;
+  margin:0 0 10px 0;
+}
+.purchaseItemCommon:hover {
+  background: rgb(121,212,249);
+  background: linear-gradient(90deg, rgba(121,212,249,1) 0%, rgba(78,132,220,1) 50%, rgba(56,90,204,1) 100%);
+  cursor: pointer;
+  overflow: auto;
+}
+
+.purchaseItemLegendary {
+  position: relative;
+  width: 99%;
+  outline: 3px solid #919297;
+  border-style: double;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 10px;
+  background: rgb(219,237,244);
+  background: linear-gradient(90deg, rgba(219,237,244,1) 0%, rgba(170,185,196,1) 50%, rgba(123,135,150,1) 100%);
+  overflow: auto;
+  margin:0 0 10px 0;
+}
+.purchaseItemLegendary:hover {
+  background: rgb(219,237,244);
+  background: linear-gradient(90deg, rgba(219,237,244,1) 0%, rgba(170,185,196,1) 50%, rgba(123,135,150,1) 100%);
+  cursor: pointer;
+  overflow: auto;
+}
+
+.purchaseItemRare {
+  position: relative;
+  width: 99%;
+  outline: 3px solid #919297;
+  border-style: double;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+  border-left: 1px solid black;
+  padding-left: 10px;
+  background: rgb(219,240,201);
+  background: linear-gradient(90deg, rgba(219,240,201,1) 0%, rgba(116,198,137,1) 50%, rgba(19,158,77,1) 100%);
+  overflow: auto;
+  margin:0 0 10px 0;
+}
+.purchaseItemRare:hover {
+  background: rgb(219,240,201);
+  background: linear-gradient(90deg, rgba(219,240,201,1) 0%, rgba(116,198,137,1) 50%, rgba(19,158,77,1) 100%);
+  cursor: pointer;
+  overflow: auto;
 }
 
 
@@ -394,13 +493,13 @@ body {
   }
   .bitcoin:hover {
     width: 37%;
-    top: 33%;
+    top: 13%;
     transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
     cursor: pointer;
   }
   .bitcoin:active {
     width: 33%;
-    top: 37%;
+    top: 17%;
     transition: width 0.2s ease-in-out, top 0.2s ease-in-out;
   }
   .rightContainer {

@@ -12,6 +12,10 @@ const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 const dp = new DOMPurify();
 const ls = new SecureLS();
 
+const AnchorLink = require('anchor-link')
+const AnchorLinkBrowserTransport = require('anchor-link-browser-transport')
+const AnchorLinkConsoleTransport = require('anchor-link-console-transport')
+
 var bitcoins = 0;
 var bitcoinRate = 0;
 var currentUser = null;
@@ -149,6 +153,7 @@ async function init() {
     $(".satoshiAmount").text("loading...");
   }
 document.getElementById("lbButton").style.display = "block";
+document.getElementById("refButton").style.display = "block";
 detectRef();
 }
 /**
@@ -915,7 +920,8 @@ function generateRefLink() {
   let url = new URL(window.location.href);
 
   url.searchParams.set('ref', wax.userAccount);
-  showVerificationDialog("", url);
+  navigator.clipboard.writeText(url);
+  showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
 }
 
 function detectRef() {
