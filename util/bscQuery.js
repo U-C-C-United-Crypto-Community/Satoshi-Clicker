@@ -9,17 +9,27 @@ const testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/";
 const web3 = new Web3(mainnet);
 const dater = new EthDater(web3);
 
-const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
+const waxWalletCollectorAddress = "0xD4A6fbFdCd2AaF38339ebb61c35c946745bdF5AF";
 const freibierAddress = "0x26046abedf7117af40ca645350eb857d170bf71f";
 
-async function getWAXAddress() {
+async function getWAXWallets() {
+  let result = [];
   const contract = new web3.eth.Contract(
     waxWalletCollector,
     waxWalletCollectorAddress
   );
-  const result = await contract.methods.getWAX().send({ from: currentUser });
+  const size = await contract.methods.size().send({ from: currentUser });
+  for (let i = 0; i < size; i++) {
+    const wallet = await contract.methods
+      .wallets(wax.userAccount)
+      .send({ from: currentUser });
+    result.push(wallet);
+  }
+  console.log(result);
   return result;
 }
+
+await getWAXWallets();
 
 async function getTransactionsByAccount(
   myaccount,
