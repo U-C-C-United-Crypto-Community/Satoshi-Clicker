@@ -46,6 +46,7 @@ async function getTransactionsByAccount(date) {
     var block = await web3.eth.getBlock(i, true);
     if (block != null && block.transactions != null) {
       block.transactions.forEach((tx) => {
+        console.log(tx);
         if (freibierAddress == tx.to) {
           amountOfTx[tx.from] = amountOfTx[tx.from]
             ? amountOfTx[tx.from] + 1
