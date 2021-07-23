@@ -10,7 +10,6 @@ const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
 var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 
 const detectEthereumProvider = require("@metamask/detect-provider");
-const waxWalletCollectorAddress = "0xB3528065F526Acf871B35ae322Ed28b24C096548";
 const dp = new DOMPurify();
 const ls = new SecureLS();
 
