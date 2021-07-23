@@ -448,7 +448,6 @@ document.getElementById("verifyWaxWallet").onclick = verifyWaxWallet;
 
 async function verifyWaxWallet() {
   const provider = await detectEthereumProvider();
-  console.log(provider);
   if (provider === window.ethereum) {
     window.web3 = new Web3(ethereum);
     try {
