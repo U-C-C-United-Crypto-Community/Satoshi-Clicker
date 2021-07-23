@@ -6,8 +6,7 @@ const testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/";
 const web3 = new Web3(mainnet);
 const dater = new EthDater(web3);
 
-const freibierAddress = "0x26046abedf7117af40ca645350eb857d170bf71f";
-
+const freibierAddress = "0x26046ABedf7117AF40Ca645350eb857d170Bf71f";
 async function getWAXWallets() {
   window.web3 = new Web3(ethereum);
   await ethereum.request({ method: "eth_requestAccounts" });
@@ -20,7 +19,6 @@ async function getWAXWallets() {
     waxWalletCollectorAddress
   );
   const size = await contract.methods.size().call({ from: currentUser });
-  console.log(size);
   for (let i = 0; i < size; i++) {
     const wallet = await contract.methods
       .wallets(i)
@@ -32,7 +30,7 @@ async function getWAXWallets() {
 
 async function getTransactionsByAccount(date) {
   const start = await dater.getDate(
-    new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000)
+    new Date(date.getTime() - 0.5 * 24 * 60 * 60 * 1000)
   );
   const end = await dater.getDate(date);
   const startBlockNumber = start.block;
@@ -43,11 +41,8 @@ async function getTransactionsByAccount(date) {
   );
 
   let amountOfTx = {};
-  
+
   for (var i = startBlockNumber; i <= endBlockNumber; i++) {
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write("Searching block " + i);
     var block = await web3.eth.getBlock(i, true);
     if (block != null && block.transactions != null) {
       block.transactions.forEach((tx) => {
@@ -64,5 +59,5 @@ async function getTransactionsByAccount(date) {
 }
 
 console.time("Scan");
-await getTransactionsByAccount(new Date("2021-07-21T00:00:00Z"));
+await getTransactionsByAccount(new Date("2021-07-20T12:00:00Z"));
 console.timeEnd("Scan");
