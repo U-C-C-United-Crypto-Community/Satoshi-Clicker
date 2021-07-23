@@ -6,11 +6,12 @@ import EthDater from "ethereum-block-by-date";
 const decoder = new InputDataDecoder("./abi.json");
 const mainnet = "https://bsc-dataseed.binance.org/";
 const testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/";
-const web3 = new Web3(mainnet);
+const web3 = new Web3(testnet);
 const dater = new EthDater(web3);
 
 const waxWalletCollectorAddress = "0xD4A6fbFdCd2AaF38339ebb61c35c946745bdF5AF";
 const freibierAddress = "0x26046abedf7117af40ca645350eb857d170bf71f";
+const account = "0x3FBF9bFB297A32acd6889a73EbCe18f84d968e44";
 
 async function getWAXWallets() {
   let result = [];
@@ -29,41 +30,31 @@ async function getWAXWallets() {
   return result;
 }
 
-await getWAXWallets();
+// await getWAXWallets();
 
-async function getTransactionsByAccount(
-  myaccount,
-  startBlockNumber,
-  endBlockNumber
-) {
-  if (endBlockNumber == null) {
-    endBlockNumber = await web3.eth.getBlockNumber();
-  }
-  console.log("Using endBlockNumber: " + endBlockNumber);
-
-  if (startBlockNumber == null) {
-    startBlockNumber = endBlockNumber - 2000;
-  }
-  console.log("Using startBlockNumber: " + startBlockNumber);
-
-  console.log(
-    'Searching for transactions to/from account "' +
-      myaccount +
-      '" within blocks ' +
-      startBlockNumber +
-      " and " +
-      endBlockNumber
+async function getTransactionsByAccount(date) {
+  const start = await dater.getDate(date);
+  const end = await dater.getDate(
+    new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000)
   );
-  let amountOfTx = 0;
+
+  const startBlockNumber = start.block;
+  const endBlockNumber = end.block;
+  console.log(
+    "Searching within blocks " + startBlockNumber + " and " + endBlockNumber
+  );
+  let amountOfTx = {};
   for (var i = startBlockNumber; i <= endBlockNumber; i++) {
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
     process.stdout.write("Searching block " + i);
     var block = await web3.eth.getBlock(i, true);
     if (block != null && block.transactions != null) {
-      block.transactions.forEach(function (e) {
-        if (myaccount == e.from && freibierAddress == e.to) {
-          amountOfTx++;
+      block.transactions.forEach((tx) => {
+        if (myaccount == tx.from && freibierAddress == tx.to) {
+          amountOfTx[tx.from] = amountOfTx[tx.from]
+            ? amountOfTx[tx.from] + 1
+            : 1;
         }
       });
     }
@@ -71,12 +62,9 @@ async function getTransactionsByAccount(
   return amountOfTx;
 }
 
-const account = "0x3FBF9bFB297A32acd6889a73EbCe18f84d968e44";
-
-// console.time("Scan");
-// const txs = await getTransactionsByAccount(account, 9150401, null);
-// console.log(txs);
-// console.timeEnd("Scan");
+console.time("Scan");
+await getTransactionsByAccount(new Date("2021-07-20T15:00:00Z"));
+console.timeEnd("Scan");
 
 // const start = await dater.getDate("2021-07-20T15:00:00Z");
 // const end = await dater.getDate("2021-07-13T15:00:00Z");
