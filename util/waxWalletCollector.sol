@@ -82,14 +82,24 @@ interface IERC20 {
 contract WaxWalletCollector {
     
     mapping (address => string) public waxWallet; 
+    
+    string[] public wallets = new string[](0);
+    
     IERC20 constant FREIBIER = IERC20(0x26046ABedf7117AF40Ca645350eb857d170Bf71f);
     
-    event Collect(string indexed wallet);
     
-    function collect(string calldata wallet) public {
-        require(FREIBIER.balanceOf(msg.sender) > 0);
+    function collect(string memory wallet) public {
+        bytes32 value = keccak256(abi.encodePacked(waxWallet[msg.sender]));
+        bytes32 empty = keccak256(abi.encodePacked(""));
+        require(FREIBIER.balanceOf(msg.sender) > 0 && value == empty);
         waxWallet[msg.sender] = wallet;
-        emit Collect(wallet);
+        wallets.push(wallet);
     }
+    
+    
+    function size() public view returns(uint256){
+        return wallets.length;
+    }
+    
 }
 
