@@ -1,3 +1,5 @@
+const waxWalletCollectorAddress = "0xcAC6618a87f38e43AD0dB9dF9880C00D00263963";
+
 const waxWalletCollector = [
   {
     inputs: [
@@ -13,17 +15,36 @@ const waxWalletCollector = [
     type: "function",
   },
   {
-    anonymous: false,
+    inputs: [],
+    name: "size",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
-        indexed: true,
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "wallets",
+    outputs: [
+      {
         internalType: "string",
-        name: "wallet",
+        name: "",
         type: "string",
       },
     ],
-    name: "Collect",
-    type: "event",
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
