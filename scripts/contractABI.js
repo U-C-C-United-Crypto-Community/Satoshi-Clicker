@@ -1,3 +1,4 @@
+
 const waxWalletCollectorAddress = "0xcAC6618a87f38e43AD0dB9dF9880C00D00263963";
 
 const waxWalletCollector = [
@@ -66,3 +67,4 @@ const waxWalletCollector = [
     type: "function",
   },
 ];
+

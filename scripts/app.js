@@ -12,10 +12,13 @@ var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
 const dp = new DOMPurify();
 const ls = new SecureLS();
+const multiplier = 0.05;
 
 var bitcoins = 0;
 var bitcoinRate = 0;
 var currentUser = null;
+
+var disable = false;
 
 var templates = [];
 const items = TEST_ITEMS;
@@ -72,7 +75,7 @@ async function init() {
     $(".satoshiAmount").text("loading...");
   }
 document.getElementById("lbButton").style.display = "block";
-generateRefLink();
+document.getElementById("refButton").style.display = "block";
 detectRef();
 }
 /**
@@ -92,19 +95,34 @@ var Game = {};
  * @param itemAmount {Number} - The current amount of the item, saved in the localStorage
  */
 
+
 Game.setPriceAtGameBeginning = function (element, price, itemAmount) {
   var multiplier = GameConst.priceMultiplier;
+
 
   // Calculate the new price -> price * multiplier^itemAmount
   var calculation = (
     parseFloat(price) * Math.pow(multiplier, parseInt(itemAmount))
-  ).toFixed(8);
+  );
+
+
+  if (calculation > 1000000) {
+    let bitcoinUnitNumber = calculation.optimizeNumber();
+
+    $element.children()[2].textContent = "Buy: " + bitcoinUnitNumber + " Bitcoins";
+  } else if (calculation >= 1000) {
+    $element.children()[2].textContent = "Buy: " + calculation.toFixed(0) + " Bitcoins";
+  } else if (calculation >= 1) {
+    $element.children()[2].textContent = "Buy: " + calculation.toFixed(2) + " Bitcoins";
+  } else {
+    $element.children()[2].textContent = "Buy: " + calculation.toFixed(8) + " Bitcoins";
+  }
 
   // Showing the actual price
-  element.children()[2].textContent = calculation + " Bitcoins";
+  //element.children()[2].textContent = calculation + " Bitcoins";
 
   // Set the data-price attribute with the new price
-  element.attr("data-price", calculation.toString());
+  $element.attr("data-price", calculation.toString());
 };
 
 /**
@@ -118,31 +136,75 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     const template = templates.find((val) => val.name === items[i].name).data;
     let itemAmount = 0;
     let bits_per_sec = 0;
+    bits_per_sec = parseFloat(template.rate);
     if (asset !== undefined) {
       itemAmount = asset.assets;
-      bits_per_sec = template.rate;
+
     }
     // HTML element on the game page
     var $element = $("#" + items[i].name);
 
     // Writing the amount on the page at the item´s element
-    $element.children()[3].textContent = "Level: " + itemAmount;
+    $element.children()[1].children[0].textContent = "LEVEL: " + itemAmount;
+    if (itemAmount > 0)
+      $element.children()[1].children[0].textContent += " +";
 
     // Only calculate the new price if there is more than 0 items.
     // If there are not enough items, it will just continue, and if there are,
     // it will execute the function and continue after it as well.
-    if (itemAmount > 0) {
+
       Game.setPriceAtGameBeginning(
         $element,
         parseFloat(template.price),
         parseInt(itemAmount)
       );
-    }
+
     itemAmount = parseInt(itemAmount);
 
+    var itemrate = itemAmount * bits_per_sec;
+    var itemrateString = "";
+    var bits_per_sec_string = "";
+
+    if (itemrate >= 1000000) {
+       itemrateString = itemrate.toFixed(0).optimizeNumber() ;
+    } else if (itemrate >= 1000) {
+      itemrateString = itemrate.toFixed(0);
+    } else if (itemrate >= 1) {
+      itemrateString = itemrate.toFixed(2);
+    } else {
+      itemrateString = itemrate.toFixed(8);
+    }
+
+    if (bits_per_sec >= 1000000) {
+      bits_per_sec_string = bits_per_sec.toFixed(0).optimizeNumber() ;
+    } else if (bits_per_sec >= 1000) {
+      bits_per_sec_string = bits_per_sec.toFixed(0);
+    } else if (bits_per_sec >= 1) {
+      bits_per_sec_string = bits_per_sec.toFixed(2);
+    } else {
+      bits_per_sec_string = bits_per_sec.toFixed(8);
+    }
+
+
+    if (itemrate > 0) {
+      $element.children()[3].style.color = "white";
+      $element.children()[3].textContent = "Rate: " + itemrateString + " B/SEC";
+      $element.children()[3].style.textShadow = "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,\n" +
+          "  -1px -1px 1px black";
+      $element.children()[3].style.display = "block";
+
+    }
+    else {
+      $element.children()[3].style.color = "black";
+      $element.children()[3].style.textShadow = "none";
+      $element.children()[3].textContent = "( Rate: " + bits_per_sec_string + " B/SEC )";
+      $element.children()[3].style.display = "block";
+    }
+
     // Calculating the rate
-    bitcoinRate = bitcoinRate + itemAmount * bits_per_sec;
+    bitcoinRate = bitcoinRate + itemrate;
   }
+  bitcoinRate *= (1 + multiplier);
 };
 
 /**
@@ -153,13 +215,13 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  */
 Game.setNewBitcoinRate = function () {
   if (bitcoinRate >= 1000000) {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(0).optimizeNumber());
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0).optimizeNumber() + "B/SEC");
   } else if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "B/SEC");
   } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(2));
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "B/SEC");
   } else {
-    $(".bSecRateNumber").text(bitcoinRate.toFixed(8));
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "B/SEC");
   }
 };
 
@@ -183,14 +245,27 @@ Game.setNewPrice = async function () {
 
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
+
       // Calculation of the price
       var multiplier = GameConst.priceMultiplier;
       var calculation = (
         parseFloat(template.price) * Math.pow(multiplier, parseInt(itemAmount))
-      ).toFixed(8);
+      );
+
+      if (calculation > 1000000) {
+        let bitcoinUnitNumber = bitcoins.optimizeNumber();
+
+        $element.children()[2].textContent = "Buy: " + bitcoinUnitNumber + " Bitcoins";
+      } else if (calculation >= 1000) {
+        $element.children()[2].textContent = "Buy: " + calculation.toFixed(0) + " Bitcoins";
+      } else if (calculation >= 1) {
+        $element.children()[2].textContent = "Buy: " + calculation.toFixed(2) + " Bitcoins";
+      } else {
+        $element.children()[2].textContent = "Buy: " + calculation.toFixed(8) + " Bitcoins";
+      }
 
       // Showing the actual price
-      $element.children()[2].textContent = calculation + " Bitcoins";
+      //$element.children()[2].textContent = calculation + " Bitcoins";
 
       // Set the data-price attribute with the new price
       $element.attr("data-price", calculation.toString());
@@ -242,6 +317,30 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
 
 // --------------------------------------------------- //
 
+function incrementBitcoin() {
+  return function () {
+    disable = true;
+    $(".bitcoin").off("click");
+
+
+    // Add 1^-8 Bitcoins (equal to 1 satoshi)
+    bitcoins = bitcoins + 0.00000001;
+
+    displayBitcoin(bitcoins);
+    // Save the new amount of Bitcoins in the localStorage storage
+    ls.set("bitcoins", bitcoins.toString());
+
+    var audio = document.getElementById("audio");
+    audio.play();
+
+    setTimeout(function (){
+      disable = false;
+      $(".bitcoin").click(incrementBitcoin());
+
+    },50);
+  };
+}
+
 /**
  * <-- Now doing everything -->
  */
@@ -257,17 +356,12 @@ function setup() {
     // Write the version into the .version span element
     $(".version").text("Version " + GameConst.VERSION);
     // Write the bitcoin per second rate into the .bSecRateNumber span element
+
     Game.setNewBitcoinRate();
 
     // If clicked on the big Bitcoin
-    $(".bitcoin").click(function () {
-      // Add 1^-8 Bitcoins (equal to 1 satoshi)
-      bitcoins = bitcoins + 0.00000001;
+    $(".bitcoin").click(incrementBitcoin());
 
-      displayBitcoin(bitcoins);
-      // Save the new amount of Bitcoins in the localStorage storage
-      ls.set("bitcoins", bitcoins.toString());
-    });
 
     // If any item from the list was clicked...
     $(".purchaseItem").click(async function () {
@@ -282,11 +376,13 @@ function setup() {
       // The element which shows how many of the item is existing
       // If you have enough Bitcoins, it´ll buy one item
       if (parseFloat(bitcoins.toFixed(8)) >= price) {
+
         showItems("none");
 
         // mint throws undefined if RAM is unsufficient
         const err = await mint(id);
         if (err === undefined) {
+
           showItems("block");
           alert("Unsufficient RAM:\nThe item is not available...");
           return;
@@ -398,6 +494,7 @@ async function waitForTransaction(oldBitcoinRate) {
       waitForTransaction(oldBitcoinRate);
       return;
     }
+
     showItems("block");
     bSec = setInterval(function () {
       Game.bSecFunction(bitcoinRate);
@@ -424,20 +521,26 @@ async function login() {
 
 document.getElementById("loginWaxWallet").onclick = async () => {
   document.getElementById("loginWaxWallet").style.display = "none";
+  document.getElementById("loginAnchorWallet").style.display = "none";
+
   showItems("none");
   const success = await login();
   if (success) {
     for (let i = 0; i < items.length; i++) {
       document.getElementById(items[i].name).style.display = "block";
     }
+
     setup();
+
     showItems("block");
     document.getElementById("verifyWaxWallet").style.display = "block";
     document.getElementById("verifyCollection").style.display = "block";
     return;
   }
+
   showItems("block");
   document.getElementById("loginWaxWallet").style.display = "block";
+  document.getElementById("loginAnchorWallet").style.display = "block";
 };
 
 /**
@@ -698,6 +801,9 @@ async function createLeaderboard() {
     await sleep(1000);
   }
   //sort the map descending
+  for (let [key, value] of scores) {
+    scores.set(key, value * (1 + multiplier));
+  }
   scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
   fillLeaderboard(scores);
 }
@@ -742,12 +848,14 @@ async function showLeaderBoard() {
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+document.getElementById("refButton").onclick = generateRefLink;
 
 function generateRefLink() {
   let url = new URL(window.location.href);
 
   url.searchParams.set('ref', wax.userAccount);
-  console.log(url);
+  navigator.clipboard.writeText(url);
+  showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
 }
 
 function detectRef() {
@@ -785,6 +893,131 @@ function detectRef() {
 
 
 
+async function animateMessage(event) {
+  if (!disable)
+  {
+    var maingame = document.body;
+    var Span = document.createElement('span')
+    var img = document.createElement('img');
+
+    img.src = "../images/pngegg.png";
+    img.style.maxHeight = "20px";
+    img.style.maxWidth = "20px";
+    img.style.width = "auto";
+    img.style.height = "auto";
+    img.style.top = event.clientY + "px";
+    img.style.left = event.clientX - 25 + "px";
+    img.style.position = "absolute";
+    img.style.pointerEvents = "none";
+    img.classList.add("w3-animate-bottom");
+    img.style.display = "inline-block";
+
+    Span.style.display = "inline-block";
+    Span.style.fontFamily = 'Rajdhani-SemiBold';
+    Span.style.fontSize = "15pt";
+    Span.style.color = "white";
+    Span.style.textShadow = "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black, -1px -1px 1px black";
+    Span.style.top = event.clientY + "px";
+    Span.style.left = event.clientX + "px";
+    Span.style.position = "absolute";
+    Span.classList.add("w3-animate-bottom");
+    Span.innerText = "+1 Satoshi";
+    Span.style.pointerEvents = "none";
+
+    maingame.appendChild(Span);
+    maingame.appendChild(img);
+    await sleep(750);
+    maingame.removeChild(Span);
+    maingame.removeChild(img);
+    img.remove()
+    Span.remove();
+  }
+}
+document.getElementsByClassName("bitcoin")[0].addEventListener("click", animateMessage);
+
+// app identifier, should be set to the eosio contract account if applicable
+const identifier = "waxbtcclicker";
+// initialize the browser transport
+const transport = new AnchorLinkBrowserTransport();
+// initialize the link
+const link = new AnchorLink({
+  transport,
+  chains: [
+    {
+      chainId:
+          "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4",
+      nodeUrl: "https://wax.greymass.com",
+    },
+    {
+      chainId:
+          "f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12",
+      nodeUrl: "https://waxtestnet.greymass.com",
+    },
+  ],
+});
+// the session instance, either restored using link.restoreSession() or created with link.login()
+let session;
+
+// tries to restore session, called when document is loaded
+function restoreSession() {
+  link.restoreSession(identifier).then((result) => {
+    session = result;
+    if (session) {
+      didLogin();
+    }
+  });
+}
+
+// login and store session if sucessful
+async function anchorLogin() {
+  await link.login(identifier).then((result) => {
+    session = result.session;
+    didLogin();
+  });
+
+
+  document.getElementById("loginWaxWallet").style.display = "none";
+  document.getElementById("loginAnchorWallet").style.display = "none";
+  showItems("none");
+
+  if (session) {
+
+    await init();
+    await Game.setBitcoinPerSecondRateAtBeginning();
+
+    for (let i = 0; i < items.length; i++) {
+      document.getElementById(items[i].name).style.display = "block";
+    }
+
+    setup();
+    showItems("block");
+
+    document.getElementById("verifyWaxWallet").style.display = "block";
+    document.getElementById("verifyCollection").style.display = "block";
+    return;
+  }
+  console.log("login not succesfull");
+
+  showItems("block");
+
+  document.getElementById("loginWaxWallet").style.display = "block";
+  document.getElementById("loginAnchorWallet").style.display = "block";
+}
+
+// logout and remove session from storage
+function logout() {
+  document.body.classList.remove("logged-in");
+  session.remove();
+}
+
+// called when session was restored or created
+function didLogin() {
+  console.log(session.auth);
+  document.body.classList.add("logged-in");
+}
+
+
+document.getElementById("loginAnchorWallet").onclick = anchorLogin;
 
 
 
