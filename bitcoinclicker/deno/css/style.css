@@ -1592,11 +1592,11 @@
 }
  .footer {
      border-top: 1px solid black;
-     background: white;
+     background: #070729;
      padding-top: 90px;
 }
  .footer .address h3 {
-     color: black;
+     color: white;
      font-size: 25px;
      line-height: 35px;
      font-weight: bold;
@@ -1604,7 +1604,7 @@
      padding-bottom: 20px;
 }
  .footer .address i {
-     color: black;
+     color: white;
      font-size: 15px;
      font-weight: 500;
 }
@@ -1658,7 +1658,7 @@
 }
  ul.loca li a {
     padding-right: 14px;
-     color: #000;
+     color: white;
 }
  ul.Menu_footer {
      list-style: none;
@@ -1669,7 +1669,7 @@
 }
  ul.Menu_footer li a {
     display: block;
-     color: black;
+     color: white;
      font-size: 17px;
      padding-left: 25px;
 }
@@ -1689,6 +1689,7 @@
      border-radius: 10px;
 }
  ul.Links_footer {
+     color: white;
      list-style: none;
      margin: 0;
      padding: 0;
@@ -1697,7 +1698,7 @@
 }
  ul.Links_footer li a {
     display: block;
-     color: black;
+     color: white;
      font-size: 17px;
      padding-left: 25px;
 }
@@ -1729,7 +1730,7 @@
     margin-bottom: 15px;
 }
  .footer .newsletter h3 {
-     color: black;
+     color: white;
      font-size: 17px;
      line-height: 30px;
      display: block;
@@ -1743,7 +1744,7 @@
      box-shadow: inherit;
 }
  .address p {
-     color: black;
+     color: white;
      padding-bottom: 20px;
      font-size: 17px;
      line-height: 25px;
@@ -1769,15 +1770,15 @@
      margin-top: 55px;
 }
  .copyright p {
-     color: black;
+     color: white;
      font-size: 18px;
      line-height: 22px;
      text-align: center;
-     border-top: black solid 1px;
+     border-top: white solid 1px;
      padding-top: 20px;
 }
  .copyright a {
-    color: black;
+    color: white;
 }
  .copyright a:hover {
      color: #0f69c6 

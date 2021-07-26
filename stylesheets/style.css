@@ -198,6 +198,7 @@ body {
   text-align: left;
   width: fit-content;
   color: black;
+  overflow-x: visible;
 
 }
 
@@ -207,6 +208,7 @@ body {
   max-height: 150px;
   max-width: 150px;
   float: right;
+  padding-bottom: 0;
 
 }
 .itemPrice {
@@ -471,6 +473,20 @@ body {
   background: linear-gradient(90deg, rgba(219,240,201,1) 0%, rgba(116,198,137,1) 50%, rgba(19,158,77,1) 100%);
   cursor: pointer;
   overflow: auto;
+}
+
+.w3-animate-bottom {
+  animation: floatup 1s forwards;
+}
+
+@keyframes floatup {
+  from {transform: translateY(0);}
+  to {transform: translateY(-100px);}
+}
+
+p {
+  margin-bottom: 5px;
+  margin-top: 5px;
 }
 
 
