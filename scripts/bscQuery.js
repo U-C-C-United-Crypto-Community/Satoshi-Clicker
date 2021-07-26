@@ -1,5 +1,6 @@
 import Web3 from "web3";
 import EthDater from "ethereum-block-by-date";
+import fs from "fs";
 
 const mainnet = "https://bsc-dataseed.binance.org/";
 const testnet = "https://data-seed-prebsc-1-s1.binance.org:8545/";
@@ -30,7 +31,7 @@ async function getWAXWallets() {
 
 async function getTransactionsByAccount(date) {
   const start = await dater.getDate(
-    new Date(date.getTime() - 0.5 * 24 * 60 * 60 * 1000)
+    new Date(date.getTime() - 7 * 24 * 60 * 60 * 1000)
   );
   const end = await dater.getDate(date);
   const startBlockNumber = start.block;
@@ -44,10 +45,19 @@ async function getTransactionsByAccount(date) {
 
   for (var i = startBlockNumber; i <= endBlockNumber; i++) {
     var block = await web3.eth.getBlock(i, true);
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(
+      "Progress: " +
+        (
+          ((i - startBlockNumber) / (endBlockNumber - startBlockNumber)) *
+          100
+        ).toFixed(2) +
+        "%"
+    );
     if (block != null && block.transactions != null) {
       block.transactions.forEach((tx) => {
-        console.log(tx);
-        if (freibierAddress == tx.to) {
+        if (freibierAddress === tx.to) {
           amountOfTx[tx.from] = amountOfTx[tx.from]
             ? amountOfTx[tx.from] + 1
             : 1;
@@ -55,10 +65,20 @@ async function getTransactionsByAccount(date) {
       });
     }
   }
-  console.log(amountOfTx);
+  fs.writeFileSync("bscQuery.json", JSON.stringify(amountOfTx));
   return amountOfTx;
 }
 
-console.time("Scan");
-await getTransactionsByAccount(new Date("2021-07-20T12:00:00Z"));
-console.timeEnd("Scan");
+const arg = process.argv.slice(2);
+const till = new Date(arg[0]);
+try {
+  console.time("Scan");
+  await getTransactionsByAccount(till);
+  console.timeEnd("Scan");
+} catch (e) {
+  console.log(
+    "Invalid Date: " +
+    arg[0] +
+      "\nCorrect Format: YEAR:MONTH:DAY\ne.g. 2021-07-31 or with time of the day \ne.g. 2021-07-31T15:30:00Z"
+  );
+}
