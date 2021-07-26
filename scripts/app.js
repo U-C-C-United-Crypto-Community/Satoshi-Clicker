@@ -96,7 +96,7 @@ var Game = {};
  */
 
 
-Game.setPriceAtGameBeginning = function (element, price, itemAmount) {
+Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
   var multiplier = GameConst.priceMultiplier;
 
 
@@ -357,8 +357,15 @@ function setup() {
     $(".version").text("Version " + GameConst.VERSION);
     // Write the bitcoin per second rate into the .bSecRateNumber span element
 
-    Game.setNewBitcoinRate();
-
+    if (bitcoinRate > 1000000) {
+      let bitcoinRateUnitNumber = bitcoinRate.optimizeNumber();
+      $(".bSecRateNumber").text(bitcoinRateUnitNumber);
+    }
+    else if (bitcoinRate >= 1000) {
+      $(".bSecRateNumber").text(bitcoinRate.toFixed(0));
+    } else if (bitcoinRate >= 1) {
+      $(".bSecRateNumber").text(bitcoinRate.toFixed(2));
+    }
     // If clicked on the big Bitcoin
     $(".bitcoin").click(incrementBitcoin());
 
