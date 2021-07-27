@@ -988,7 +988,7 @@ async function anchorLogin() {
   showItems("none");
 
   if (session) {
-
+    wax.userAccount = session.auth.actor;
     await init();
     await Game.setBitcoinPerSecondRateAtBeginning();
 
@@ -1001,6 +1001,7 @@ async function anchorLogin() {
 
     document.getElementById("verifyWaxWallet").style.display = "block";
     document.getElementById("verifyCollection").style.display = "block";
+
     return;
   }
   console.log("login not succesfull");
