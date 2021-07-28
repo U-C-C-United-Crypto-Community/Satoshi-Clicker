@@ -341,6 +341,50 @@ function incrementBitcoin() {
   };
 }
 
+async function startMinting() {
+  // Get following attributes and children elements
+
+  // id of the item
+  const id = $(this).attr("id");
+  // The price attribute as a float number
+  const template = templates.find((val) => val.name === id);
+  const {price} = template ? template.data : Number.MAX_VALUE;
+
+  // The element which shows how many of the item is existing
+  // If you have enough Bitcoins, it´ll buy one item
+  if (parseFloat(bitcoins.toFixed(8)) >= price) {
+
+    showItems("none");
+
+    // mint throws undefined if RAM is unsufficient
+    console.log("Start minting");
+    const err = await mint(id);
+    /*if (err === undefined) {
+
+      showItems("block");
+      alert("Unsufficient RAM:\nThe item is not available...");
+      return;
+    }*/
+    // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
+    bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
+
+    // Save the new amount of Bitcoins in the localStorage storage
+    ls.set("bitcoins", bitcoins.toString());
+
+    // Changing the Bitcoins amount
+    // Rounding the Bitcoin number at specific values
+    displayBitcoin(bitcoins);
+
+    // Stops the interval
+    Game.stopBsec();
+    const oldBitcoinRate = bitcoinRate;
+    // Setting a new price and show it
+    await Game.setNewPrice();
+    // Restarting the interval with the new rate
+    await waitForTransaction(oldBitcoinRate);
+  }
+}
+
 /**
  * <-- Now doing everything -->
  */
@@ -371,47 +415,17 @@ function setup() {
 
 
     // If any item from the list was clicked...
-    $(".purchaseItem").click(async function () {
-      // Get following attributes and children elements
-
-      // id of the item
-      const id = $(this).attr("id");
-      // The price attribute as a float number
-      const template = templates.find((val) => val.name === id);
-      const { price } = template ? template.data : Number.MAX_VALUE;
-
-      // The element which shows how many of the item is existing
-      // If you have enough Bitcoins, it´ll buy one item
-      if (parseFloat(bitcoins.toFixed(8)) >= price) {
-
-        showItems("none");
-
-        // mint throws undefined if RAM is unsufficient
-        const err = await mint(id);
-        if (err === undefined) {
-
-          showItems("block");
-          alert("Unsufficient RAM:\nThe item is not available...");
-          return;
-        }
-        // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
-        bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
-
-        // Save the new amount of Bitcoins in the localStorage storage
-        ls.set("bitcoins", bitcoins.toString());
-
-        // Changing the Bitcoins amount
-        // Rounding the Bitcoin number at specific values
-        displayBitcoin(bitcoins);
-
-        // Stops the interval
-        Game.stopBsec();
-        const oldBitcoinRate = bitcoinRate;
-        // Setting a new price and show it
-        await Game.setNewPrice();
-        // Restarting the interval with the new rate
-        await waitForTransaction(oldBitcoinRate);
-      }
+    $(".purchaseItemCommon").click(async function () {
+      await startMinting.call(this);
+    });
+    $(".purchaseItemRare").click(async function () {
+      await startMinting.call(this);
+    });
+    $(".purchaseItemLegendary").click(async function () {
+      await startMinting.call(this);
+    });
+    $(".purchaseItemUltimate").click(async function () {
+      await startMinting.call(this);
     });
   });
 }
@@ -432,35 +446,22 @@ async function mint(id) {
     return val.name === id;
   });
   const template_id = parseInt(item.template_id);
-  const actions = await (
-    await api.action
-  )
-    .mintasset(
-      [{ actor: wax.userAccount, permission: "active" }],
-      wax.userAccount,
-      TEST_COLLECTION, //"waxbtcclickr",
-      "equipments",
-      template_id,
-      wax.userAccount,
-      {},
-      {},
-      0
-    )
-    .catch(console.log);
-  console.log(actions, wax.userAccount);
-  const result = await wax.api
-    .transact(
-      {
-        actions: actions,
+  const action = {
+      account: 'waxclicker12',
+      name: 'mintasset',
+      authorization: [{ actor: wax.userAccount, permission: "active" }],
+      data: {
+      authorized_minter: "waxclicker12",
+      collection_name: TEST_COLLECTION, //"waxbtcclickr",
+      schema_name: "equipments",
+      template_id: template_id,
+      new_asset_owner: wax.userAccount
       },
-      {
-        blocksBehind: 30,
-        expireSeconds: 1200,
-      }
-    )
-    .catch(console.log);
-  console.log(result);
-  return result;
+  }
+  session.transact({action}).then(({transaction}) => {
+    console.log(`Transaction broadcast! Id: ${transaction.id}`)
+  })
+
 }
 
 function showItems(state) {
@@ -506,7 +507,7 @@ async function waitForTransaction(oldBitcoinRate) {
     bSec = setInterval(function () {
       Game.bSecFunction(bitcoinRate);
     }, 1000);
-  }, 1000);
+  }, 5000);
 }
 
 // normal login. Triggers a popup for non-whitelisted dapps
@@ -629,14 +630,13 @@ async function sign(amount) {
   //convert amount into the right format
   var quantity = amount.toString();
 
-  quantity = quantity + " WAX";
+  quantity = quantity + ".00000000 WAX";
   console.log(quantity);
 
   //execute transaction
-  try {
-    const result = await wax.api.transact(
-      {
-        actions: [
+
+
+        const action =
           {
             account: "eosio",
             name: "buyram",
@@ -648,21 +648,14 @@ async function sign(amount) {
             ],
             data: {
               payer: wax.userAccount,
-              receiver: "1mbtu.wam", //Später smart contract Name
+              receiver: "waxclicker12", //Später smart contract Name
               quant: quantity,
             },
-          },
-        ],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 30,
-      }
-    );
-    console.log(JSON.stringify(result, null, 2));
-  } catch (e) {
-    console.log(e.message);
-  }
+          }
+
+  session.transact({action}).then(({transaction}) => {
+    console.log(`Transaction broadcast! Id: ${transaction.id}`)
+  })
 }
 
 /**
