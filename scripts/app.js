@@ -45,7 +45,7 @@ async function init() {
 
   const wallet = localStorage.getItem("waxWallet");
   const btcs = ls.get("bitcoins");
-  console.log(btcs);
+
   await getTemplates();
   if (
     btcs === null ||
@@ -988,7 +988,8 @@ async function anchorLogin() {
   showItems("none");
 
   if (session) {
-    wax.userAccount = session.auth.actor;
+    wax.userAccount = session.auth.actor.toString();
+    console.log(wax.userAccount);
     await init();
     await Game.setBitcoinPerSecondRateAtBeginning();
 
