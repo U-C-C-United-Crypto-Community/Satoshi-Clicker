@@ -17,6 +17,7 @@ const multiplier = 0.05;
 var bitcoins = 0;
 var bitcoinRate = 0;
 var currentUser = null;
+var clickValue = 0;
 
 var disable = false;
 var amountOfClicks = 0;
@@ -349,8 +350,9 @@ function incrementBitcoin() {
     $(".bitcoin").off("click");
 
 
+    clickValue = bitcoinRate * 0.001;
     // Add 1^-8 Bitcoins (equal to 1 satoshi)
-    bitcoins = bitcoins + 0.00000001;
+    bitcoins = bitcoins + clickValue;
 
     displayBitcoin(bitcoins);
     // Save the new amount of Bitcoins in the localStorage storage
@@ -947,6 +949,20 @@ async function animateMessage(event) {
     img.classList.add("w3-animate-bottom");
     img.style.display = "inline-block";
 
+    var valueString = "";
+
+    if (clickValue > 1e6) {
+      let bitcoinUnitNumber = clickValue.optimizeNumber();
+      valueString = bitcoinUnitNumber;
+    } else if (bitcoins >= 1000) {
+      valueString = clickValue.toFixed(0).toString();
+    } else if (bitcoins >= 1) {
+      valueString = clickValue.toFixed(2).toString();
+    } else {
+      valueString = clickValue.toFixed(8).toString();
+    }
+
+
     Span.style.display = "inline-block";
     Span.style.fontFamily = 'Rajdhani-SemiBold';
     Span.style.fontSize = "15pt";
@@ -956,7 +972,7 @@ async function animateMessage(event) {
     Span.style.left = event.clientX + "px";
     Span.style.position = "absolute";
     Span.classList.add("w3-animate-bottom");
-    Span.innerText = "+1 Satoshi";
+    Span.innerText = "+" + valueString +  " Bitcoin";
     Span.style.pointerEvents = "none";
 
     maingame.appendChild(Span);
