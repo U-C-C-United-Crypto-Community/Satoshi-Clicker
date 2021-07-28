@@ -17,8 +17,12 @@ const multiplier = 0.05;
 var bitcoins = 0;
 var bitcoinRate = 0;
 var currentUser = null;
+var clickValue = 0;
 
 var disable = false;
+var amountOfClicks = 0;
+var lastClick = Date.now();
+var enableClickMultiplier = false;
 
 var templates = [];
 const items = TEST_ITEMS;
@@ -77,6 +81,24 @@ async function init() {
 document.getElementById("lbButton").style.display = "block";
 document.getElementById("refButton").style.display = "block";
 detectRef();
+setInterval(function (){
+  currentTime = Date.now();
+
+  var timeBetweenCLicks = currentTime - lastClick;
+
+  if (Math.floor(timeBetweenCLicks / 1000) > 30) {
+    enableClickMultiplier = false;
+    amountOfClicks = 0;
+  }
+  else {
+    enableClickMultiplier = true;
+  }
+},1000);
+setInterval(async function (){await Game.setBitcoinPerSecondRateAtBeginning()},10000);
+setInterval(function (){
+  Game.setNewBitcoinRate();
+},1000);
+
 }
 /**
  *
@@ -130,7 +152,7 @@ Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
  *
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
-  bitcoinRate = 0;
+  var newbitcoinRate = 0;
   for (let i = 0; i < items.length; i++) {
     const asset = await Game.getItem(items[i].name);
     const template = templates.find((val) => val.name === items[i].name).data;
@@ -202,8 +224,10 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     }
 
     // Calculating the rate
-    bitcoinRate = bitcoinRate + itemrate;
+    newbitcoinRate = newbitcoinRate + itemrate;
   }
+  bitcoinRate = newbitcoinRate;
+  bitcoinRate *= getClickMultiplier();
   bitcoinRate *= (1 + multiplier);
 };
 
@@ -215,13 +239,13 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  */
 Game.setNewBitcoinRate = function () {
   if (bitcoinRate >= 1000000) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0).optimizeNumber() + "B/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0).optimizeNumber());
   } else if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "B/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "BITCOINS/SEC");
   } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "B/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "BITCOINS/SEC");
   } else {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "B/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "BITCOINS/SEC");
   }
 };
 
@@ -319,12 +343,16 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
 
 function incrementBitcoin() {
   return function () {
+    lastClick = Date.now();
+
+    amountOfClicks++;
     disable = true;
     $(".bitcoin").off("click");
 
 
+    clickValue = bitcoinRate * 0.001;
     // Add 1^-8 Bitcoins (equal to 1 satoshi)
-    bitcoins = bitcoins + 0.00000001;
+    bitcoins = bitcoins + clickValue;
 
     displayBitcoin(bitcoins);
     // Save the new amount of Bitcoins in the localStorage storage
@@ -778,7 +806,8 @@ async function createLeaderboard() {
     var bits_per_sec = 0;
 
     //fetch all accounts which own a version of the current item
-    var accounts = await api.getAccounts({ collection_name: "waxbtcclickr", schema_name: "equipments", template_id: items[j].template_id, });
+    var accounts = await api.getAccounts({ collection_name: "waxbtcclick1", schema_name: "equipments", template_id: items[j].template_id, });
+
 
     //get the template of the current item
     const template = templates.find((val) => val.name === items[j].name).data;
@@ -786,6 +815,7 @@ async function createLeaderboard() {
 
     //iterate over all accounts
     for (var i = 0; i < accounts.length; i++) {
+      bitcoinrate = 0;
 
       //if the account already exists get the current score
       if (scores.has(accounts[i].account)) {
@@ -912,6 +942,20 @@ async function animateMessage(event) {
     img.classList.add("w3-animate-bottom");
     img.style.display = "inline-block";
 
+    var valueString = "";
+
+    if (clickValue > 1e6) {
+      let bitcoinUnitNumber = clickValue.optimizeNumber();
+      valueString = bitcoinUnitNumber;
+    } else if (bitcoins >= 1000) {
+      valueString = clickValue.toFixed(0).toString();
+    } else if (bitcoins >= 1) {
+      valueString = clickValue.toFixed(2).toString();
+    } else {
+      valueString = clickValue.toFixed(8).toString();
+    }
+
+
     Span.style.display = "inline-block";
     Span.style.fontFamily = 'Rajdhani-SemiBold';
     Span.style.fontSize = "15pt";
@@ -921,7 +965,7 @@ async function animateMessage(event) {
     Span.style.left = event.clientX + "px";
     Span.style.position = "absolute";
     Span.classList.add("w3-animate-bottom");
-    Span.innerText = "+1 Satoshi";
+    Span.innerText = "+" + valueString +  " Bitcoin";
     Span.style.pointerEvents = "none";
 
     maingame.appendChild(Span);
@@ -1020,6 +1064,18 @@ function didLogin() {
 
 
 document.getElementById("loginAnchorWallet").onclick = anchorLogin;
+
+function getClickMultiplier() {
+  var multi = 1;
+  if (enableClickMultiplier && amountOfClicks >= 10) {
+    multi = Math.floor(amountOfClicks / 10);
+
+    if (multi > 10)
+      multi = 10;
+  }
+  console.log(multi);
+  return multi;
+}
 
 
 
