@@ -1226,12 +1226,23 @@ async function calculateMultiplier(account) {
       itemAmount = asset.assets;
       nftMulti = template.multiplier;
 
-      if (template.name.includes("Freibier"))
+      if (template.name.includes("Freibier") && itemAmount > 0)
       {
+        document.getElementById(template.name).style.display = "block";
+        document.getElementById(template.name).children[2].textContent = "Multiplier: " + nftMulti;
         if (nftMulti > freibierMulti)
           freibierMulti = nftMulti;
       }
-      else multiplier += nftMulti * itemAmount;
+      else {
+        multiplier += nftMulti * itemAmount;
+        if (itemAmount > 0)
+        {
+          document.getElementById(template.name).style.display = "block";
+          document.getElementById(template.name).children[1].textContent = "FRIENDS LEVEL: " + itemAmount;
+          document.getElementById(template.name).children[3].textContent = "Multiplier: " + (nftMulti * itemAmount).toString();
+
+        }
+      }
 
     }
   }
