@@ -14,7 +14,7 @@ var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 const detectEthereumProvider = require("@metamask/detect-provider");
 const dp = new DOMPurify();
 const ls = new SecureLS();
-const multiplier = 0.05;
+var multiplier = 0.0;
 
 var bitcoins = 0;
 var bitcoinRate = 0;
@@ -27,6 +27,7 @@ var lastClick = Date.now();
 var enableClickMultiplier = false;
 
 var templates = [];
+var specialTemplates = [];
 const items = TEST_ITEMS;
 
 
@@ -123,6 +124,7 @@ document.getElementById("lbButton").style.display = "block";
 document.getElementById("refButton").style.display = "block";
 detectRef();
 initIntervals();
+multiplier = await calculateMultiplier(wax.userAccount);
 
 }
 /**
@@ -803,7 +805,7 @@ async function createLeaderboard() {
   }
   //sort the map descending
   for (let [key, value] of scores) {
-    scores.set(key, value * (1 + multiplier));
+    scores.set(key, value * (1 + await calculateMultiplier(key)));
   }
   scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
   fillLeaderboard(scores);
@@ -904,7 +906,7 @@ function detectRef() {
 
     if (ref != wax.userAccount) {
       console.log("Reflink detected");
-      //mintasset for both
+      mintSpecialNft(ref)
       ls.set("ref", true);
     } else {
       console.log("You cant refer yourself!");
@@ -1150,8 +1152,113 @@ function getClickMultiplier() {
     if (multi > 10)
       multi = 10;
   }
-  console.log(multi);
   return multi;
+}
+
+/**
+ * ---------------------------------------------------Special NFT-------------------------------------------------------
+ */
+
+/**
+ *
+ * @param ref
+ * @returns {Promise<void>}
+ */
+
+async function mintSpecialNft(ref) {
+  const action = {
+    account: 'waxclicker12',
+    name: 'mintasset',
+    authorization: [{actor: wax.userAccount, permission: "active"}],
+    data: {
+      authorized_minter: "waxclicker12",
+      collection_name: TEST_COLLECTION, //"waxbtcclickr",
+      schema_name: "invfriend",
+      template_id: special_items[0].template_id,
+      new_asset_owner: wax.userAccount,
+      mutable_data: {
+        referrer: ref,
+        receiver: wax.userAccount,
+      },
+    },
+  }
+  await session.transact({action}).then(({transaction}) => {
+    console.log(`Transaction broadcast! Id: ${transaction.id}`)
+  })
+  mintNftForRef(ref);
+}
+
+function mintNftForRef(ref) {
+  const action = {
+    account: 'waxclicker12',
+    name: 'mintasset',
+    authorization: [{actor: wax.userAccount, permission: "active"}],
+    data: {
+      authorized_minter: "waxclicker12",
+      collection_name: TEST_COLLECTION, //"waxbtcclickr",
+      schema_name: "invfriend",
+      template_id: special_items[0].template_id,
+      new_asset_owner: ref,
+      mutable_data: {
+        referrer: ref,
+        receiver: wax.userAccount,
+      },
+    },
+  }
+  session.transact({action}).then(({transaction}) => {
+    console.log(`Transaction broadcast! Id: ${transaction.id}`)
+  })
+}
+
+async function calculateMultiplier(account) {
+  var multiplier = 0.0;
+  var freibierMulti = 0.0;
+  await getSpecialTemplates();
+
+  for (var i = 0; i < special_items.length; i++) {
+    var itemAmount = 0;
+    var asset = await findSpecialNft(special_items[i].template_id, account);
+    var template = specialTemplates.find((val) => val.id === special_items[i].template_id).data;
+    var nftMulti = 0;
+
+    if (asset !== undefined) {
+
+      itemAmount = asset.assets;
+      nftMulti = template.multiplier;
+
+      if (template.name.includes("Freibier"))
+      {
+        if (nftMulti > freibierMulti)
+          freibierMulti = nftMulti;
+      }
+      else multiplier += nftMulti * itemAmount;
+
+    }
+  }
+  multiplier += freibierMulti;
+  return multiplier;
+
+}
+
+async function findSpecialNft(id, account) {
+  assets = (await api.getAccount(account)).templates;
+
+  const asset = assets.find((val) => {
+    return val.template_id === id;
+  });
+  return asset;
+}
+
+async function getSpecialTemplates() {
+
+  for (let i = 0; i < special_items.length; i++) {
+    const id = special_items[i].template_id;
+    const name = special_items[i].name;
+    const data = (await api.getTemplate("waxbtcclick1", id)).immutable_data;
+
+    const result = { name, id, data };
+    specialTemplates.push(result);
+  }
 }
 
 
