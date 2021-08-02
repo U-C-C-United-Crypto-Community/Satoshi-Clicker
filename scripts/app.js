@@ -33,6 +33,8 @@ const items = TEST_ITEMS;
 const multiplierModule = require("./multiplier");
 const reflinkModule = require("./reflink");
 const leaderboardModule = require("./leaderboard");
+const airdropModule = require("./airdrop");
+const donationModule = require("./donation");
 
 
 
@@ -574,246 +576,32 @@ async function verifyWaxWallet() {
 }
 
 /**
- * ------------------------------------Donation------------------------------------------------------------------------
+ * ------------------------------------------------Donation-------------------------------------------------------------
  */
 
-/**
- * Show user dialog for donation.
- */
-
-document.getElementById("donateButton").onclick = showDialog;
-
-async function showDialog() {
-  var modal = document.getElementById("myModal");
-  var span = document.getElementById("closeSpan");
-  var content = document.getElementById("content");
-  var input = document.getElementById("quantity");
-
-  content.innerText = "With how much WAX do you wanna donate RAM?";
-
-  modal.style.display = "block";
-
-  span.onclick = function () {
-    modal.style.display = "none";
-
-    //Get user input
-    var userinput = dp.sanitize(input.value);
-
-    if (userinput != "") userinput = parseFloat(userinput);
-
-    console.log(typeof userinput);
-    //Do transaction with the userinput
-    if (typeof userinput != "number") alert("Please input a number");
-    else {
-      sign(userinput);
-    }
-  };
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
+document.getElementById("donateButton").onclick = async function () {
+  await donationModule.showDialog(dp, wax);
 }
 
-/**
- * Transact wax from the user to our contract. Need to adjust receiver after smart contract is finished.
- * @param amount: the amount of WAX the user put in to donate
- * @returns {Promise<void>}
- */
-async function sign(amount) {
-  if (wax.userAccount === undefined) {
-    await wax.login();
-  }
-
-  //convert amount into the right format
-  var quantity = amount.toString();
-
-  quantity = quantity + ".00000000 WAX";
-  console.log(quantity);
-
-  //execute transaction
-
-
-        const action =
-          {
-            account: "eosio",
-            name: "buyram",
-            authorization: [
-              {
-                actor: wax.userAccount,
-                permission: "active",
-              },
-            ],
-            data: {
-              payer: wax.userAccount,
-              receiver: "waxclicker12", //Später smart contract Name
-              quant: quantity,
-            },
-          }
-
-  session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-}
 
 /**
  * ------------------------------------------------Airdrop-------------------------------------------------------------
  */
 
-/**
- * Checks the assets of the currently logged in wallet for assets from the 1cryptobeard collection
- * @returns {Promise<number>} count of assets from the 1cryptobeard collection
- */
-async function checkForAirdrop() {
-  var assets = (await api.getAccount(wax.userAccount)).templates;
-  var count = 0;
 
-  for (var i = 0; i < assets.length; i++) {
-    const collection = assets[i].collection_name;
-
-    if (collection == "1cryptobeard")
-      count++;
-  }
-  return count;
+document.getElementById("verifyCollection").onclick = async function () {
+  await airdropModule.verifyCollection(api, wax.userAccount);
 }
 
-/**
- * Fetches json with the private key.
- */
-function fetchJson( amount) {
 
-  fetch('./test.json').then(response => response.json())
-      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull! Found "
-          + amount + " assets from 1cryptobeard" + "\n" + "Link for the airdrop: "))
-      .catch(err => console.log(err));
-}
 
-document.getElementById("verifyCollection").onclick = verifyCollection;
-
-/**
- * Function to show exclusive link for packdrop
- * @returns {Promise<void>}
- */
-async function verifyCollection() {
-  var count = await checkForAirdrop();
-  if (count > 0) {
-    fetchJson(count);
-  }
-  else {
-    showVerificationDialog("", "Verification not succesfull");
-  }
-}
-
-/**
- *
- * @param privateKey
- * @param msg if the authentification was succesfull or not
- * @returns {Promise<void>}
- */
-
-async function showVerificationDialog(privateKey, msg) {
-  var modal = document.getElementById("pkModal");
-  var mcontent = document.getElementById("pkContent");
-  var span = document.getElementById("pkSpan");
-
-  modal.style.display = "block";
-
-  span.onclick = function () {
-    modal.style.display = "none";
-  };
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
-  mcontent.innerText = msg + privateKey;
-}
 
 /**
  * --------------------------------------------------Leaderboard--------------------------------------------------------
  */
 
-/**
- * fills the leaderboard table
- * @param scores Map with each account and its corresponding score
- */
-function fillLeaderboard(scores) {
-  var counter = 1;
-
-  //iterate over the sorted map
-  for (let [key, value] of scores) {
-    var currentText = document.getElementById("lb" + counter);
-    var valueString = roundNumber(value)
-
-    currentText.innerText = counter + ". " + key + " - " + valueString + " B/SEC";
-    counter++;
-  }
-  //Finished loading -> we can now show the button to refresh
-  document.getElementById("lbLoading").style.display = "none";
-  document.getElementById("refreshSpan").style.display = "inline-block";
-}
-
-/**
- *
- * @param accounts the accounts which one atleast 1 of the current item
- * @param scores the map holding the scores
- * @param bits_per_sec of the current item
- */
-function fillScores(accounts,  scores, bits_per_sec) {
-  //iterate over all accounts
-  for (var i = 0; i < accounts.length; i++) {
-    var bitcoinrate = 0;
-
-    //if the account already exists get the current score
-    if (scores.has(accounts[i].account)) {
-      bitcoinrate = scores.get(accounts[i].account)
-    }
-
-    //set and save the new bitcoinrate
-    bitcoinrate = bitcoinrate + accounts[i].assets * bits_per_sec;
-
-    scores.set(accounts[i].account, bitcoinrate);
-  }
-}
-
-/**
- * function for creating the leaderboard
- * for each item: fetches all accounts which own a nft of it
- * Adds the bitcoinrates of all item together for the final score
- */
-async function createLeaderboard() {
-  document.getElementById("lbLoading").style.display = "inline-block";
-  document.getElementById("refreshSpan").style.display = "none";
-
-  var scores = new Map();
-
-  //iterate over all items
-  for (var j = 0; j < items.length; j++) {
-
-    var bits_per_sec = 0;
-
-    //fetch all accounts which own a version of the current item
-    var accounts = await api.getAccounts({ collection_name: "waxbtcclick1", schema_name: "equipments", template_id: items[j].template_id, });
 
 
-    //get the template of the current item
-    const template = templates.find((val) => val.name === items[j].name).data;
-    bits_per_sec = template.rate;
-
-    fillScores(accounts, scores, bits_per_sec);
-
-    //wait a second because of rate limiting
-    await sleep(1000);
-  }
-  //sort the map descending
-  for (let [key, value] of scores) {
-    scores.set(key, value * (1 + await calculateMultiplier(key)));
-  }
-  scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
-  fillLeaderboard(scores);
-}
 
 /**
  * On click function for a button to show the leaderboard
@@ -821,35 +609,6 @@ async function createLeaderboard() {
  */
 document.getElementById("lbButton").onclick = async () => {
   await leaderboardModule.showLeaderBoard(api, templates, items, multiplierModule, roundNumber);
-}
-
-/**
- * function which initiates the leaderboard
- * @returns {Promise<void>}
- */
-async function showLeaderBoard() {
-  var close = document.getElementById("closeLbSpan");
-  var modal = document.getElementById("leaderboardModal");
-  modal.style.display = "block";
-  close.style.display = "inline-block";
-  await createLeaderboard();
-
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-
-  //Close Button
-  close.onclick = function () {
-    modal.style.display = "none";
-  }
-
-  //Refresh Button
-  var refresh = document.getElementById("refreshSpan");
-  refresh.onclick = function () {
-    showLeaderBoard();
-  }
 }
 
 /**
@@ -878,7 +637,7 @@ function generateRefLink() {
 
   url.searchParams.set('ref', wax.userAccount);
   navigator.clipboard.writeText(url);
-  showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
+  airdropModule.showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
 }
 
 /**
