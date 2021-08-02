@@ -30,8 +30,9 @@ var waxWallet;
 var templates = [];
 const items = TEST_ITEMS;
 
-
 const multiplierModule = require("./multiplier");
+const reflinkModule = require("./reflink");
+const leaderboardModule = require("./leaderboard");
 
 
 
@@ -126,9 +127,9 @@ async function init() {
   }
 document.getElementById("lbButton").style.display = "block";
 document.getElementById("refButton").style.display = "block";
-detectRef();
+await reflinkModule.detectRef(ls, dp, wax.userAccount);
 initIntervals();
-multiplier = await multiplierModule.calculateMultiplier(wax.userAccount);
+multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
 }
 /**
  *
@@ -819,7 +820,7 @@ async function createLeaderboard() {
  * @returns {Promise<void>}
  */
 document.getElementById("lbButton").onclick = async () => {
-  await showLeaderBoard();
+  await leaderboardModule.showLeaderBoard(api, templates, items, multiplierModule, roundNumber);
 }
 
 /**
@@ -878,46 +879,6 @@ function generateRefLink() {
   url.searchParams.set('ref', wax.userAccount);
   navigator.clipboard.writeText(url);
   showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
-}
-
-/**
- * function looking for a reflink
- */
-
-function detectRef() {
-  var receivedRef = false;
-  const keys = ls.getAllKeys();
-
-  if (keys.length == 0 || !keys.includes("ref"))
-    ls.set("ref", false);
-  else {
-    receivedRef = ls.get("ref");
-  }
-
-  let url = new URL(window.location.href);
-
-  if (url.searchParams.has("ref") && !receivedRef)
-  {
-    var ref;
-
-    for (let [name, value] of url.searchParams) {
-
-      if (dp.sanitize(name) == "ref")
-      ref = dp.sanitize(value);
-    }
-    console.log(ref);
-
-    if (ref != wax.userAccount) {
-      console.log("Reflink detected");
-      mintSpecialNft(ref)
-      ls.set("ref", true);
-    } else {
-      console.log("You cant refer yourself!");
-    }
-  }
-  else {
-    console.log("No reflink detected or you already received a ref");
-  }
 }
 
 /**
@@ -1051,19 +1012,6 @@ const link = new AnchorLink({
   ],
 });
 // the session instance, either restored using link.restoreSession() or created with link.login()
-let session;
-
-/**
- * function to restore a session
- */
-function restoreSession() {
-  link.restoreSession(identifier).then((result) => {
-    session = result;
-    if (session) {
-      didLogin();
-    }
-  });
-}
 
 /**
  * shows and setups the purchaselist
@@ -1156,61 +1104,6 @@ function getClickMultiplier() {
       multi = 10;
   }
   return multi;
-}
-
-/**
- * ---------------------------------------------------Special NFT-------------------------------------------------------
- */
-
-/**
- *
- * @param ref
- * @returns {Promise<void>}
- */
-
-async function mintSpecialNft(ref) {
-  const action = {
-    account: 'waxclicker12',
-    name: 'mintasset',
-    authorization: [{actor: wax.userAccount, permission: "active"}],
-    data: {
-      authorized_minter: "waxclicker12",
-      collection_name: TEST_COLLECTION, //"waxbtcclickr",
-      schema_name: "invfriend",
-      template_id: special_items[0].template_id,
-      new_asset_owner: wax.userAccount,
-      mutable_data: {
-        referrer: ref,
-        receiver: wax.userAccount,
-      },
-    },
-  }
-  await session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-  mintNftForRef(ref);
-}
-
-function mintNftForRef(ref) {
-  const action = {
-    account: 'waxclicker12',
-    name: 'mintasset',
-    authorization: [{actor: wax.userAccount, permission: "active"}],
-    data: {
-      authorized_minter: "waxclicker12",
-      collection_name: TEST_COLLECTION, //"waxbtcclickr",
-      schema_name: "invfriend",
-      template_id: special_items[0].template_id,
-      new_asset_owner: ref,
-      mutable_data: {
-        referrer: ref,
-        receiver: wax.userAccount,
-      },
-    },
-  }
-  session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
 }
 
 

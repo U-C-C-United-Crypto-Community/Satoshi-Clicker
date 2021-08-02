@@ -6,6 +6,8 @@
 
  const TEST_COLLECTION = "waxbtcclick1";
 
+let session;
+
  var ITEMS = [
   {
     name: "item_oldCalculator",

@@ -1,18 +1,15 @@
-const { ExplorerApi } = require("atomicassets");
-const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
-    fetch,
-});
+
 
 module.exports = {
     specialTemplates: [],
-    calculateMultiplier: async function (account) {
+    calculateMultiplier: async function (account, api) {
         var multiplier = 0.0;
         var freibierMulti = 0.0;
-        await this.getSpecialTemplates();
+        await this.getSpecialTemplates(api);
 
         for (var i = 0; i < special_items.length; i++) {
             var itemAmount = 0;
-            var asset = await this.findSpecialNft(special_items[i].template_id, account);
+            var asset = await this.findSpecialNft(special_items[i].template_id, account, api);
             var template = this.specialTemplates.find((val) => val.id === special_items[i].template_id).data;
             var nftMulti = 0;
 
@@ -44,7 +41,7 @@ module.exports = {
         multiplier += freibierMulti;
         return multiplier;
     },
-    findSpecialNft: async function (account) {
+    findSpecialNft: async function (id, account, api) {
         var assets = (await api.getAccount(account)).templates;
 
         const asset = assets.find((val) => {
@@ -52,7 +49,7 @@ module.exports = {
         });
         return asset;
     },
-    getSpecialTemplates: async function() {
+    getSpecialTemplates: async function(api) {
         for (let i = 0; i < special_items.length; i++) {
             const id = special_items[i].template_id;
             const name = special_items[i].name;
