@@ -21,10 +21,10 @@ var eos = EosApi();
 
 
 module.exports = {
-    mint: async function (id, account, items, eosApi, rpc) {
+    mint: async function (id, account, bitcoinamount) {
 
-        var hasharray = await this.createHash(account);
-        console.log("Hash: " + hasharray[0].hash + " Array: " + hasharray[1].array);
+        var hasharray = await this.createHash(account, bitcoinamount);
+        console.log("Hash: " + hasharray[0].hash + " Array: " + hasharray[1].array + " Amount: " + hasharray[2].amount);
         //await this.getLastTransaction(eosApi, rpc, account);
 
         const action = {
@@ -39,24 +39,28 @@ module.exports = {
                 new_asset_owner: account,
                 memo: hasharray[1].array,
                 hash: hasharray[0].hash,
+                amount: hasharray[2].amount,
+                new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
             },
         }
+        console.log(action);
         await session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
     },
-    createHash:async function (account) {
+    createHash:async function (account, bitcoinamount) {
         var hash;
         var random_array;
         var good = false;
         var hex_digist;
+        var amount = bitcoinamount.toString();
 
 
         while (!good  ) {
 
             random_array = this.randomString(16);
             account = account.toString();
-            var message = account + random_array;
+            var message = account + random_array + amount;
             hash = ecc.sha256(message);
             hex_digist = hash;
 
@@ -68,6 +72,9 @@ module.exports = {
         },
         {
             array: random_array
+        },
+        {
+            amount: amount
         }];
         return returnValues;
     },
@@ -99,11 +106,11 @@ module.exports = {
     }
     return result;
     },
-    updateAsset: async function (account, id, newLevel ) {
+    updateAsset: async function (account, id, newLevel, bitcoinamount ) {
         console.log("start update")
         var nonce;
         var hash;
-        var hashResult = await this.createHash(account);
+        var hashResult = await this.createHash(account, bitcoinamount);
         hash = hashResult[0].hash;
         nonce = hashResult[1].array;
         console.log("got hash");
@@ -118,6 +125,7 @@ module.exports = {
                 new_mutable_data: [{"key": "level", "value": ["uint64", newLevel]}],
                 memo: nonce,
                 hash: hash,
+                amount: hashResult[2].amount
             },
         }
         console.log(action);
