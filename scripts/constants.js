@@ -1,4 +1,4 @@
- const WAX_MAINNET = "https://wax.greymass.com";
+const WAX_MAINNET = "https://wax.greymass.com";
  const WAX_TESTNET = "https://waxtestnet.greymass.com";
 
  const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";

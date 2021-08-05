@@ -1,3 +1,20 @@
+/**Satoshi Clicker Game
+    Copyright (C) 2021  daubit gmbh
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /**--------------------------Global varibles  and requires------------------------------------------------------- */
 
 const { ExplorerApi } = require("atomicassets");
@@ -8,6 +25,16 @@ const DOMPurify = require("dompurify");
 const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
+
+const { Api, JsonRpc } = require('eosjs');
+const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig');  // development only
+const { TextEncoder, TextDecoder } = require('text-encoding'); //node only
+
+
+const defaultPrivateKey = "5JtUScZK2XEp3g9gh7F8bwtPTRAkASmNrrftmx4AxDKD5K4zDnr";
+const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
+const rpc = new JsonRpc('http://127.0.0.1:8888', { fetch }); //required to read blockchain state
+const eosApi = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() }); //required to submit transactions
 
 var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 
@@ -35,6 +62,7 @@ const reflinkModule = require("./reflink");
 const leaderboardModule = require("./leaderboard");
 const airdropModule = require("./airdrop");
 const donationModule = require("./donation");
+const mintModule = require("./minting");
 
 
 
@@ -191,16 +219,23 @@ function showNormalItemrate($element, bits_per_sec_string) {
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
   var newbitcoinRate = 0;
+  var currentAsset;
+  var level;
   for (let i = 0; i < items.length; i++) {
+    level = 0;
     const asset = await Game.getItem(items[i].name);
-    const template = templates.find((val) => val.name === items[i].name).data;
+    const template = await templates.find((val) => val.name === items[i].name);
+
     let itemAmount = 0;
     let bits_per_sec = 0;
-    bits_per_sec = parseFloat(template.rate);
+    bits_per_sec = parseFloat(template.data.rate);
     if (asset !== undefined) {
       itemAmount = asset.assets;
-
+      currentAsset = await findAssetID(template.id, wax.userAccount);
+      level = currentAsset[1].level;
     }
+    if (level == undefined)
+      level = itemAmount;
     // HTML element on the game page
     var $element = $("#" + items[i].name);
 
@@ -209,15 +244,20 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     if (itemAmount > 0)
       $element.children()[1].children[0].textContent += " +";
 
+      $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
+
       Game.setPriceAtGameBeginning(
         $element,
-        parseFloat(template.price),
-        parseInt(itemAmount)
+        parseFloat(template.data.price),
+        parseInt(level)
       );
 
-    itemAmount = parseInt(itemAmount);
 
-    var itemrate = itemAmount * bits_per_sec;
+    itemAmount = parseInt(itemAmount);
+    if (itemAmount > 0)
+      itemAmount = 1;
+
+    var itemrate = level * bits_per_sec;
     var itemrateString = roundNumber(itemrate);
     var bits_per_sec_string = roundNumber(bits_per_sec);
 
@@ -345,7 +385,7 @@ function incrementBitcoin() {
 
 
     clickValue = bitcoinRate * 0.001;
-    bitcoins = bitcoins + clickValue;
+    bitcoins = bitcoins + clickValue + 0.00000001;
 
     displayBitcoin(bitcoins);
 
@@ -362,20 +402,65 @@ function incrementBitcoin() {
   };
 }
 
+async function findAssetID(templateID, account) {
+  var assets;
+  var id;
+  var level = 0;
+  while (id == undefined) {
+    assets = await api.getAssets({owner: account, collection_name: "waxbtcclick1", template_id: templateID})
+
+
+
+    for (var i = 0; i < assets.length; i++) {
+      if (assets[i].mutable_data.level > level || assets[i].mutable_data.level == undefined) {
+        id = assets[i].asset_id;
+        if (assets[i].mutable_data.level == undefined)
+          level = 0;
+        else level = assets[i].mutable_data.level;
+      }
+    }
+    await sleep(1000);
+  }
+
+  var returnValues = [{id: id},{level: level}]
+  return returnValues;
+}
+
 /**
  * starts minting the clicked item if the player owns enough bitcoins
  * @returns {Promise<void>}
  */
 async function startMinting() {
   const id = $(this).attr("id");
+  var itemAmount = 0;
+  const asset = await Game.getItem(id);
+  if (asset !== undefined) {
+    itemAmount = asset.assets;
+  }
+
 
   const template = templates.find((val) => val.name === id);
   const {price} = template ? template.data : Number.MAX_VALUE;
 
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
 
+    console.log("Before Mint");
     showItems("none");
-     await mint(id);
+    if (itemAmount < 1)
+     {
+       await mintModule.mint(template.id, wax.userAccount, items, eosApi, rpc);
+       var new_asset = await findAssetID(template.id, wax.userAccount);
+       var asset_id = new_asset[0].id;
+       var level = parseInt(new_asset[1].level) + 1;
+       await mintModule.updateAsset(wax.userAccount, asset_id, level);
+     }
+    else {
+      var new_asset = await findAssetID(template.id, wax.userAccount);
+      var asset_id = new_asset[0].id;
+      var level = parseInt(new_asset[1].level) + 1;
+      await mintModule.updateAsset(wax.userAccount, asset_id, level);
+    }
+    console.log("After Mint");
 
     // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
     bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -441,29 +526,6 @@ Game.getItem = async function (id) {
   });
   return asset;
 };
-
-async function mint(id) {
-  const item = items.find((val) => {
-    return val.name === id;
-  });
-  const template_id = parseInt(item.template_id);
-  const action = {
-      account: 'waxclicker12',
-      name: 'mintasset',
-      authorization: [{ actor: wax.userAccount, permission: "active" }],
-      data: {
-      authorized_minter: "waxclicker12",
-      collection_name: TEST_COLLECTION, //"waxbtcclickr",
-      schema_name: "equipments",
-      template_id: template_id,
-      new_asset_owner: wax.userAccount
-      },
-  }
-  session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-
-}
 
 function showItems(state) {
   document.getElementById("purchaseList").style.display = state;
@@ -532,6 +594,7 @@ async function login() {
 }
 
 document.getElementById("loginWaxWallet").onclick = async () => {
+
 
   document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "none";
@@ -608,7 +671,7 @@ document.getElementById("verifyCollection").onclick = async function () {
  * @returns {Promise<void>}
  */
 document.getElementById("lbButton").onclick = async () => {
-  await leaderboardModule.showLeaderBoard(api, templates, items, multiplierModule, roundNumber);
+  await leaderboardModule.showLeaderBoard(api, templates, items, multiplierModule, roundNumber, findAssetID);
 }
 
 /**
@@ -864,7 +927,3 @@ function getClickMultiplier() {
   }
   return multi;
 }
-
-
-
-

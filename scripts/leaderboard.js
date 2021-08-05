@@ -1,10 +1,27 @@
+/**Satoshi Clicker Game
+ Copyright (C) 2021  daubit gmbh
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 module.exports = {
-    showLeaderBoard: async function (api, templates, items, calculateMultiplier, roundNumber) {
+    showLeaderBoard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
         var close = document.getElementById("closeLbSpan");
         var modal = document.getElementById("leaderboardModal");
         modal.style.display = "block";
         close.style.display = "inline-block";
-        await this.createLeaderboard(api, templates, items, calculateMultiplier, roundNumber);
+        await this.createLeaderboard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
 
         window.onclick = function(event) {
             if (event.target == modal) {
@@ -20,10 +37,10 @@ module.exports = {
         //Refresh Button
         var refresh = document.getElementById("refreshSpan");
         refresh.onclick = function () {
-            this.showLeaderBoard(api, templates, items, calculateMultiplier, roundNumber);
+            this.showLeaderBoard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
         }
     },
-    createLeaderboard: async function (api, templates, items, calculateMultiplier, roundNumber) {
+    createLeaderboard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
         document.getElementById("lbLoading").style.display = "inline-block";
         document.getElementById("refreshSpan").style.display = "none";
 
@@ -36,25 +53,28 @@ module.exports = {
 
             //fetch all accounts which own a version of the current item
             var accounts = await api.getAccounts({ collection_name: "waxbtcclick1", schema_name: "equipments", template_id: items[j].template_id, });
-
+            if (accounts.length == 0)
+                continue;
 
             //get the template of the current item
             const template = templates.find((val) => val.name === items[j].name).data;
             bits_per_sec = template.rate;
 
-            this.fillScores(accounts, scores, bits_per_sec);
+            await this.fillScores(accounts, scores, bits_per_sec, items[j].template_id, findAssetID);
 
             //wait a second because of rate limiting
             await this.sleep(1000);
         }
         //sort the map descending
         for (let [key, value] of scores) {
-            scores.set(key, value * (1 + await calculateMultiplier.calculateMultiplier(key, api)));
+            var multiplier = await calculateMultiplier.calculateMultiplier(key, api);
+            var newValue = value * (1 + multiplier);
+            scores.set(key, newValue);
         }
         scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
         this.fillLeaderboard(scores, roundNumber);
     },
-    fillScores: function (accounts, scores, bits_per_sec) {
+    fillScores: async function (accounts, scores, bits_per_sec, templateId, findAssetID) {
         for (var i = 0; i < accounts.length; i++) {
             var bitcoinrate = 0;
 
@@ -62,9 +82,11 @@ module.exports = {
             if (scores.has(accounts[i].account)) {
                 bitcoinrate = scores.get(accounts[i].account)
             }
+            var currentAsset = await findAssetID(templateId, accounts[i].account);
+            var level = currentAsset[1].level;
 
             //set and save the new bitcoinrate
-            bitcoinrate = bitcoinrate + accounts[i].assets * bits_per_sec;
+            bitcoinrate = bitcoinrate + level * bits_per_sec;
 
             scores.set(accounts[i].account, bitcoinrate);
         }
