@@ -14,13 +14,13 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-const ecc = require('eosjs-ecc');
-const EosApi = require('eosjs-api') // Or EosApi = require('./src')
+const ecc = require("eosjs-ecc");
+// const EosApi = require("eosjs-api"); // Or EosApi = require('./src')
 
-var eos = EosApi();
-
+// var eos = EosApi();
 
 module.exports = {
+
     mint: async function (id, account, bitcoinamount) {
 
         var hasharray = await this.createHash(account, bitcoinamount);
@@ -94,15 +94,14 @@ module.exports = {
     getLastTransaction: async function ( account) {
 
          console.log(await eos.getActions(account, -1, 1));
-
-    },
-    randomString: function (length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    }
+  randomString: function (length) {
+    var result = "";
+    var characters =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() *
-            charactersLength));
+    for (var i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
     },
