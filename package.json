@@ -4,6 +4,7 @@
   "description": "Bitcoin Clicker with NFTs",
   "main": "index.html",
   "type": "module",
+  "sourceType": "module",
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -16,23 +17,29 @@
     "anchor-link-console-transport": "^1.0.0",
     "atomicassets": "^1.3.1",
     "bip39": "^2.6.0",
-    "browserify": "^17.0.0",
     "browserify-fs": "^1.0.0",
     "browserslist": "^4.16.6",
     "core-js": "^3.15.2",
+    "cors": "^2.8.5",
     "dompurify": "^2.3.0",
     "dotenv": "^10.0.0",
+    "eosjs": "^20.0.3",
+    "eosjs-api": "^7.0.4",
+    "eosjs-ecc": "^4.0.7",
     "eth-keyring-controller": "^6.2.1",
     "ethereum-block-by-date": "^1.4.0",
     "ethereum-input-data-decoder": "^0.3.2",
     "ethereumjs-tx": "^2.1.2",
     "ethereumjs-util": "^6.2.1",
     "ethereumjs-wallet": "^1.0.1",
+    "express": "^4.17.1",
     "file-saver": "^2.0.5",
     "fs": "^0.0.1-security",
+    "js-sha256": "^0.9.0",
     "next": "^11.0.1",
     "node-fetch": "^2.6.1",
     "secure-ls": "^1.2.6",
+    "text-encoding": "^0.7.0",
     "web3": "^1.3.6",
     "web3-eth-contract": "^1.3.6"
   },
@@ -47,12 +54,9 @@
   },
   "homepage": "https://github.com/U-C-C-United-Crypto-Community/WAX-Bitcoin-Clicker#readme",
   "devDependencies": {
-    "@babel/cli": "^7.14.8",
-    "@babel/core": "^7.14.8",
-    "@babel/preset-env": "^7.14.8",
     "@types/file-saver": "^2.0.3",
     "@types/node": "^12.20.15",
-    "babel-preset-es2015": "^6.24.1",
+    "browserify": "^17.0.0",
     "es-check": "^5.2.4"
   }
 }

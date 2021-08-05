@@ -1,3 +1,20 @@
+/**Satoshi Clicker Game
+    Copyright (C) 2021  daubit gmbh
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /**--------------------------Global varibles  and requires------------------------------------------------------- */
 
 const { ExplorerApi } = require("atomicassets");
@@ -8,6 +25,16 @@ const DOMPurify = require("dompurify");
 const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
+
+const { Api, JsonRpc } = require('eosjs');
+const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig');  // development only
+const { TextEncoder, TextDecoder } = require('text-encoding'); //node only
+
+
+const defaultPrivateKey = "5JtUScZK2XEp3g9gh7F8bwtPTRAkASmNrrftmx4AxDKD5K4zDnr";
+const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
+const rpc = new JsonRpc('http://127.0.0.1:8888', { fetch }); //required to read blockchain state
+const eosApi = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() }); //required to submit transactions
 
 var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 
@@ -25,10 +52,18 @@ var disable = false;
 var amountOfClicks = 0;
 var lastClick = Date.now();
 var enableClickMultiplier = false;
+var waxWallet;
 
 var templates = [];
-var specialTemplates = [];
 const items = TEST_ITEMS;
+
+const multiplierModule = require("./multiplier");
+const reflinkModule = require("./reflink");
+const leaderboardModule = require("./leaderboard");
+const airdropModule = require("./airdrop");
+const donationModule = require("./donation");
+const mintModule = require("./minting");
+
 
 
 
@@ -52,7 +87,7 @@ var bSec = null;
 
 function initIntervalLastclick() {
   setInterval(function () {
-    currentTime = Date.now();
+    var currentTime = Date.now();
 
     var timeBetweenCLicks = currentTime - lastClick;
 
@@ -122,10 +157,9 @@ async function init() {
   }
 document.getElementById("lbButton").style.display = "block";
 document.getElementById("refButton").style.display = "block";
-detectRef();
+await reflinkModule.detectRef(ls, dp, wax.userAccount);
 initIntervals();
-multiplier = await calculateMultiplier(wax.userAccount);
-
+multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
 }
 /**
  *
@@ -185,16 +219,23 @@ function showNormalItemrate($element, bits_per_sec_string) {
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
   var newbitcoinRate = 0;
+  var currentAsset;
+  var level;
   for (let i = 0; i < items.length; i++) {
+    level = 0;
     const asset = await Game.getItem(items[i].name);
-    const template = templates.find((val) => val.name === items[i].name).data;
+    const template = await templates.find((val) => val.name === items[i].name);
+
     let itemAmount = 0;
     let bits_per_sec = 0;
-    bits_per_sec = parseFloat(template.rate);
+    bits_per_sec = parseFloat(template.data.rate);
     if (asset !== undefined) {
       itemAmount = asset.assets;
-
+      currentAsset = await findAssetID(template.id, wax.userAccount);
+      level = currentAsset[1].level;
     }
+    if (level == undefined)
+      level = itemAmount;
     // HTML element on the game page
     var $element = $("#" + items[i].name);
 
@@ -203,15 +244,20 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     if (itemAmount > 0)
       $element.children()[1].children[0].textContent += " +";
 
+      $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
+
       Game.setPriceAtGameBeginning(
         $element,
-        parseFloat(template.price),
-        parseInt(itemAmount)
+        parseFloat(template.data.price),
+        parseInt(level)
       );
 
-    itemAmount = parseInt(itemAmount);
 
-    var itemrate = itemAmount * bits_per_sec;
+    itemAmount = parseInt(itemAmount);
+    if (itemAmount > 0)
+      itemAmount = 1;
+
+    var itemrate = level * bits_per_sec;
     var itemrateString = roundNumber(itemrate);
     var bits_per_sec_string = roundNumber(bits_per_sec);
 
@@ -339,7 +385,7 @@ function incrementBitcoin() {
 
 
     clickValue = bitcoinRate * 0.001;
-    bitcoins = bitcoins + clickValue;
+    bitcoins = bitcoins + clickValue + 0.00000001;
 
     displayBitcoin(bitcoins);
 
@@ -356,20 +402,65 @@ function incrementBitcoin() {
   };
 }
 
+async function findAssetID(templateID, account) {
+  var assets;
+  var id;
+  var level = 0;
+  while (id == undefined) {
+    assets = await api.getAssets({owner: account, collection_name: "waxbtcclick1", template_id: templateID})
+
+
+
+    for (var i = 0; i < assets.length; i++) {
+      if (assets[i].mutable_data.level > level || assets[i].mutable_data.level == undefined) {
+        id = assets[i].asset_id;
+        if (assets[i].mutable_data.level == undefined)
+          level = 0;
+        else level = assets[i].mutable_data.level;
+      }
+    }
+    await sleep(1000);
+  }
+
+  var returnValues = [{id: id},{level: level}]
+  return returnValues;
+}
+
 /**
  * starts minting the clicked item if the player owns enough bitcoins
  * @returns {Promise<void>}
  */
 async function startMinting() {
   const id = $(this).attr("id");
+  var itemAmount = 0;
+  const asset = await Game.getItem(id);
+  if (asset !== undefined) {
+    itemAmount = asset.assets;
+  }
+
 
   const template = templates.find((val) => val.name === id);
   const {price} = template ? template.data : Number.MAX_VALUE;
 
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
 
+    console.log("Before Mint");
     showItems("none");
-     await mint(id);
+    if (itemAmount < 1)
+     {
+       await mintModule.mint(template.id, wax.userAccount, items, eosApi, rpc);
+       var new_asset = await findAssetID(template.id, wax.userAccount);
+       var asset_id = new_asset[0].id;
+       var level = parseInt(new_asset[1].level) + 1;
+       await mintModule.updateAsset(wax.userAccount, asset_id, level);
+     }
+    else {
+      var new_asset = await findAssetID(template.id, wax.userAccount);
+      var asset_id = new_asset[0].id;
+      var level = parseInt(new_asset[1].level) + 1;
+      await mintModule.updateAsset(wax.userAccount, asset_id, level);
+    }
+    console.log("After Mint");
 
     // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
     bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -426,7 +517,7 @@ function setup() {
 }
 
 Game.getItem = async function (id) {
-  assets = (await api.getAccount(wax.userAccount)).templates;
+  var assets = (await api.getAccount(wax.userAccount)).templates;
   const item = items.find((val) => {
     return val.name === id;
   });
@@ -435,29 +526,6 @@ Game.getItem = async function (id) {
   });
   return asset;
 };
-
-async function mint(id) {
-  const item = items.find((val) => {
-    return val.name === id;
-  });
-  const template_id = parseInt(item.template_id);
-  const action = {
-      account: 'waxclicker12',
-      name: 'mintasset',
-      authorization: [{ actor: wax.userAccount, permission: "active" }],
-      data: {
-      authorized_minter: "waxclicker12",
-      collection_name: TEST_COLLECTION, //"waxbtcclickr",
-      schema_name: "equipments",
-      template_id: template_id,
-      new_asset_owner: wax.userAccount
-      },
-  }
-  session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-
-}
 
 function showItems(state) {
   document.getElementById("purchaseList").style.display = state;
@@ -527,6 +595,7 @@ async function login() {
 
 document.getElementById("loginWaxWallet").onclick = async () => {
 
+
   document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "none";
 
@@ -570,282 +639,39 @@ async function verifyWaxWallet() {
 }
 
 /**
- * ------------------------------------Donation------------------------------------------------------------------------
+ * ------------------------------------------------Donation-------------------------------------------------------------
  */
 
-/**
- * Show user dialog for donation.
- */
-
-document.getElementById("donateButton").onclick = showDialog;
-
-async function showDialog() {
-  var modal = document.getElementById("myModal");
-  var span = document.getElementById("closeSpan");
-  var content = document.getElementById("content");
-  var input = document.getElementById("quantity");
-
-  content.innerText = "With how much WAX do you wanna donate RAM?";
-
-  modal.style.display = "block";
-
-  span.onclick = function () {
-    modal.style.display = "none";
-
-    //Get user input
-    var userinput = dp.sanitize(input.value);
-
-    if (userinput != "") userinput = parseFloat(userinput);
-
-    console.log(typeof userinput);
-    //Do transaction with the userinput
-    if (typeof userinput != "number") alert("Please input a number");
-    else {
-      sign(userinput);
-    }
-  };
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
+document.getElementById("donateButton").onclick = async function () {
+  await donationModule.showDialog(dp, wax);
 }
 
-/**
- * Transact wax from the user to our contract. Need to adjust receiver after smart contract is finished.
- * @param amount: the amount of WAX the user put in to donate
- * @returns {Promise<void>}
- */
-async function sign(amount) {
-  if (wax.userAccount === undefined) {
-    await wax.login();
-  }
-
-  //convert amount into the right format
-  var quantity = amount.toString();
-
-  quantity = quantity + ".00000000 WAX";
-  console.log(quantity);
-
-  //execute transaction
-
-
-        const action =
-          {
-            account: "eosio",
-            name: "buyram",
-            authorization: [
-              {
-                actor: wax.userAccount,
-                permission: "active",
-              },
-            ],
-            data: {
-              payer: wax.userAccount,
-              receiver: "waxclicker12", //Später smart contract Name
-              quant: quantity,
-            },
-          }
-
-  session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-}
 
 /**
  * ------------------------------------------------Airdrop-------------------------------------------------------------
  */
 
-/**
- * Checks the assets of the currently logged in wallet for assets from the 1cryptobeard collection
- * @returns {Promise<number>} count of assets from the 1cryptobeard collection
- */
-async function checkForAirdrop() {
-  var assets = (await api.getAccount(wax.userAccount)).templates;
-  var count = 0;
 
-  for (var i = 0; i < assets.length; i++) {
-    const collection = assets[i].collection_name;
-
-    if (collection == "1cryptobeard")
-      count++;
-  }
-  return count;
+document.getElementById("verifyCollection").onclick = async function () {
+  await airdropModule.verifyCollection(api, wax.userAccount);
 }
 
-/**
- * Fetches json with the private key.
- */
-function fetchJson( amount) {
 
-  fetch('./test.json').then(response => response.json())
-      .then(data => showVerificationDialog(data["Private Key"], "Authentification was succesfull! Found "
-          + amount + " assets from 1cryptobeard" + "\n" + "Link for the airdrop: "))
-      .catch(err => console.log(err));
-}
 
-document.getElementById("verifyCollection").onclick = verifyCollection;
-
-/**
- * Function to show exclusive link for packdrop
- * @returns {Promise<void>}
- */
-async function verifyCollection() {
-  var count = await checkForAirdrop();
-  if (count > 0) {
-    fetchJson(count);
-  }
-  else {
-    showVerificationDialog("", "Verification not succesfull");
-  }
-}
-
-/**
- *
- * @param privateKey
- * @param msg if the authentification was succesfull or not
- * @returns {Promise<void>}
- */
-
-async function showVerificationDialog(privateKey, msg) {
-  var modal = document.getElementById("pkModal");
-  var mcontent = document.getElementById("pkContent");
-  var span = document.getElementById("pkSpan");
-
-  modal.style.display = "block";
-
-  span.onclick = function () {
-    modal.style.display = "none";
-  };
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  };
-  mcontent.innerText = msg + privateKey;
-}
 
 /**
  * --------------------------------------------------Leaderboard--------------------------------------------------------
  */
 
-/**
- * fills the leaderboard table
- * @param scores Map with each account and its corresponding score
- */
-function fillLeaderboard(scores) {
-  var counter = 1;
-
-  //iterate over the sorted map
-  for (let [key, value] of scores) {
-    var currentText = document.getElementById("lb" + counter);
-    var valueString = roundNumber(value)
-
-    currentText.innerText = counter + ". " + key + " - " + valueString + " B/SEC";
-    counter++;
-  }
-  //Finished loading -> we can now show the button to refresh
-  document.getElementById("lbLoading").style.display = "none";
-  document.getElementById("refreshSpan").style.display = "inline-block";
-}
-
-/**
- *
- * @param accounts the accounts which one atleast 1 of the current item
- * @param scores the map holding the scores
- * @param bits_per_sec of the current item
- */
-function fillScores(accounts,  scores, bits_per_sec) {
-  //iterate over all accounts
-  for (var i = 0; i < accounts.length; i++) {
-    var bitcoinrate = 0;
-
-    //if the account already exists get the current score
-    if (scores.has(accounts[i].account)) {
-      bitcoinrate = scores.get(accounts[i].account)
-    }
-
-    //set and save the new bitcoinrate
-    bitcoinrate = bitcoinrate + accounts[i].assets * bits_per_sec;
-
-    scores.set(accounts[i].account, bitcoinrate);
-  }
-}
-
-/**
- * function for creating the leaderboard
- * for each item: fetches all accounts which own a nft of it
- * Adds the bitcoinrates of all item together for the final score
- */
-async function createLeaderboard() {
-  document.getElementById("lbLoading").style.display = "inline-block";
-  document.getElementById("refreshSpan").style.display = "none";
-
-  var scores = new Map();
-
-  //iterate over all items
-  for (var j = 0; j < items.length; j++) {
-
-    var bits_per_sec = 0;
-
-    //fetch all accounts which own a version of the current item
-    var accounts = await api.getAccounts({ collection_name: "waxbtcclick1", schema_name: "equipments", template_id: items[j].template_id, });
 
 
-    //get the template of the current item
-    const template = templates.find((val) => val.name === items[j].name).data;
-    bits_per_sec = template.rate;
-
-    fillScores(accounts, scores, bits_per_sec);
-
-    //wait a second because of rate limiting
-    await sleep(1000);
-  }
-  //sort the map descending
-  for (let [key, value] of scores) {
-    scores.set(key, value * (1 + await calculateMultiplier(key)));
-  }
-  scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
-  fillLeaderboard(scores);
-}
 
 /**
  * On click function for a button to show the leaderboard
  * @returns {Promise<void>}
  */
 document.getElementById("lbButton").onclick = async () => {
-  await showLeaderBoard();
-}
-
-/**
- * function which initiates the leaderboard
- * @returns {Promise<void>}
- */
-async function showLeaderBoard() {
-  var close = document.getElementById("closeLbSpan");
-  var modal = document.getElementById("leaderboardModal");
-  modal.style.display = "block";
-  close.style.display = "inline-block";
-  await createLeaderboard();
-
-  window.onclick = function(event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-
-  //Close Button
-  close.onclick = function () {
-    modal.style.display = "none";
-  }
-
-  //Refresh Button
-  var refresh = document.getElementById("refreshSpan");
-  refresh.onclick = function () {
-    showLeaderBoard();
-  }
+  await leaderboardModule.showLeaderBoard(api, templates, items, multiplierModule, roundNumber, findAssetID);
 }
 
 /**
@@ -874,47 +700,7 @@ function generateRefLink() {
 
   url.searchParams.set('ref', wax.userAccount);
   navigator.clipboard.writeText(url);
-  showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
-}
-
-/**
- * function looking for a reflink
- */
-
-function detectRef() {
-  var receivedRef = false;
-  const keys = ls.getAllKeys();
-
-  if (keys.length == 0 || !keys.includes("ref"))
-    ls.set("ref", false);
-  else {
-    receivedRef = ls.get("ref");
-  }
-
-  let url = new URL(window.location.href);
-
-  if (url.searchParams.has("ref") && !receivedRef)
-  {
-    var ref;
-
-    for (let [name, value] of url.searchParams) {
-
-      if (dp.sanitize(name) == "ref")
-      ref = dp.sanitize(value);
-    }
-    console.log(ref);
-
-    if (ref != wax.userAccount) {
-      console.log("Reflink detected");
-      mintSpecialNft(ref)
-      ls.set("ref", true);
-    } else {
-      console.log("You cant refer yourself!");
-    }
-  }
-  else {
-    console.log("No reflink detected or you already received a ref");
-  }
+  airdropModule.showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
 }
 
 /**
@@ -1048,19 +834,6 @@ const link = new AnchorLink({
   ],
 });
 // the session instance, either restored using link.restoreSession() or created with link.login()
-let session;
-
-/**
- * function to restore a session
- */
-function restoreSession() {
-  link.restoreSession(identifier).then((result) => {
-    session = result;
-    if (session) {
-      didLogin();
-    }
-  });
-}
 
 /**
  * shows and setups the purchaselist
@@ -1154,123 +927,3 @@ function getClickMultiplier() {
   }
   return multi;
 }
-
-/**
- * ---------------------------------------------------Special NFT-------------------------------------------------------
- */
-
-/**
- *
- * @param ref
- * @returns {Promise<void>}
- */
-
-async function mintSpecialNft(ref) {
-  const action = {
-    account: 'waxclicker12',
-    name: 'mintasset',
-    authorization: [{actor: wax.userAccount, permission: "active"}],
-    data: {
-      authorized_minter: "waxclicker12",
-      collection_name: TEST_COLLECTION, //"waxbtcclickr",
-      schema_name: "invfriend",
-      template_id: special_items[0].template_id,
-      new_asset_owner: wax.userAccount,
-      mutable_data: {
-        referrer: ref,
-        receiver: wax.userAccount,
-      },
-    },
-  }
-  await session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-  mintNftForRef(ref);
-}
-
-function mintNftForRef(ref) {
-  const action = {
-    account: 'waxclicker12',
-    name: 'mintasset',
-    authorization: [{actor: wax.userAccount, permission: "active"}],
-    data: {
-      authorized_minter: "waxclicker12",
-      collection_name: TEST_COLLECTION, //"waxbtcclickr",
-      schema_name: "invfriend",
-      template_id: special_items[0].template_id,
-      new_asset_owner: ref,
-      mutable_data: {
-        referrer: ref,
-        receiver: wax.userAccount,
-      },
-    },
-  }
-  session.transact({action}).then(({transaction}) => {
-    console.log(`Transaction broadcast! Id: ${transaction.id}`)
-  })
-}
-
-async function calculateMultiplier(account) {
-  var multiplier = 0.0;
-  var freibierMulti = 0.0;
-  await getSpecialTemplates();
-
-  for (var i = 0; i < special_items.length; i++) {
-    var itemAmount = 0;
-    var asset = await findSpecialNft(special_items[i].template_id, account);
-    var template = specialTemplates.find((val) => val.id === special_items[i].template_id).data;
-    var nftMulti = 0;
-
-    if (asset !== undefined) {
-
-      itemAmount = asset.assets;
-      nftMulti = template.multiplier;
-
-      if (template.name.includes("Freibier") && itemAmount > 0)
-      {
-        document.getElementById(template.name).style.display = "block";
-        document.getElementById(template.name).children[2].textContent = "Multiplier: " + nftMulti;
-        if (nftMulti > freibierMulti)
-          freibierMulti = nftMulti;
-      }
-      else {
-        multiplier += nftMulti * itemAmount;
-        if (itemAmount > 0)
-        {
-          document.getElementById(template.name).style.display = "block";
-          document.getElementById(template.name).children[1].textContent = "FRIENDS LEVEL: " + itemAmount;
-          document.getElementById(template.name).children[3].textContent = "Multiplier: " + (nftMulti * itemAmount).toString();
-
-        }
-      }
-
-    }
-  }
-  multiplier += freibierMulti;
-  return multiplier;
-
-}
-
-async function findSpecialNft(id, account) {
-  assets = (await api.getAccount(account)).templates;
-
-  const asset = assets.find((val) => {
-    return val.template_id === id;
-  });
-  return asset;
-}
-
-async function getSpecialTemplates() {
-
-  for (let i = 0; i < special_items.length; i++) {
-    const id = special_items[i].template_id;
-    const name = special_items[i].name;
-    const data = (await api.getTemplate("waxbtcclick1", id)).immutable_data;
-
-    const result = { name, id, data };
-    specialTemplates.push(result);
-  }
-}
-
-
-
