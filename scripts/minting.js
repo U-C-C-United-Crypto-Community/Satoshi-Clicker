@@ -58,9 +58,9 @@ module.exports = {
 
         while (!good  ) {
 
-            random_array = this.randomString(16);
+            random_array = this.randomString(12);
             account = account.toString();
-            var message = account + random_array + amount;
+            var message = account   + amount + random_array;
             hash = ecc.sha256(message);
             hex_digist = hash;
 
