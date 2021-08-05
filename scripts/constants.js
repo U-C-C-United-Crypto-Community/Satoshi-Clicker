@@ -194,3 +194,22 @@ var TEST_ITEMS = [
   "Novemvigintillion",
   "Trigintillion",
 ];
+
+ var special_items = [
+     {
+        name: "Friends",
+        template_id: "146158",
+     },
+     {
+        name: "Freibier Gold",
+        template_id: "146154"
+     },
+     {
+         name: "Freibier Silber",
+         template_id: "146155",
+     },
+     {
+         name: "Freibier Bronze",
+         template_id: "146156",
+     }
+ ]
