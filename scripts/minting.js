@@ -20,71 +20,81 @@ const ecc = require("eosjs-ecc");
 // var eos = EosApi();
 
 module.exports = {
-  mint: async function (id, account, items, eosApi, rpc) {
-    var hasharray = await this.createHash(account);
-    console.log("Hash: " + hasharray[0].hash + " Array: " + hasharray[1].array);
-    //await this.getLastTransaction(eosApi, rpc, account);
 
-    const action = {
-      account: "waxclicker12",
-      name: "mintasset",
-      authorization: [{ actor: account, permission: "active" }],
-      data: {
-        authorized_minter: "waxclicker12",
-        collection_name: TEST_COLLECTION, //"waxbtcclickr",
-        schema_name: "equipments",
-        template_id: id,
-        new_asset_owner: account,
-        memo: hasharray[1].array,
-        hash: hasharray[0].hash,
-      },
-    };
-    await session.transact({ action }).then(({ transaction }) => {
-      console.log(`Transaction broadcast! Id: ${transaction.id}`);
-    });
-  },
-  createHash: async function (account) {
-    var hash;
-    var random_array;
-    var good = false;
-    var hex_digist;
+    mint: async function (id, account, bitcoinamount) {
 
-    while (!good) {
-      random_array = this.randomString(16);
-      account = account.toString();
-      var message = account + random_array;
-      hash = ecc.sha256(message);
-      hex_digist = hash;
+        var hasharray = await this.createHash(account, bitcoinamount);
+        console.log("Hash: " + hasharray[0].hash + " Array: " + hasharray[1].array + " Amount: " + hasharray[2].amount);
+        //await this.getLastTransaction(eosApi, rpc, account);
 
-      good = hex_digist.substr(0, 2) == "00";
+        const action = {
+            account: 'waxclicker12',
+            name: 'mintasset',
+            authorization: [{ actor: account, permission: "active" }],
+            data: {
+                authorized_minter: "waxclicker12",
+                collection_name: TEST_COLLECTION, //"waxbtcclickr",
+                schema_name: "equipments",
+                template_id: id,
+                new_asset_owner: account,
+                memo: hasharray[1].array,
+                hash: hasharray[0].hash,
+                amount: hasharray[2].amount,
+                new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+            },
+        }
+        console.log(action);
+        await session.transact({action}).then(({transaction}) => {
+            console.log(`Transaction broadcast! Id: ${transaction.id}`)
+        })
+    },
+    createHash:async function (account, bitcoinamount) {
+        var hash;
+        var random_array;
+        var good = false;
+        var hex_digist;
+        var amount = bitcoinamount.toString();
+
+
+        while (!good  ) {
+
+            random_array = this.randomString(16);
+            account = account.toString();
+            var message = account + random_array + amount;
+            hash = ecc.sha256(message);
+            hex_digist = hash;
+
+            good = hex_digist.substr(0,2) == '00';
+        }
+
+        var returnValues = [{
+            hash: hex_digist
+        },
+        {
+            array: random_array
+        },
+        {
+            amount: amount
+        }];
+        return returnValues;
+    },
+    getRand: function () {
+        const arr = new Uint8Array(8);
+        for (let i=0; i < 8; i++){
+            const rand = Math.floor(Math.random() * 255);
+            arr[i] = rand;
+        }
+        return arr;
+    },
+    toHex: function (buffer) {
+        return [...new Uint8Array (buffer)]
+            .map (b => b.toString (16).padStart (2, "0"))
+            .join ("");
+    },
+    getLastTransaction: async function ( account) {
+
+         console.log(await eos.getActions(account, -1, 1));
     }
-
-    var returnValues = [
-      {
-        hash: hex_digist,
-      },
-      {
-        array: random_array,
-      },
-    ];
-    return returnValues;
-  },
-  getRand: function () {
-    const arr = new Uint8Array(8);
-    for (let i = 0; i < 8; i++) {
-      const rand = Math.floor(Math.random() * 255);
-      arr[i] = rand;
-    }
-    return arr;
-  },
-  toHex: function (buffer) {
-    return [...new Uint8Array(buffer)]
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-  },
-  getLastTransaction: async function (account) {
-    console.log(await eos.getActions(account, -1, 1));
-  },
   randomString: function (length) {
     var result = "";
     var characters =
@@ -94,31 +104,34 @@ module.exports = {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-  },
-  updateAsset: async function (account, id, newLevel) {
-    console.log("start update");
-    var nonce;
-    var hash;
-    var hashResult = await this.createHash(account);
-    hash = hashResult[0].hash;
-    nonce = hashResult[1].array;
-    console.log("got hash");
+    },
+    updateAsset: async function (account, id, newLevel, bitcoinamount ) {
+        console.log("start update")
+        var nonce;
+        var hash;
+        var hashResult = await this.createHash(account, bitcoinamount);
+        hash = hashResult[0].hash;
+        nonce = hashResult[1].array;
+        console.log("got hash");
 
-    const action = {
-      account: "waxclicker12",
-      name: "upgrade",
-      authorization: [{ actor: account, permission: "active" }],
-      data: {
-        asset_id: id,
-        asset_owner: account,
-        new_mutable_data: [{ key: "level", value: ["uint64", newLevel] }],
-        memo: nonce,
-        hash: hash,
-      },
-    };
-    console.log(action);
-    await session.transact({ action }).then(({ transaction }) => {
-      console.log(`Transaction broadcast! Id: ${transaction.id}`);
-    });
-  },
-};
+        const action = {
+            account: 'waxclicker12',
+            name: 'upgrade',
+            authorization: [{ actor: account, permission: "active" }],
+            data: {
+                asset_id: id,
+                asset_owner: account,
+                new_mutable_data: [{"key": "level", "value": ["uint64", newLevel]}],
+                memo: nonce,
+                hash: hash,
+                amount: hashResult[2].amount
+            },
+        }
+        console.log(action);
+        await session.transact({action}).then(({transaction}) => {
+            console.log(`Transaction broadcast! Id: ${transaction.id}`)
+        })
+    }
+
+
+}

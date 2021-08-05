@@ -448,17 +448,13 @@ async function startMinting() {
     showItems("none");
     if (itemAmount < 1)
      {
-       await mintModule.mint(template.id, wax.userAccount, items, eosApi, rpc);
-       var new_asset = await findAssetID(template.id, wax.userAccount);
-       var asset_id = new_asset[0].id;
-       var level = parseInt(new_asset[1].level) + 1;
-       await mintModule.updateAsset(wax.userAccount, asset_id, level);
+       await mintModule.mint(template.id, wax.userAccount, bitcoins);
      }
     else {
       var new_asset = await findAssetID(template.id, wax.userAccount);
       var asset_id = new_asset[0].id;
       var level = parseInt(new_asset[1].level) + 1;
-      await mintModule.updateAsset(wax.userAccount, asset_id, level);
+      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
     }
     console.log("After Mint");
 
