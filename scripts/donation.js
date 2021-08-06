@@ -33,9 +33,9 @@ module.exports = {
             //Get user input
             var userinput = dp.sanitize(input.value);
 
-            if (userinput != "") userinput = parseFloat(userinput);
+            if (userinput != "") userinput = parseInt(userinput);
 
-            console.log(typeof userinput);
+
             //Do transaction with the userinput
             if (typeof userinput != "number") alert("Please input a number");
             else {
@@ -59,7 +59,7 @@ module.exports = {
         var quantity = amount.toString();
 
         quantity = quantity + ".00000000 WAX";
-        console.log(quantity);
+
 
         //execute transaction
 

@@ -151,7 +151,6 @@ async function init() {
   } else {
     // Get the amount of Bitcoins and parse them to a float number
     bitcoins = parseFloat(ls.get("bitcoins"));
-    console.log("Init", bitcoins);
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
@@ -444,11 +443,17 @@ async function startMinting() {
 
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
 
-    console.log("Before Mint");
+
     showItems("none");
     if (itemAmount < 1)
      {
        await mintModule.mint(template.id, wax.userAccount, bitcoins);
+       var new_asset = await findAssetID(template.id, wax.userAccount);
+       var asset_id = new_asset[0].id;
+       var level = parseInt(new_asset[1].level) + 1;
+       if (level == 1) {
+         await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
+       }
      }
     else {
       var new_asset = await findAssetID(template.id, wax.userAccount);
@@ -456,7 +461,7 @@ async function startMinting() {
       var level = parseInt(new_asset[1].level) + 1;
       await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
     }
-    console.log("After Mint");
+
 
     // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
     bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -869,14 +874,12 @@ async function anchorLogin() {
 
     //start the game
     wax.userAccount = session.auth.actor.toString();
-    console.log(wax.userAccount);
     await init();
     await Game.setBitcoinPerSecondRateAtBeginning();
 
     makePurchaselist();
     return;
   }
-  console.log("login not succesfull");
 
   showItems("block");
 
@@ -896,7 +899,7 @@ function logout() {
  * called to restore a anchor session
  */
 function didLogin() {
-  console.log(session.auth);
+
   document.body.classList.add("logged-in");
 }
 
