@@ -383,8 +383,8 @@ function incrementBitcoin() {
     $(".bitcoin").off("click");
 
 
-    clickValue = bitcoinRate * 0.001;
-    bitcoins = bitcoins + clickValue + 0.00000001;
+    clickValue = bitcoinRate * 0.001 + 0.00000001;
+    bitcoins = bitcoins + clickValue ;
 
     displayBitcoin(bitcoins);
 
