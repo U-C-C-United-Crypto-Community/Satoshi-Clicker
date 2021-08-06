@@ -42,7 +42,6 @@ module.exports = {
                 new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
             },
         }
-
         await session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
