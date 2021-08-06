@@ -24,7 +24,6 @@ module.exports = {
     mint: async function (id, account, bitcoinamount) {
 
         var hasharray = await this.createHash(account, bitcoinamount);
-        console.log("Hash: " + hasharray[0].hash + " Array: " + hasharray[1].array + " Amount: " + hasharray[2].amount);
         //await this.getLastTransaction(eosApi, rpc, account);
 
         const action = {
@@ -43,7 +42,7 @@ module.exports = {
                 new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
             },
         }
-        console.log(action);
+
         await session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
@@ -91,10 +90,6 @@ module.exports = {
             .map (b => b.toString (16).padStart (2, "0"))
             .join ("");
     },
-    getLastTransaction: async function ( account) {
-
-         console.log(await eos.getActions(account, -1, 1));
-    }
   randomString: function (length) {
     var result = "";
     var characters =
@@ -106,13 +101,12 @@ module.exports = {
     return result;
     },
     updateAsset: async function (account, id, newLevel, bitcoinamount ) {
-        console.log("start update")
         var nonce;
         var hash;
         var hashResult = await this.createHash(account, bitcoinamount);
         hash = hashResult[0].hash;
         nonce = hashResult[1].array;
-        console.log("got hash");
+
 
         const action = {
             account: 'waxclicker12',
@@ -127,7 +121,6 @@ module.exports = {
                 amount: hashResult[2].amount
             },
         }
-        console.log(action);
         await session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })

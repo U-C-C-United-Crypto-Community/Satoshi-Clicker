@@ -29,7 +29,7 @@ module.exports = {
                 receiver: account,
             },
         }
-        console.log(action);
+
         await session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
@@ -76,18 +76,16 @@ module.exports = {
                 if (dp.sanitize(name) == "ref")
                     ref = dp.sanitize(value);
             }
-            console.log(ref);
+
 
             if (ref != userAccount) {
-                console.log("Reflink detected");
+
                 await this.mintSpecialNft(ref, userAccount)
                 ls.set("ref", true);
             } else {
-                console.log("You cant refer yourself!");
+
             }
         }
-        else {
-            console.log("No reflink detected or you already received a ref");
-        }
+
     }
 }
