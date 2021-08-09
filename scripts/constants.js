@@ -4,7 +4,7 @@ const WAX_MAINNET = "https://wax.greymass.com";
  const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
  const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
- const TEST_COLLECTION = "waxbtcclick1";
+ const TEST_COLLECTION = "waxclickbeta";
 
 let session;
 
@@ -86,75 +86,75 @@ let session;
 var TEST_ITEMS = [
   {
     name: "item_oldCalculator",
-    template_id: "140790",
+    template_id: "150075",
   },
   {
     name: "item_oldCpu",
-    template_id: "140791",
+    template_id: "150076",
   },
   {
     name: "item_oldComputerFromGrandpa",
-    template_id: "140792",
+    template_id: "150077",
   },
   {
     name: "item_raspberrypi",
-    template_id: "140793",
+    template_id: "150079",
   },
   {
     name: "item_smartphone",
-    template_id: "140794",
+    template_id: "150080",
   },
   {
     name: "item_middleClassPC",
-    template_id: "140795",
+    template_id: "150081",
   },
   {
     name: "item_cheapServer",
-    template_id: "140796",
+    template_id: "150084",
   },
   {
     name: "item_gamingPC",
-    template_id: "140797",
+    template_id: "150082",
   },
   {
     name: "item_cheapMiner",
-    template_id: "140798",
+    template_id: "150083",
   },
   {
     name: "item_highEndUltraPC",
-    template_id: "140799",
+    template_id: "150095",
   },
   {
     name: "item_bigMiner",
-    template_id: "140800",
+    template_id: "150093",
   },
   {
     name: "item_miningFarm",
-    template_id: "140801",
+    template_id: "150091",
   },
   {
     name: "item_nasaPC",
-    template_id: "140802",
+    template_id: "150089",
   },
   {
     name: "item_quantumRig",
-    template_id: "140803",
+    template_id: "150088",
   },
   {
     name: "item_miningFarmSpace",
-    template_id: "140804",
+    template_id: "150085",
   },
   {
     name: "item_miningFarmMoon",
-    template_id: "140805",
+    template_id: "150087",
   },
   {
     name: "item_bitcoinTimeMachine",
-    template_id: "140806",
+    template_id: "150086",
   },
   {
     name: "item_blackHolePoweredMiner",
-    template_id: "140807",
+    template_id: "150074",
   },
 ];
 
@@ -200,18 +200,6 @@ var TEST_ITEMS = [
  var special_items = [
      {
         name: "Friends",
-        template_id: "146158",
-     },
-     {
-        name: "Freibier Gold",
-        template_id: "146154"
-     },
-     {
-         name: "Freibier Silber",
-         template_id: "146155",
-     },
-     {
-         name: "Freibier Bronze",
-         template_id: "146156",
+        template_id: "150096",
      }
  ]
