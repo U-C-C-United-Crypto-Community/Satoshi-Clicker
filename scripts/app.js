@@ -383,8 +383,8 @@ function incrementBitcoin() {
     $(".bitcoin").off("click");
 
 
-    clickValue = bitcoinRate * 0.001;
-    bitcoins = bitcoins + clickValue + 0.00000001;
+    clickValue = bitcoinRate * 0.001 + 0.00000001;
+    bitcoins = bitcoins + clickValue ;
 
     displayBitcoin(bitcoins);
 
@@ -447,7 +447,7 @@ async function startMinting() {
     showItems("none");
     if (itemAmount < 1)
      {
-       await mintModule.mint(template.id, wax.userAccount, bitcoins);
+       await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
        var new_asset = await findAssetID(template.id, wax.userAccount);
        var asset_id = new_asset[0].id;
        var level = parseInt(new_asset[1].level) + 1;
@@ -460,7 +460,7 @@ async function startMinting() {
       var new_asset = await findAssetID(template.id, wax.userAccount);
       var asset_id = new_asset[0].id;
       var level = parseInt(new_asset[1].level) + 1;
-      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
+      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
     }
 
 
@@ -860,10 +860,15 @@ function makePurchaselist() {
  */
 async function anchorLogin() {
 
-  await link.login(identifier).then((result) => {
-    session = result.session;
-    didLogin();
-  });
+  try{
+    await link.login(identifier).then((result) => {
+      session = result.session;
+      didLogin();
+    });
+  } catch (e) {
+    document.getElementById("loginWaxWallet").style.display = "block";
+    document.getElementById("loginAnchorWallet").style.display = "block";
+  }
 
 
   document.getElementById("loginWaxWallet").style.display = "none";
