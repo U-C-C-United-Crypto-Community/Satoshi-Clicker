@@ -134,6 +134,7 @@ body {
   animation: rotation 20s linear infinite;
   border-radius: 500px;
 }
+
 .bitcoin:hover {
   width: 27%;
   top: 23%;

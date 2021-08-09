@@ -452,6 +452,7 @@ async function startMinting() {
        var asset_id = new_asset[0].id;
        var level = parseInt(new_asset[1].level) + 1;
        if (level == 1) {
+         bitcoins = bitcoins + 0.000000001;
          await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
        }
      }
@@ -559,7 +560,6 @@ function displayBitcoin(bitcoins) {
  * @param {number} oldBitcoinRate
  */
 async function waitForTransaction(oldBitcoinRate) {
-  await Game.setBitcoinPerSecondRateAtBeginning();
   Game.setNewBitcoinRate();
   setTimeout(() => {
     if (oldBitcoinRate === bitcoinRate) {
