@@ -302,11 +302,11 @@ Game.setNewBitcoinRate = function () {
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0).optimizeNumber());
   } else if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "\n BITCOINS/SEC");
   } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "\n BITCOINS/SEC");
   } else {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "\n BITCOINS/SEC");
   }
 };
 
