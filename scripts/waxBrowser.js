@@ -33709,8 +33709,8 @@ function incrementBitcoin() {
     $(".bitcoin").off("click");
 
 
-    clickValue = bitcoinRate * 0.001;
-    bitcoins = bitcoins + clickValue + 0.00000001;
+    clickValue = bitcoinRate * 0.001 + 0.00000001;
+    bitcoins = bitcoins + clickValue ;
 
     displayBitcoin(bitcoins);
 
@@ -33773,7 +33773,7 @@ async function startMinting() {
     showItems("none");
     if (itemAmount < 1)
      {
-       await mintModule.mint(template.id, wax.userAccount, bitcoins);
+       await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
        var new_asset = await findAssetID(template.id, wax.userAccount);
        var asset_id = new_asset[0].id;
        var level = parseInt(new_asset[1].level) + 1;
@@ -33786,7 +33786,7 @@ async function startMinting() {
       var new_asset = await findAssetID(template.id, wax.userAccount);
       var asset_id = new_asset[0].id;
       var level = parseInt(new_asset[1].level) + 1;
-      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
+      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
     }
 
 
@@ -34186,10 +34186,15 @@ function makePurchaselist() {
  */
 async function anchorLogin() {
 
-  await link.login(identifier).then((result) => {
-    session = result.session;
-    didLogin();
-  });
+  try{
+    await link.login(identifier).then((result) => {
+      session = result.session;
+      didLogin();
+    });
+  } catch (e) {
+    document.getElementById("loginWaxWallet").style.display = "block";
+    document.getElementById("loginAnchorWallet").style.display = "block";
+  }
 
 
   document.getElementById("loginWaxWallet").style.display = "none";
@@ -34495,30 +34500,34 @@ const ecc = require("eosjs-ecc");
 
 module.exports = {
 
-    mint: async function (id, account, bitcoinamount) {
+    mint: async function (id, account, bitcoinamount, showItems) {
 
         var hasharray = await this.createHash(account, bitcoinamount);
         //await this.getLastTransaction(eosApi, rpc, account);
 
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintasset',
-            authorization: [{ actor: account, permission: "active" }],
-            data: {
-                authorized_minter: "waxclicker12",
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "equipments",
-                template_id: id,
-                new_asset_owner: account,
-                memo: hasharray[1].array,
-                hash: hasharray[0].hash,
-                amount: hasharray[2].amount,
-                new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
-            },
+        try{
+            const action = {
+                account: 'waxclicker12',
+                name: 'mintasset',
+                authorization: [{actor: account, permission: "active"}],
+                data: {
+                    authorized_minter: "waxclicker12",
+                    collection_name: TEST_COLLECTION, //"waxbtcclickr",
+                    schema_name: "equipments",
+                    template_id: id,
+                    new_asset_owner: account,
+                    memo: hasharray[1].array,
+                    hash: hasharray[0].hash,
+                    amount: hasharray[2].amount,
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+                },
+            }
+            await session.transact({action}).then(({transaction}) => {
+                console.log(`Transaction broadcast! Id: ${transaction.id}`)
+            })
+        } catch (e){
+            showItems("block");
         }
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
     },
     createHash:async function (account, bitcoinamount) {
         var hash;
@@ -34573,7 +34582,7 @@ module.exports = {
     }
     return result;
     },
-    updateAsset: async function (account, id, newLevel, bitcoinamount ) {
+    updateAsset: async function (account, id, newLevel, bitcoinamount, showItems ) {
         var nonce;
         var hash;
         var hashResult = await this.createHash(account, bitcoinamount);
@@ -34581,22 +34590,26 @@ module.exports = {
         nonce = hashResult[1].array;
 
 
-        const action = {
-            account: 'waxclicker12',
-            name: 'upgrade',
-            authorization: [{ actor: account, permission: "active" }],
-            data: {
-                asset_id: id,
-                asset_owner: account,
-                new_mutable_data: [{"key": "level", "value": ["uint64", newLevel]}],
-                memo: nonce,
-                hash: hash,
-                amount: hashResult[2].amount
-            },
+        try{
+            const action = {
+                account: 'waxclicker12',
+                name: 'upgrade',
+                authorization: [{actor: account, permission: "active"}],
+                data: {
+                    asset_id: id,
+                    asset_owner: account,
+                    new_mutable_data: [{"key": "level", "value": ["uint64", newLevel]}],
+                    memo: nonce,
+                    hash: hash,
+                    amount: hashResult[2].amount
+                },
+            }
+            await session.transact({action}).then(({transaction}) => {
+                console.log(`Transaction broadcast! Id: ${transaction.id}`)
+            })
+        }catch (e) {
+            showItems("block");
         }
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
     }
 
 

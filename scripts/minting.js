@@ -40,7 +40,7 @@ module.exports = {
                     memo: hasharray[1].array,
                     hash: hasharray[0].hash,
                     amount: hasharray[2].amount,
-                    new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}]
                 },
             }
             await session.transact({action}).then(({transaction}) => {

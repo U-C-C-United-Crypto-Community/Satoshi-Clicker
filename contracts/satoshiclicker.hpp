@@ -6,26 +6,34 @@
 using namespace eosio;
 using namespace atomicassets;
 
-CONTRACT waxClicker : public contract {
+CONTRACT satoshiclicker : public contract {
 	public:
 		
 		using contract::contract;
 
-		waxClicker(name receiver, name code, datastream<const char *> ds) :
+		satoshiclicker(name receiver, name code, datastream<const char *> ds) :
        		// contract base class contructor
          		contract(receiver, code, ds),
          		// instantiate multi-index instance as data member
          		black_list(receiver, receiver.value),
 			ref_list(receiver, receiver.value),
-			btc_list(receiver, receiver.value)	
+			btc_list(receiver, receiver.value),
+			_frozen(receiver, receiver.value)		
 		{}
 
 		
 		TABLE user_table {
-			name user;
+		 	name user;
 			string btc;
                        uint64_t primary_key() const { return user.value;}
-                };
+               };
+                
+                struct st_frozen {
+  		 	uint64_t frozen;
+		 };
+		 
+		 typedef singleton<"freeze"_n, st_frozen> tb_frozen;
+		 
 
                 typedef multi_index<"blacklist"_n, user_table> black_list_table;
 
@@ -38,6 +46,8 @@ CONTRACT waxClicker : public contract {
 		ref_list_table ref_list = ref_list_table(get_self(), get_self().value);
 		
 		btc_list_table btc_list = btc_list_table(get_self(), get_self().value);
+		
+		tb_frozen _frozen = tb_frozen(get_self(), get_self().value);
 
 
 		ACTION ban(name user);
@@ -71,6 +81,21 @@ CONTRACT waxClicker : public contract {
 				name ref,
 				name receiver
 				);
+				
+		ACTION freeze();
+		
+		ACTION unfreeze();
+		
+		st_frozen getFreezeFlag() {
+   			st_frozen frozen_st{.frozen = 0};
+   			return _frozen.get_or_create(_self, frozen_st);
+		}
+
+		void setFreezeFlag(const uint64_t& pFrozen) {
+  			st_frozen frozen_st = getFreezeFlag();
+  			frozen_st.frozen = pFrozen;
+  			_frozen.set(frozen_st, _self);
+		}
 				
 		void updatebtc(name user, string btc);
 		
