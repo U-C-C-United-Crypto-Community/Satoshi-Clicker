@@ -6,7 +6,7 @@
 using namespace eosio;
 using namespace atomicassets;
 
-CONTRACT waxClicker : public contract {
+CONTRACT satoshiclicker : public contract {
 	public:
 		
 		using contract::contract;

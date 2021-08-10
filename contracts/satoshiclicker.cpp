@@ -1,6 +1,6 @@
-#include <waxClicker.hpp>
+#include <satoshiclicker.hpp>
 
-ACTION waxClicker::mintasset(name collection_name, name schema_name,
+ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
                              int32_t template_id, name new_asset_owner, ATTRIBUTE_MAP new_mutable_data, string amount, string memo, string hash)
 {
     validate(new_asset_owner, memo, hash, amount);
@@ -16,7 +16,7 @@ ACTION waxClicker::mintasset(name collection_name, name schema_name,
 }
 
 
-ACTION waxClicker::mintrefasset(name collection_name, name schema_name, int32_t template_id, name ref, name receiver)
+ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int32_t template_id, name ref, name receiver)
 {
     require_auth(receiver);
 
@@ -38,7 +38,7 @@ ACTION waxClicker::mintrefasset(name collection_name, name schema_name, int32_t 
 }
 
 
-ACTION waxClicker::upgrade(name asset_owner, uint64_t asset_id, ATTRIBUTE_MAP new_mutable_data, string amount, string memo, string hash)
+ACTION satoshiclicker::upgrade(name asset_owner, uint64_t asset_id, ATTRIBUTE_MAP new_mutable_data, string amount, string memo, string hash)
 {
     validate(asset_owner, memo, hash, amount);
     require_auth(asset_owner);
@@ -51,7 +51,7 @@ ACTION waxClicker::upgrade(name asset_owner, uint64_t asset_id, ATTRIBUTE_MAP ne
 }
 
 
-ACTION waxClicker::ban(name user)
+ACTION satoshiclicker::ban(name user)
 {
     require_auth(get_self());
     // check if the user already exists
@@ -61,7 +61,7 @@ ACTION waxClicker::ban(name user)
 }
 
 
-ACTION waxClicker::unban(name user)
+ACTION satoshiclicker::unban(name user)
 {
     require_auth(get_self());
     auto itr = black_list.find(user.value);
@@ -70,7 +70,7 @@ ACTION waxClicker::unban(name user)
 }
 
 
-void waxClicker::updatebtc(name user, string btc)
+void satoshiclicker::updatebtc(name user, string btc)
 {
     auto itr = btc_list.find(user.value);
     if (itr == btc_list.end())
@@ -88,7 +88,7 @@ void waxClicker::updatebtc(name user, string btc)
     }
 }
 
-void waxClicker::validate(name owner, string memo, string hash, string btc){
+void satoshiclicker::validate(name owner, string memo, string hash, string btc){
 	const string &value = (name{owner}.to_string() + btc + memo);
 	checksum256 log = sha256(value.c_str(), value.length());
 	string result;
