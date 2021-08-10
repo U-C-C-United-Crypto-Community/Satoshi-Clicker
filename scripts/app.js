@@ -103,7 +103,7 @@ function initIntervalLastclick() {
 function initIntervalNewBitcoinRate() {
   setInterval(async function () {
     await Game.setBitcoinPerSecondRateAtBeginning()
-  }, 10000);
+  }, 15000);
 }
 
 function initIntervalShowNewRate() {
@@ -178,8 +178,18 @@ var Game = {};
  */
 
 
-Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
-  var multiplier = GameConst.priceMultiplier;
+Game.setPriceAtGameBeginning = async function ($element, price, itemAmount) {
+
+
+  const id = $element.attr("id");
+  var itemAmount = 0;
+  const asset = await Game.getItem(id);
+  if (asset !== undefined) {
+    itemAmount = asset.assets;
+  }
+
+  const template = templates.find((val) => val.name === id).data
+  var multiplier = template.price_multiplier;
 
 
   // Calculate the new price -> price * multiplier^itemAmount
@@ -245,16 +255,22 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
 
       $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
 
-      Game.setPriceAtGameBeginning(
-        $element,
-        parseFloat(template.data.price),
-        parseInt(level)
-      );
 
-
-    itemAmount = parseInt(itemAmount);
+      itemAmount = parseInt(itemAmount);
     if (itemAmount > 0)
       itemAmount = 1;
+
+    // Calculation of the price
+    var multiplier = template.data.price_multiplier;
+    var calculation = (
+        parseFloat(template.data.price) * Math.pow(multiplier, parseInt(level))
+    );
+
+    $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
+
+
+    // Set the data-price attribute with the new price
+    $element.attr("data-price", calculation.toString());
 
     var itemrate = level * bits_per_sec;
     var itemrateString = roundNumber(itemrate);
@@ -302,23 +318,32 @@ Game.setNewBitcoinRate = function () {
  * TODO: Find a better way for setting the price after an item was bought.
  */
 Game.setNewPrice = async function () {
+  var currentAsset;
+  var level;
   for (var i = 0; i < items.length; i++) {
+    level = 0;
     const asset = await Game.getItem(items[i].name);
-    const template = templates.find((val) => val.name === items[i].name).data;
+    const template = templates.find((val) => val.name === items[i].name);
     var itemAmount = 0;
+
     if (asset !== undefined) {
       itemAmount = asset.assets;
+      currentAsset = await findAssetID(template.id, wax.userAccount);
+      level = currentAsset[1].level;
     }
+    if (level == undefined)
+      level = itemAmount;
+
     var $element = $("#" + items[i].name);
-    $element.children()[3].textContent = "Level: " + itemAmount;
+    $element.children()[1].children[0].textContent = "Level: " + level;
 
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
 
       // Calculation of the price
-      var multiplier = GameConst.priceMultiplier;
+      var multiplier = template.data.price_multiplier;
       var calculation = (
-        parseFloat(template.price) * Math.pow(multiplier, parseInt(itemAmount))
+        parseFloat(template.data.price) * Math.pow(multiplier, parseInt(level))
       );
 
       $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
@@ -327,6 +352,7 @@ Game.setNewPrice = async function () {
       // Set the data-price attribute with the new price
       $element.attr("data-price", calculation.toString());
     }
+    await sleep(1000);
   }
 };
 
@@ -406,7 +432,7 @@ async function findAssetID(templateID, account) {
   var id;
   var level = 0;
   while (id == undefined) {
-    assets = await api.getAssets({owner: account, collection_name: "waxbtcclick1", template_id: templateID})
+    assets = await api.getAssets({owner: account, collection_name: "waxclickbeta", template_id: templateID})
 
 
 
@@ -452,11 +478,15 @@ async function startMinting() {
        var asset_id = new_asset[0].id;
        var level = parseInt(new_asset[1].level) + 1;
        if (level == 1) {
-         bitcoins = bitcoins + 0.000000001;
-         await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
+         bitcoins +=
+             0.00000001;
+         await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
+
        }
      }
     else {
+      bitcoins +=
+          0.00000001;
       var new_asset = await findAssetID(template.id, wax.userAccount);
       var asset_id = new_asset[0].id;
       var level = parseInt(new_asset[1].level) + 1;
@@ -474,7 +504,7 @@ async function startMinting() {
     // Stops the interval
     Game.stopBsec();
     const oldBitcoinRate = bitcoinRate;
-    await Game.setNewPrice();
+    //await Game.setNewPrice();
     // Restarting the interval with the new rate
     await waitForTransaction(oldBitcoinRate);
   }
@@ -922,12 +952,12 @@ document.getElementById("loginAnchorWallet").onclick = anchorLogin;
  */
 
 function getClickMultiplier() {
-  var multi = 1;
+  var multi = 0.1;
   if (enableClickMultiplier && amountOfClicks >= 10) {
-    multi = Math.floor(amountOfClicks / 10);
+    multi = amountOfClicks / 100;
 
-    if (multi > 10)
-      multi = 10;
+    if (multi > 1)
+      multi = 1;
   }
   return multi;
 }
