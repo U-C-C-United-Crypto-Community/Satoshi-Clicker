@@ -135,6 +135,7 @@ body {
   border-radius: 500px;
   -webkit-user-drag: none;
 }
+
 .bitcoin:hover {
   width: 27%;
   top: 23%;

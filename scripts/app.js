@@ -481,6 +481,7 @@ async function startMinting() {
          bitcoins +=
              0.00000001;
          await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
+
        }
      }
     else {

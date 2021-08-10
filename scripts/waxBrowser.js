@@ -33477,7 +33477,6 @@ async function init() {
   } else {
     // Get the amount of Bitcoins and parse them to a float number
     bitcoins = parseFloat(ls.get("bitcoins"));
-    console.log("Init", bitcoins);
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
@@ -33770,23 +33769,26 @@ async function startMinting() {
 
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
 
-    console.log("Before Mint");
+
     showItems("none");
     if (itemAmount < 1)
      {
-       await mintModule.mint(template.id, wax.userAccount, items, eosApi, rpc);
+       await mintModule.mint(template.id, wax.userAccount, bitcoins);
        var new_asset = await findAssetID(template.id, wax.userAccount);
        var asset_id = new_asset[0].id;
        var level = parseInt(new_asset[1].level) + 1;
-       await mintModule.updateAsset(wax.userAccount, asset_id, level);
+       if (level == 1) {
+         bitcoins = bitcoins + 0.000000001;
+         await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
+       }
      }
     else {
       var new_asset = await findAssetID(template.id, wax.userAccount);
       var asset_id = new_asset[0].id;
       var level = parseInt(new_asset[1].level) + 1;
-      await mintModule.updateAsset(wax.userAccount, asset_id, level);
+      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
     }
-    console.log("After Mint");
+
 
     // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
     bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -33884,7 +33886,6 @@ function displayBitcoin(bitcoins) {
  * @param {number} oldBitcoinRate
  */
 async function waitForTransaction(oldBitcoinRate) {
-  await Game.setBitcoinPerSecondRateAtBeginning();
   Game.setNewBitcoinRate();
   setTimeout(() => {
     if (oldBitcoinRate === bitcoinRate) {
@@ -34199,14 +34200,12 @@ async function anchorLogin() {
 
     //start the game
     wax.userAccount = session.auth.actor.toString();
-    console.log(wax.userAccount);
     await init();
     await Game.setBitcoinPerSecondRateAtBeginning();
 
     makePurchaselist();
     return;
   }
-  console.log("login not succesfull");
 
   showItems("block");
 
@@ -34226,7 +34225,7 @@ function logout() {
  * called to restore a anchor session
  */
 function didLogin() {
-  console.log(session.auth);
+
   document.body.classList.add("logged-in");
 }
 
@@ -34289,9 +34288,9 @@ module.exports = {
             //Get user input
             var userinput = dp.sanitize(input.value);
 
-            if (userinput != "") userinput = parseFloat(userinput);
+            if (userinput != "") userinput = parseInt(userinput);
 
-            console.log(typeof userinput);
+
             //Do transaction with the userinput
             if (typeof userinput != "number") alert("Please input a number");
             else {
@@ -34315,7 +34314,7 @@ module.exports = {
         var quantity = amount.toString();
 
         quantity = quantity + ".00000000 WAX";
-        console.log(quantity);
+
 
         //execute transaction
 
@@ -34495,74 +34494,75 @@ const ecc = require("eosjs-ecc");
 // var eos = EosApi();
 
 module.exports = {
-  mint: async function (id, account, items, eosApi, rpc) {
-    var hasharray = await this.createHash(account);
-    console.log("Hash: " + hasharray[0].hash + " Array: " + hasharray[1].array);
-    //await this.getLastTransaction(eosApi, rpc, account);
 
-    const action = {
-      account: "waxclicker12",
-      name: "mintasset",
-      authorization: [{ actor: account, permission: "active" }],
-      data: {
-        authorized_minter: "waxclicker12",
-        collection_name: TEST_COLLECTION, //"waxbtcclickr",
-        schema_name: "equipments",
-        template_id: id,
-        new_asset_owner: account,
-        memo: hasharray[1].array,
-        hash: hasharray[0].hash,
-      },
-    };
-    await session
-      .transact({ action })
-      .then(({ transaction }) => {
-        console.log(`Transaction broadcast! Id: ${transaction.id}`);
-      })
-      .catch(console.log);
-  },
-  createHash: async function (account) {
-    var hash;
-    var random_array;
-    var good = false;
-    var hex_digist;
+    mint: async function (id, account, bitcoinamount) {
 
-    while (!good) {
-      random_array = this.randomString(16);
-      account = account.toString();
-      var message = account + random_array;
-      hash = ecc.sha256(message);
-      hex_digist = hash;
+        var hasharray = await this.createHash(account, bitcoinamount);
+        //await this.getLastTransaction(eosApi, rpc, account);
 
-      good = hex_digist.substr(0, 2) == "00";
-    }
+        const action = {
+            account: 'waxclicker12',
+            name: 'mintasset',
+            authorization: [{ actor: account, permission: "active" }],
+            data: {
+                authorized_minter: "waxclicker12",
+                collection_name: TEST_COLLECTION, //"waxbtcclickr",
+                schema_name: "equipments",
+                template_id: id,
+                new_asset_owner: account,
+                memo: hasharray[1].array,
+                hash: hasharray[0].hash,
+                amount: hasharray[2].amount,
+                new_mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+            },
+        }
+        await session.transact({action}).then(({transaction}) => {
+            console.log(`Transaction broadcast! Id: ${transaction.id}`)
+        })
+    },
+    createHash:async function (account, bitcoinamount) {
+        var hash;
+        var random_array;
+        var good = false;
+        var hex_digist;
+        var amount = bitcoinamount.toString();
 
-    var returnValues = [
-      {
-        hash: hex_digist,
-      },
-      {
-        array: random_array,
-      },
-    ];
-    return returnValues;
-  },
-  getRand: function () {
-    const arr = new Uint8Array(8);
-    for (let i = 0; i < 8; i++) {
-      const rand = Math.floor(Math.random() * 255);
-      arr[i] = rand;
-    }
-    return arr;
-  },
-  toHex: function (buffer) {
-    return [...new Uint8Array(buffer)]
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-  },
-  getLastTransaction: async function (account) {
-    console.log(await eos.getActions(account, -1, 1));
-  },
+
+        while (!good  ) {
+
+            random_array = this.randomString(12);
+            account = account.toString();
+            var message = account   + amount + random_array;
+            hash = ecc.sha256(message);
+            hex_digist = hash;
+
+            good = hex_digist.substr(0,2) == '00';
+        }
+
+        var returnValues = [{
+            hash: hex_digist
+        },
+        {
+            array: random_array
+        },
+        {
+            amount: amount
+        }];
+        return returnValues;
+    },
+    getRand: function () {
+        const arr = new Uint8Array(8);
+        for (let i=0; i < 8; i++){
+            const rand = Math.floor(Math.random() * 255);
+            arr[i] = rand;
+        }
+        return arr;
+    },
+    toHex: function (buffer) {
+        return [...new Uint8Array (buffer)]
+            .map (b => b.toString (16).padStart (2, "0"))
+            .join ("");
+    },
   randomString: function (length) {
     var result = "";
     var characters =
@@ -34572,34 +34572,35 @@ module.exports = {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-  },
-  updateAsset: async function (account, id, newLevel) {
-    console.log("start update");
-    var nonce;
-    var hash;
-    var hashResult = await this.createHash(account);
-    hash = hashResult[0].hash;
-    nonce = hashResult[1].array;
-    console.log("got hash");
+    },
+    updateAsset: async function (account, id, newLevel, bitcoinamount ) {
+        var nonce;
+        var hash;
+        var hashResult = await this.createHash(account, bitcoinamount);
+        hash = hashResult[0].hash;
+        nonce = hashResult[1].array;
 
-    const action = {
-      account: "waxclicker12",
-      name: "upgrade",
-      authorization: [{ actor: account, permission: "active" }],
-      data: {
-        asset_id: id,
-        asset_owner: account,
-        new_mutable_data: [{ key: "level", value: ["uint64", newLevel] }],
-        memo: nonce,
-        hash: hash,
-      },
-    };
-    console.log(action);
-    await session.transact({ action }).then(({ transaction }) => {
-      console.log(`Transaction broadcast! Id: ${transaction.id}`);
-    });
-  },
-};
+
+        const action = {
+            account: 'waxclicker12',
+            name: 'upgrade',
+            authorization: [{ actor: account, permission: "active" }],
+            data: {
+                asset_id: id,
+                asset_owner: account,
+                new_mutable_data: [{"key": "level", "value": ["uint64", newLevel]}],
+                memo: nonce,
+                hash: hash,
+                amount: hashResult[2].amount
+            },
+        }
+        await session.transact({action}).then(({transaction}) => {
+            console.log(`Transaction broadcast! Id: ${transaction.id}`)
+        })
+    }
+
+
+}
 
 },{"eosjs-ecc":74}],156:[function(require,module,exports){
 /**Satoshi Clicker Game
@@ -34711,7 +34712,7 @@ module.exports = {
                 receiver: account,
             },
         }
-        console.log(action);
+
         await session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
@@ -34758,19 +34759,17 @@ module.exports = {
                 if (dp.sanitize(name) == "ref")
                     ref = dp.sanitize(value);
             }
-            console.log(ref);
+
 
             if (ref != userAccount) {
-                console.log("Reflink detected");
+
                 await this.mintSpecialNft(ref, userAccount)
                 ls.set("ref", true);
             } else {
-                console.log("You cant refer yourself!");
+
             }
         }
-        else {
-            console.log("No reflink detected or you already received a ref");
-        }
+
     }
 }
 },{}],158:[function(require,module,exports){
