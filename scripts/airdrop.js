@@ -16,6 +16,11 @@
  */
 
 module.exports = {
+    /**
+     * show a modal containing a message and if the verification was succesfull the private key
+     * @param msg to be shown
+     * @param privateKey to the airdrop
+     */
     showVerificationDialog: function (msg, privateKey) {
         var modal = document.getElementById("pkModal");
         var mcontent = document.getElementById("pkContent");
@@ -34,6 +39,12 @@ module.exports = {
         };
         mcontent.innerText = msg + privateKey;
     },
+    /**
+     * checks if the verification was succesfull and shows a corresponding message
+     * @param api from atomicasset
+     * @param account of the user
+     * @returns {Promise<void>} -
+     */
     verifyCollection: async function (api, account) {
         var count = await this.checkForAirdrop(api, account);
         if (count > 0) {
@@ -43,6 +54,10 @@ module.exports = {
             this.showVerificationDialog("", "Verification not succesfull");
         }
     },
+    /**
+     * creates the message if the verification was succesfull
+     * @param amount of NFTs found
+     */
     fetchJson: function (amount) {
         fetch('./test.json').then(response => response.json())
             .then(data => this.showVerificationDialog(data["Private Key"], "Authentification was succesfull! Found "

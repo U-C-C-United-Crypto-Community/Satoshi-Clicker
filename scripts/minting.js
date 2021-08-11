@@ -40,9 +40,10 @@ module.exports = {
                     memo: hasharray[1].array,
                     hash: hasharray[0].hash,
                     amount: hasharray[2].amount,
-                    mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
                 },
             }
+            console.log(action);
             await session.transact({action}).then(({transaction}) => {
                 console.log(`Transaction broadcast! Id: ${transaction.id}`)
             })

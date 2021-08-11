@@ -16,76 +16,54 @@
  */
 
 module.exports = {
-    mintSpecialNft: async function (ref, account) {
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintrefasset',
-            authorization: [{actor: account, permission: "active"}],
-            data: {
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "invfriend",
-                template_id: special_items[0].template_id,
-                ref: ref,
-                receiver: account,
-            },
-        }
-
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
-    },
-    mintNftForRef: async function (ref, account) {
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintasset',
-            authorization: [{actor: wax.userAccount, permission: "active"}],
-            data: {
-                authorized_minter: "waxclicker12",
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "invfriend",
-                template_id: special_items[0].template_id,
-                new_asset_owner: ref,
-                mutable_data: {
-                    referrer: ref,
-                    receiver: wax.userAccount,
+    mintSpecialNft: async function (ref, account, showItems) {
+        try{
+            const action = {
+                account: 'waxclicker12',
+                name: 'mintrefasset',
+                authorization: [{actor: account, permission: "active"}],
+                data: {
+                    collection_name: TEST_COLLECTION, //"waxbtcclickr",
+                    schema_name: "invfriends",
+                    template_id: special_items[0].template_id,
+                    ref: ref,
+                    receiver: account,
+                    mutable_data: [{"key": "receiver", "value": ["string", account.toString()]}]
                 },
-            },
+            }
+
+            await session.transact({action}).then(({transaction}) => {
+                console.log(`Transaction broadcast! Id: ${transaction.id}`)
+            })
         }
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
+        catch (e) {
+            console.log(e);
+            showItems("block");
+        }
     },
-    detectRef: async function (ls, dp, userAccount) {
-        var receivedRef = false;
-        const keys = ls.getAllKeys();
-
-        if (keys.length == 0 || !keys.includes("ref"))
-            ls.set("ref", false);
-        else {
-            receivedRef = ls.get("ref");
-        }
-
+    detectRef: async function (ls, dp, userAccount, showItems, api) {
         let url = new URL(window.location.href);
 
-        if (url.searchParams.has("ref") && !receivedRef)
+        if (url.searchParams.has("ref") && !await this.checkForRefNft(userAccount, api))
         {
             var ref;
 
             for (let [name, value] of url.searchParams) {
-
                 if (dp.sanitize(name) == "ref")
                     ref = dp.sanitize(value);
             }
-
-
             if (ref != userAccount) {
-
-                await this.mintSpecialNft(ref, userAccount)
-                ls.set("ref", true);
-            } else {
-
+                await this.mintSpecialNft(ref, userAccount, showItems)
             }
         }
 
+    },
+    checkForRefNft: async function (account, api) {
+        var assets = await api.getAssets({owner: account, collection_name: "waxclickbeta", template_id: special_items[0].template_id});
+        for (var i = 0; i < assets.length; i++) {
+            if (assets[i].mutable_data.receiver == account)
+                return true;
+        }
+        return false;
     }
 }
