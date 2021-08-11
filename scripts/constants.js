@@ -199,7 +199,7 @@ var TEST_ITEMS = [
 
  var special_items = [
      {
-        name: "Friends",
+        name: "FRIENDS",
         template_id: "150096",
      }
  ]

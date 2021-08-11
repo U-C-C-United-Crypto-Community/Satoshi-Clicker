@@ -32,16 +32,18 @@ module.exports = {
                 name: 'mintasset',
                 authorization: [{actor: account, permission: "active"}],
                 data: {
+                    authorized_minter: "waxclicker12",
                     collection_name: TEST_COLLECTION, //"waxbtcclickr",
                     schema_name: "equipments",
                     template_id: id,
-                    new_asset_owner: account, 
-                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
+                    new_asset_owner: account,
                     memo: hasharray[1].array,
                     hash: hasharray[0].hash,
-                    amount: hasharray[2].amount
+                    amount: hasharray[2].amount,
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
                 },
             }
+            console.log(action);
             await session.transact({action}).then(({transaction}) => {
                 console.log(`Transaction broadcast! Id: ${transaction.id}`)
             })
