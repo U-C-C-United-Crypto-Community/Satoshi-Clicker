@@ -40,7 +40,7 @@ ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int3
     // check(collection_name == "satoshiclick"_n, "Wrong collection!")
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
     check(black_list.find(ref.value) == black_list.end() && black_list.find(receiver.value) == black_list.end(), "User is banned!");
-    check(schema_name == "invfriend"_n && ref_list.find(receiver.value) == ref_list.end(),
+    check(schema_name == "invfriends"_n && ref_list.find(receiver.value) == ref_list.end(),
           "Receiver already has another friend :(");
 
     action(permission_level{
