@@ -33352,15 +33352,19 @@ const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
 
-const { Api, JsonRpc } = require('eosjs');
-const { JsSignatureProvider } = require('eosjs/dist/eosjs-jssig');  // development only
-const { TextEncoder, TextDecoder } = require('text-encoding'); //node only
-
+const { Api, JsonRpc } = require("eosjs");
+const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
+const { TextEncoder, TextDecoder } = require("text-encoding"); //node only
 
 const defaultPrivateKey = "5JtUScZK2XEp3g9gh7F8bwtPTRAkASmNrrftmx4AxDKD5K4zDnr";
 const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
-const rpc = new JsonRpc('http://127.0.0.1:8888', { fetch }); //required to read blockchain state
-const eosApi = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() }); //required to submit transactions
+const rpc = new JsonRpc("http://127.0.0.1:8888", { fetch }); //required to read blockchain state
+const eosApi = new Api({
+  rpc,
+  signatureProvider,
+  textDecoder: new TextDecoder(),
+  textEncoder: new TextEncoder(),
+}); //required to submit transactions
 
 var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 
@@ -33389,9 +33393,6 @@ const leaderboardModule = require("./leaderboard");
 const airdropModule = require("./airdrop");
 const donationModule = require("./donation");
 const mintModule = require("./minting");
-
-
-
 
 /**
 --------------------------------- Game Functionality -------------------------------------
@@ -33428,8 +33429,8 @@ function initIntervalLastclick() {
 
 function initIntervalNewBitcoinRate() {
   setInterval(async function () {
-    await Game.setBitcoinPerSecondRateAtBeginning()
-  }, 10000);
+    await Game.setBitcoinPerSecondRateAtBeginning();
+  }, 15000);
 }
 
 function initIntervalShowNewRate() {
@@ -33480,11 +33481,11 @@ async function init() {
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
-document.getElementById("lbButton").style.display = "block";
-document.getElementById("refButton").style.display = "block";
-await reflinkModule.detectRef(ls, dp, wax.userAccount);
-initIntervals();
-multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
+  document.getElementById("lbButton").style.display = "block";
+  document.getElementById("refButton").style.display = "block";
+  await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems);
+  initIntervals();
+  multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
 }
 /**
  *
@@ -33503,18 +33504,23 @@ var Game = {};
  * @param itemAmount {Number} - The current amount of the item, saved in the localStorage
  */
 
+Game.setPriceAtGameBeginning = async function ($element, price, itemAmount) {
+  const id = $element.attr("id");
+  var itemAmount = 0;
+  const asset = await Game.getItem(id);
+  if (asset !== undefined) {
+    itemAmount = asset.assets;
+  }
 
-Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
-  var multiplier = GameConst.priceMultiplier;
-
+  const template = templates.find((val) => val.name === id).data;
+  var multiplier = template.price_multiplier;
 
   // Calculate the new price -> price * multiplier^itemAmount
-  var calculation = (
-    parseFloat(price) * Math.pow(multiplier, parseInt(itemAmount))
-  );
+  var calculation =
+    parseFloat(price) * Math.pow(multiplier, parseInt(itemAmount));
 
-  $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
-
+  $element.children()[2].textContent =
+    "Buy: " + roundNumber(calculation) + " Bitcoins";
 
   // Showing the actual price
   //element.children()[2].textContent = calculation + " Bitcoins";
@@ -33526,15 +33532,17 @@ Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
 function showNewItemRate($element, itemrateString) {
   $element.children()[3].style.color = "white";
   $element.children()[3].textContent = "Rate: " + itemrateString + " B/SEC";
-  $element.children()[3].style.textShadow = "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,\n" +
-      "  -1px -1px 1px black";
+  $element.children()[3].style.textShadow =
+    "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,\n" +
+    "  -1px -1px 1px black";
   $element.children()[3].style.display = "block";
 }
 
 function showNormalItemrate($element, bits_per_sec_string) {
   $element.children()[3].style.color = "black";
   $element.children()[3].style.textShadow = "none";
-  $element.children()[3].textContent = "( Rate: " + bits_per_sec_string + " B/SEC )";
+  $element.children()[3].textContent =
+    "( Rate: " + bits_per_sec_string + " B/SEC )";
   $element.children()[3].style.display = "block";
 }
 
@@ -33559,28 +33567,29 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       currentAsset = await findAssetID(template.id, wax.userAccount);
       level = currentAsset[1].level;
     }
-    if (level == undefined)
-      level = itemAmount;
+    if (level == undefined) level = itemAmount;
     // HTML element on the game page
     var $element = $("#" + items[i].name);
 
     // Writing the amount on the page at the item´s element
     $element.children()[1].children[0].textContent = "LEVEL: " + itemAmount;
-    if (itemAmount > 0)
-      $element.children()[1].children[0].textContent += " +";
+    if (itemAmount > 0) $element.children()[1].children[0].textContent += " +";
 
-      $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
-
-      Game.setPriceAtGameBeginning(
-        $element,
-        parseFloat(template.data.price),
-        parseInt(level)
-      );
-
+    $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
 
     itemAmount = parseInt(itemAmount);
-    if (itemAmount > 0)
-      itemAmount = 1;
+    if (itemAmount > 0) itemAmount = 1;
+
+    // Calculation of the price
+    var multiplier = template.data.price_multiplier;
+    var calculation =
+      parseFloat(template.data.price) * Math.pow(multiplier, parseInt(level));
+
+    $element.children()[2].textContent =
+      "Buy: " + roundNumber(calculation) + " Bitcoins";
+
+    // Set the data-price attribute with the new price
+    $element.attr("data-price", calculation.toString());
 
     var itemrate = level * bits_per_sec;
     var itemrateString = roundNumber(itemrate);
@@ -33588,9 +33597,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
 
     if (itemrate > 0) {
       showNewItemRate($element, itemrateString);
-
-    }
-    else {
+    } else {
       showNormalItemrate($element, bits_per_sec_string);
     }
 
@@ -33599,7 +33606,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
   }
   bitcoinRate = newbitcoinRate;
   bitcoinRate *= getClickMultiplier();
-  bitcoinRate *= (1 + multiplier);
+  bitcoinRate *= 1 + multiplier;
 };
 
 /**
@@ -33610,13 +33617,21 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  */
 Game.setNewBitcoinRate = function () {
   if (bitcoinRate >= 1000000) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0).optimizeNumber());
+    $(".bSecRateNumber").text(
+      "Rate: " + bitcoinRate.toFixed(0).optimizeNumber()
+    );
   } else if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text(
+      "Rate: " + bitcoinRate.toFixed(0) + "\n BITCOINS/SEC"
+    );
   } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text(
+      "Rate: " + bitcoinRate.toFixed(2) + "\n BITCOINS/SEC"
+    );
   } else {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text(
+      "Rate: " + bitcoinRate.toFixed(8) + "\n BITCOINS/SEC"
+    );
   }
 };
 
@@ -33628,31 +33643,38 @@ Game.setNewBitcoinRate = function () {
  * TODO: Find a better way for setting the price after an item was bought.
  */
 Game.setNewPrice = async function () {
+  var currentAsset;
+  var level;
   for (var i = 0; i < items.length; i++) {
+    level = 0;
     const asset = await Game.getItem(items[i].name);
-    const template = templates.find((val) => val.name === items[i].name).data;
+    const template = templates.find((val) => val.name === items[i].name);
     var itemAmount = 0;
+
     if (asset !== undefined) {
       itemAmount = asset.assets;
+      currentAsset = await findAssetID(template.id, wax.userAccount);
+      level = currentAsset[1].level;
     }
+    if (level == undefined) level = itemAmount;
+
     var $element = $("#" + items[i].name);
-    $element.children()[3].textContent = "Level: " + itemAmount;
+    $element.children()[1].children[0].textContent = "Level: " + level;
 
     // Only calculate if there is more than 0 items
     if (itemAmount > 0) {
-
       // Calculation of the price
-      var multiplier = GameConst.priceMultiplier;
-      var calculation = (
-        parseFloat(template.price) * Math.pow(multiplier, parseInt(itemAmount))
-      );
+      var multiplier = template.data.price_multiplier;
+      var calculation =
+        parseFloat(template.data.price) * Math.pow(multiplier, parseInt(level));
 
-      $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
-
+      $element.children()[2].textContent =
+        "Buy: " + roundNumber(calculation) + " Bitcoins";
 
       // Set the data-price attribute with the new price
       $element.attr("data-price", calculation.toString());
     }
+    await sleep(1000);
   }
 };
 
@@ -33708,9 +33730,8 @@ function incrementBitcoin() {
     disable = true;
     $(".bitcoin").off("click");
 
-
     clickValue = bitcoinRate * 0.001 + 0.00000001;
-    bitcoins = bitcoins + clickValue ;
+    bitcoins = bitcoins + clickValue;
 
     displayBitcoin(bitcoins);
 
@@ -33719,11 +33740,10 @@ function incrementBitcoin() {
     var audio = document.getElementById("audio");
     audio.play();
 
-    setTimeout(function (){
+    setTimeout(function () {
       disable = false;
       $(".bitcoin").click(incrementBitcoin());
-
-    },50);
+    }, 50);
   };
 }
 
@@ -33732,22 +33752,26 @@ async function findAssetID(templateID, account) {
   var id;
   var level = 0;
   while (id == undefined) {
-    assets = await api.getAssets({owner: account, collection_name: "waxbtcclick1", template_id: templateID})
-
-
+    assets = await api.getAssets({
+      owner: account,
+      collection_name: "waxclickbeta",
+      template_id: templateID,
+    });
 
     for (var i = 0; i < assets.length; i++) {
-      if (assets[i].mutable_data.level > level || assets[i].mutable_data.level == undefined) {
+      if (
+        assets[i].mutable_data.level > level ||
+        assets[i].mutable_data.level == undefined
+      ) {
         id = assets[i].asset_id;
-        if (assets[i].mutable_data.level == undefined)
-          level = 0;
+        if (assets[i].mutable_data.level == undefined) level = 0;
         else level = assets[i].mutable_data.level;
       }
     }
     await sleep(1000);
   }
 
-  var returnValues = [{id: id},{level: level}]
+  var returnValues = [{ id: id }, { level: level }];
   return returnValues;
 }
 
@@ -33763,32 +33787,39 @@ async function startMinting() {
     itemAmount = asset.assets;
   }
 
-
   const template = templates.find((val) => val.name === id);
-  const {price} = template ? template.data : Number.MAX_VALUE;
+  const { price } = template ? template.data : Number.MAX_VALUE;
 
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
-
-
     showItems("none");
-    if (itemAmount < 1)
-     {
-       await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
-       var new_asset = await findAssetID(template.id, wax.userAccount);
-       var asset_id = new_asset[0].id;
-       var level = parseInt(new_asset[1].level) + 1;
-       if (level == 1) {
-         bitcoins = bitcoins + 0.000000001;
-         await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
-       }
-     }
-    else {
+    if (itemAmount < 1) {
+      await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
       var new_asset = await findAssetID(template.id, wax.userAccount);
       var asset_id = new_asset[0].id;
       var level = parseInt(new_asset[1].level) + 1;
-      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
+      if (level == 1) {
+        bitcoins += 0.00000001;
+        await mintModule.updateAsset(
+          wax.userAccount,
+          asset_id,
+          level,
+          bitcoins,
+          showItems
+        );
+      }
+    } else {
+      bitcoins += 0.00000001;
+      var new_asset = await findAssetID(template.id, wax.userAccount);
+      var asset_id = new_asset[0].id;
+      var level = parseInt(new_asset[1].level) + 1;
+      await mintModule.updateAsset(
+        wax.userAccount,
+        asset_id,
+        level,
+        bitcoins,
+        showItems
+      );
     }
-
 
     // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
     bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
@@ -33800,7 +33831,7 @@ async function startMinting() {
     // Stops the interval
     Game.stopBsec();
     const oldBitcoinRate = bitcoinRate;
-    await Game.setNewPrice();
+    //await Game.setNewPrice();
     // Restarting the interval with the new rate
     await waitForTransaction(oldBitcoinRate);
   }
@@ -33921,8 +33952,6 @@ async function login() {
 }
 
 document.getElementById("loginWaxWallet").onclick = async () => {
-
-
   document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "none";
 
@@ -33971,35 +34000,34 @@ async function verifyWaxWallet() {
 
 document.getElementById("donateButton").onclick = async function () {
   await donationModule.showDialog(dp, wax);
-}
-
+};
 
 /**
  * ------------------------------------------------Airdrop-------------------------------------------------------------
  */
 
-
 document.getElementById("verifyCollection").onclick = async function () {
   await airdropModule.verifyCollection(api, wax.userAccount);
-}
-
-
-
+};
 
 /**
  * --------------------------------------------------Leaderboard--------------------------------------------------------
  */
-
-
-
 
 /**
  * On click function for a button to show the leaderboard
  * @returns {Promise<void>}
  */
 document.getElementById("lbButton").onclick = async () => {
-  await leaderboardModule.showLeaderBoard(api, templates, items, multiplierModule, roundNumber, findAssetID);
-}
+  await leaderboardModule.showLeaderBoard(
+    api,
+    templates,
+    items,
+    multiplierModule,
+    roundNumber,
+    findAssetID
+  );
+};
 
 /**
  *
@@ -34007,14 +34035,12 @@ document.getElementById("lbButton").onclick = async () => {
  * @returns {Promise<unknown>}
  */
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
 
 /**
  * -----------------------------------------------Reflink---------------------------------------------------------------
  */
-
 
 document.getElementById("refButton").onclick = generateRefLink;
 
@@ -34025,9 +34051,12 @@ document.getElementById("refButton").onclick = generateRefLink;
 function generateRefLink() {
   let url = new URL(window.location.href);
 
-  url.searchParams.set('ref', wax.userAccount);
+  url.searchParams.set("ref", wax.userAccount);
   navigator.clipboard.writeText(url);
-  airdropModule.showVerificationDialog("", "Url: "+ url + " is also copied to the clipboard");
+  airdropModule.showVerificationDialog(
+    "",
+    "Url: " + url + " is also copied to the clipboard"
+  );
 }
 
 /**
@@ -34064,14 +34093,14 @@ function roundNumber(thisValue) {
  */
 
 function createSpan(event, valueString, maingame) {
-  var Span = document.createElement('span')
-
+  var Span = document.createElement("span");
 
   Span.style.display = "inline-block";
-  Span.style.fontFamily = 'Rajdhani-SemiBold';
+  Span.style.fontFamily = "Rajdhani-SemiBold";
   Span.style.fontSize = "15pt";
   Span.style.color = "white";
-  Span.style.textShadow = "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black, -1px -1px 1px black";
+  Span.style.textShadow =
+    "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black, -1px -1px 1px black";
   Span.style.top = event.clientY + "px";
   Span.style.left = event.clientX + "px";
   Span.style.position = "absolute";
@@ -34091,7 +34120,7 @@ function createSpan(event, valueString, maingame) {
  */
 
 function createImage(event, maingame) {
-  var img = document.createElement('img');
+  var img = document.createElement("img");
 
   img.src = "../images/pngegg.png";
   img.style.maxHeight = "20px";
@@ -34114,10 +34143,8 @@ function createImage(event, maingame) {
  * @returns {Promise<void>}
  */
 
-
 async function animateMessage(event) {
-  if (!disable)
-  {
+  if (!disable) {
     var maingame = document.body;
     var img = createImage(event, maingame);
 
@@ -34127,18 +34154,17 @@ async function animateMessage(event) {
     await sleep(750);
     maingame.removeChild(Span);
     maingame.removeChild(img);
-    img.remove()
+    img.remove();
     Span.remove();
   }
 }
-document.getElementsByClassName("bitcoin")[0].addEventListener("click", animateMessage);
-
+document
+  .getElementsByClassName("bitcoin")[0]
+  .addEventListener("click", animateMessage);
 
 /**
  * ------------------------------------------Anchor---------------------------------------------------------------------
  */
-
-
 
 // app identifier, should be set to the eosio contract account if applicable
 const identifier = "waxbtcclicker";
@@ -34150,12 +34176,12 @@ const link = new AnchorLink({
   chains: [
     {
       chainId:
-          "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4",
+        "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4",
       nodeUrl: "https://wax.greymass.com",
     },
     {
       chainId:
-          "f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12",
+        "f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12",
       nodeUrl: "https://waxtestnet.greymass.com",
     },
   ],
@@ -34185,8 +34211,7 @@ function makePurchaselist() {
  * @returns {Promise<void>}
  */
 async function anchorLogin() {
-
-  try{
+  try {
     await link.login(identifier).then((result) => {
       session = result.session;
       didLogin();
@@ -34196,13 +34221,11 @@ async function anchorLogin() {
     document.getElementById("loginAnchorWallet").style.display = "block";
   }
 
-
   document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "none";
   showItems("none");
 
   if (session) {
-
     //start the game
     wax.userAccount = session.auth.actor.toString();
     await init();
@@ -34230,13 +34253,10 @@ function logout() {
  * called to restore a anchor session
  */
 function didLogin() {
-
   document.body.classList.add("logged-in");
 }
 
-
 document.getElementById("loginAnchorWallet").onclick = anchorLogin;
-
 
 /**
  * ---------------------------------------------Click Multiplier--------------------------------------------------------
@@ -34248,15 +34268,15 @@ document.getElementById("loginAnchorWallet").onclick = anchorLogin;
  */
 
 function getClickMultiplier() {
-  var multi = 1;
+  var multi = 0.1;
   if (enableClickMultiplier && amountOfClicks >= 10) {
-    multi = Math.floor(amountOfClicks / 10);
+    multi = amountOfClicks / 100;
 
-    if (multi > 10)
-      multi = 10;
+    if (multi > 1) multi = 1;
   }
   return multi;
 }
+
 },{"./airdrop":151,"./donation":153,"./leaderboard":154,"./minting":155,"./multiplier":156,"./reflink":157,"@metamask/detect-provider":11,"@waxio/waxjs/dist":13,"atomicassets":49,"dompurify":61,"eosjs":109,"eosjs/dist/eosjs-jssig":104,"node-fetch":133,"secure-ls":137,"text-encoding":147}],153:[function(require,module,exports){
 /**Satoshi Clicker Game
  Copyright (C) 2021  daubit gmbh
@@ -34511,15 +34531,14 @@ module.exports = {
                 name: 'mintasset',
                 authorization: [{actor: account, permission: "active"}],
                 data: {
-                    authorized_minter: "waxclicker12",
                     collection_name: TEST_COLLECTION, //"waxbtcclickr",
                     schema_name: "equipments",
                     template_id: id,
-                    new_asset_owner: account,
+                    new_asset_owner: account, 
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
                     memo: hasharray[1].array,
                     hash: hasharray[0].hash,
-                    amount: hasharray[2].amount,
-                    mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+                    amount: hasharray[2].amount
                 },
             }
             await session.transact({action}).then(({transaction}) => {
@@ -34712,79 +34731,56 @@ module.exports = {
  */
 
 module.exports = {
-    mintSpecialNft: async function (ref, account) {
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintrefasset',
-            authorization: [{actor: account, permission: "active"}],
-            data: {
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "invfriend",
-                template_id: special_items[0].template_id,
-                ref: ref,
-                receiver: account,
-            },
-        }
+  mintSpecialNft: async function (ref, account, showItems) {
+    try {
+      const action = {
+        account: "waxclicker12",
+        name: "mintrefasset",
+        authorization: [{ actor: account, permission: "active" }],
+        data: {
+          collection_name: TEST_COLLECTION, //"waxbtcclickr",
+          schema_name: "invfriends",
+          template_id: special_items[0].template_id,
+          ref: ref,
+          receiver: account,
+        },
+      };
 
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
-    },
-    mintNftForRef: async function (ref, account) {
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintasset',
-            authorization: [{actor: wax.userAccount, permission: "active"}],
-            data: {
-                authorized_minter: "waxclicker12",
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "invfriend",
-                template_id: special_items[0].template_id,
-                new_asset_owner: ref,
-                mutable_data: {
-                    referrer: ref,
-                    receiver: wax.userAccount,
-                },
-            },
-        }
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
-    },
-    detectRef: async function (ls, dp, userAccount) {
-        var receivedRef = false;
-        const keys = ls.getAllKeys();
-
-        if (keys.length == 0 || !keys.includes("ref"))
-            ls.set("ref", false);
-        else {
-            receivedRef = ls.get("ref");
-        }
-
-        let url = new URL(window.location.href);
-
-        if (url.searchParams.has("ref") && !receivedRef)
-        {
-            var ref;
-
-            for (let [name, value] of url.searchParams) {
-
-                if (dp.sanitize(name) == "ref")
-                    ref = dp.sanitize(value);
-            }
-
-
-            if (ref != userAccount) {
-
-                await this.mintSpecialNft(ref, userAccount)
-                ls.set("ref", true);
-            } else {
-
-            }
-        }
-
+      await session.transact({ action }).then(({ transaction }) => {
+        console.log(`Transaction broadcast! Id: ${transaction.id}`);
+      });
+    } catch (e) {
+      console.log(e);
+      showItems("block");
     }
-}
+  },
+  detectRef: async function (ls, dp, userAccount, showItems) {
+    var receivedRef = false;
+    const keys = ls.getAllKeys();
+
+    if (keys.length == 0 || !keys.includes("ref")) ls.set("ref", false);
+    else {
+      receivedRef = ls.get("ref");
+    }
+
+    let url = new URL(window.location.href);
+
+    if (url.searchParams.has("ref") && !receivedRef) {
+      var ref;
+
+      for (let [name, value] of url.searchParams) {
+        if (dp.sanitize(name) == "ref") ref = dp.sanitize(value);
+      }
+
+      if (ref != userAccount) {
+        await this.mintSpecialNft(ref, userAccount, showItems);
+        ls.set("ref", true);
+      } else {
+      }
+    }
+  },
+};
+
 },{}],158:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
