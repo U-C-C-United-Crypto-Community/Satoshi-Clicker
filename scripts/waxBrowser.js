@@ -34541,15 +34541,14 @@ module.exports = {
                 name: 'mintasset',
                 authorization: [{actor: account, permission: "active"}],
                 data: {
-                    authorized_minter: "waxclicker12",
                     collection_name: TEST_COLLECTION, //"waxbtcclickr",
                     schema_name: "equipments",
                     template_id: id,
-                    new_asset_owner: account,
+                    new_asset_owner: account, 
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
                     memo: hasharray[1].array,
                     hash: hasharray[0].hash,
-                    amount: hasharray[2].amount,
-                    mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+                    amount: hasharray[2].amount
                 },
             }
             await session.transact({action}).then(({transaction}) => {

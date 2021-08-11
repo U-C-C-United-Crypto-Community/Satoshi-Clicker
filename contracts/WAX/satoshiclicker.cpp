@@ -12,6 +12,7 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
     // check is required to avoid string length overflow
     check(memo.length() == 12 && amount.length() < 150 && name{new_asset_owner}.to_string().length() < 15, "Invalid memo!");
 
+    // check(collection_name == "satoshiclick"_n, "Wrong collection!")
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
     check(schema_name != "invfriend"_n, "Invalid call!");
     check(black_list.find(new_asset_owner.value) == black_list.end(), "User is banned!");
@@ -29,12 +30,14 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
 
 /**
  * Mints the special NFT for the referee and the receiver.
+ * Receiver will be stored as he is only allowed to receive a special NFT once. 
  * 
  * @required_auth: the receiver account  
 */
 ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int32_t template_id, name ref, name receiver)
 {
     require_auth(receiver);
+    // check(collection_name == "satoshiclick"_n, "Wrong collection!")
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
     check(black_list.find(ref.value) == black_list.end() && black_list.find(receiver.value) == black_list.end(), "User is banned!");
     check(schema_name == "invfriend"_n && ref_list.find(receiver.value) == ref_list.end(),
@@ -61,6 +64,8 @@ ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int3
 ACTION satoshiclicker::upgrade(name asset_owner, uint64_t asset_id, ATTRIBUTE_MAP new_mutable_data, string amount, string memo, string hash)
 {
     require_auth(asset_owner);
+
+    // check(collection_name == "satoshiclick"_n, "Wrong collection!")
 
     // check is required to avoid string length overflow
     check(memo.length() == 12 && amount.length() < 150 && name{asset_owner}.to_string().length() < 15, "Invalid memo!");
@@ -108,7 +113,7 @@ ACTION satoshiclicker::unban(name user)
 */
 ACTION satoshiclicker::freeze()
 {
-    require_auth(_self);
+    require_auth(get_self());
     setFreezeFlag(1);
 }
 
@@ -119,7 +124,7 @@ ACTION satoshiclicker::freeze()
 */
 ACTION satoshiclicker::unfreeze()
 {
-    require_auth(_self);
+    require_auth(get_self());
     setFreezeFlag(0);
 }
 

@@ -66,7 +66,7 @@ public:
 		name schema_name,
 		int32_t template_id,
 		name new_asset_owner,
-		ATTRIBUTE_MAP new_mutable_data,
+		ATTRIBUTE_MAP mutable_data,
 		string amount,
 		string memo,
 		string hash);
