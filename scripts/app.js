@@ -107,7 +107,7 @@ function initIntervalLastclick() {
 }
 
 /**
- * inits the interval which calculates the current bitcoinrate again
+ * Inits the interval which calculates the current bitcoinrate again
  */
 
 
@@ -533,10 +533,6 @@ async function startMinting() {
     substractBitcoins(price);
 
     // Stops the interval
-    Game.stopBsec();
-    const oldBitcoinRate = bitcoinRate;
-    // Restarting the interval with the new rate
-    await waitForTransaction(oldBitcoinRate);
   }
 }
 
