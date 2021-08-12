@@ -264,6 +264,7 @@ function showNewPrice(template, level, $element) {
   var calculation = (
       parseFloat(template.data.price) * Math.pow(multiplier, parseInt(level))
   );
+  template.data.price = calculation;
 
   $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
 
