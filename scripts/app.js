@@ -76,8 +76,9 @@ async function getTemplates() {
     const id = items[i].template_id;
     const name = items[i].name;
     const data = (await api.getTemplate("waxbtcclickr", id)).immutable_data;
+    const base_price = data.price;
 
-    const result = { name, id, data };
+    const result = { name, id, data, base_price };
     templates.push(result);
   }
 }
@@ -262,7 +263,7 @@ function showNewPrice(template, level, $element) {
   // Calculation of the price
   var multiplier = template.data.price_multiplier;
   var calculation = (
-      parseFloat(template.data.price) * Math.pow(multiplier, parseInt(level))
+      parseFloat(template.base_price) * Math.pow(multiplier, parseInt(level))
   );
   template.data.price = calculation;
 
