@@ -14,9 +14,7 @@ public:
 	satoshiclicker(name receiver, name code, datastream<const char *> ds) : // contract base class contructor
 																			contract(receiver, code, ds),
 																			// instantiate multi-index instance as data member
-																			black_list(receiver, receiver.value),
-																			ref_list(receiver, receiver.value),
-																			btc_list(receiver, receiver.value),
+																			players(receiver, receiver.value),
 																			_frozen(receiver, receiver.value)
 	{
 	}
@@ -26,28 +24,23 @@ public:
 		uint64_t frozen;
 	};
 
-	typedef singleton<"freeze"_n, st_frozen> tb_frozen;	
-	
+	typedef singleton<"freeze"_n, st_frozen> tb_frozen;
+
 	tb_frozen _frozen = tb_frozen(get_self(), get_self().value);
 
 	TABLE user_table
 	{
 		name user;
 		string btc;
+		bool banned;
+		bool received;
+		bool payed;
 		uint64_t primary_key() const { return user.value; }
 	};
 
-	typedef multi_index<"blacklist"_n, user_table> black_list_table;
+	typedef multi_index<"playerlist"_n, user_table> player_list_table;
 
-	typedef multi_index<"reflist"_n, user_table> ref_list_table;
-
-	typedef multi_index<"btclist"_n, user_table> btc_list_table;
-
-	black_list_table black_list = black_list_table(get_self(), get_self().value);
-
-	ref_list_table ref_list = ref_list_table(get_self(), get_self().value);
-
-	btc_list_table btc_list = btc_list_table(get_self(), get_self().value);
+	player_list_table players = player_list_table(get_self(), get_self().value);
 
 	ACTION ban(name user);
 
@@ -76,11 +69,14 @@ public:
 		name schema_name,
 		int32_t template_id,
 		name ref,
-		name receiver);
+		name receiver,
+		ATTRIBUTE_MAP mutable_data);
 
 	ACTION freeze();
 
 	ACTION unfreeze();
+
+	ACTION login(name player);
 
 	st_frozen getFreezeFlag()
 	{
@@ -94,6 +90,8 @@ public:
 		frozen_st.frozen = pFrozen;
 		_frozen.set(frozen_st, _self);
 	}
+
+	void on_token_transfer(name from, name to, asset quantity, string memo);
 
 	void updatebtc(name user, string btc);
 

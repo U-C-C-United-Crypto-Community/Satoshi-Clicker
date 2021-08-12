@@ -12,10 +12,11 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
     // check is required to avoid string length overflow
     check(memo.length() == 12 && amount.length() < 150 && name{new_asset_owner}.to_string().length() < 15, "Invalid memo!");
 
-    // check(collection_name == "satoshiclick"_n, "Wrong collection!")
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
-    check(schema_name != "invfriend"_n, "Invalid call!");
-    check(black_list.find(new_asset_owner.value) == black_list.end(), "User is banned!");
+    check(schema_name != "invfriends"_n, "Invalid call!");
+
+    auto playerItr = players.find(new_asset_owner.value);
+    check(!(playerItr->banned) && (playerItr->payed), "No access!");
 
     validate(new_asset_owner, memo, hash, amount);
 
@@ -30,30 +31,32 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
 
 /**
  * Mints the special NFT for the referee and the receiver.
- * Receiver will be stored as he is only allowed to receive a special NFT once. 
  * 
  * @required_auth: the receiver account  
 */
-ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int32_t template_id, name ref, name receiver)
+ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int32_t template_id, name ref, name receiver, ATTRIBUTE_MAP mutable_data)
 {
     require_auth(receiver);
-    // check(collection_name == "satoshiclick"_n, "Wrong collection!")
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
-    check(black_list.find(ref.value) == black_list.end() && black_list.find(receiver.value) == black_list.end(), "User is banned!");
-    check(schema_name == "invfriends"_n && ref_list.find(receiver.value) == ref_list.end(),
-          "Receiver already has another friend :(");
 
+    auto receiverItr = players.find(receiver.value);
+    auto refItr = players.find(ref.value);
+
+    check(!(refItr->banned) && !(receiverItr->banned) && refItr->payed && receiverItr->payed, "No access!");
+    check(schema_name == "invfriends"_n, "Wrong schema!");
+    check(!(receiverItr->received), "Already received NFT!");
+
+    ATTRIBUTE_MAP immutable_data;
     action(permission_level{
                get_self(), "active"_n},
-           "atomicassets"_n, "mintasset"_n, std::make_tuple(get_self(), collection_name, schema_name, template_id, ref, NULL, NULL, NULL))
+           "atomicassets"_n, "mintasset"_n, std::make_tuple(get_self(), collection_name, schema_name, template_id, ref, immutable_data, mutable_data, NULL))
         .send();
     action(permission_level{
                get_self(), "active"_n},
-           "atomicassets"_n, "mintasset"_n, std::make_tuple(get_self(), collection_name, schema_name, template_id, receiver, NULL, NULL, NULL))
+           "atomicassets"_n, "mintasset"_n, std::make_tuple(get_self(), collection_name, schema_name, template_id, receiver, immutable_data, mutable_data, NULL))
         .send();
-
-    ref_list.emplace(get_self(), [&](auto &u)
-                     { u.user = receiver; });
+    players.modify(receiverItr, get_self(), [&](auto &p)
+                   { p.received = true; });
 }
 
 /**
@@ -65,12 +68,12 @@ ACTION satoshiclicker::upgrade(name asset_owner, uint64_t asset_id, ATTRIBUTE_MA
 {
     require_auth(asset_owner);
 
-    // check(collection_name == "satoshiclick"_n, "Wrong collection!")
-
     // check is required to avoid string length overflow
     check(memo.length() == 12 && amount.length() < 150 && name{asset_owner}.to_string().length() < 15, "Invalid memo!");
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
-    check(black_list.find(asset_owner.value) == black_list.end(), "User is banned!");
+
+    auto playerItr = players.find(asset_owner.value);
+    check(!(playerItr->banned) && (playerItr->payed), "No access!");
     validate(asset_owner, memo, hash, amount);
 
     action(permission_level{
@@ -88,9 +91,9 @@ ACTION satoshiclicker::ban(name user)
 {
     require_auth(get_self());
     // check if the user already exists
-    check(black_list.find(user.value) == black_list.end(), "User is already banned!");
-    black_list.emplace(get_self(), [&](auto &u)
-                       { u.user = user; });
+    auto playerItr = players.find(user.value);
+    players.modify(playerItr, get_self(), [&](auto &p)
+                   { p.banned = true; });
 }
 
 /**
@@ -101,9 +104,11 @@ ACTION satoshiclicker::ban(name user)
 ACTION satoshiclicker::unban(name user)
 {
     require_auth(get_self());
-    auto itr = black_list.find(user.value);
-    check(itr != black_list.end(), "User is not banned!");
-    black_list.erase(itr);
+    require_auth(get_self());
+    // check if the user already exists
+    auto playerItr = players.find(user.value);
+    players.modify(playerItr, get_self(), [&](auto &p)
+                   { p.banned = false; });
 }
 
 /**
@@ -128,25 +133,39 @@ ACTION satoshiclicker::unfreeze()
     setFreezeFlag(0);
 }
 
+ACTION satoshiclicker::login(name player)
+{
+    require_auth(player);
+    check(players.find(player.value) == players.end(), "Already registered!");
+
+    players.emplace(player, [&](auto &p)
+                    {
+                        p.user = player;
+                        p.btc = "0";
+                        p.banned = false;
+                        p.received = false;
+                        p.payed = false;
+                    });
+}
+
+[[eosio::on_notify("eosio.token::transfer")]] void satoshiclicker::on_token_transfer(name from, name to, asset quantity, string memo)
+{
+    check(to == get_self(), "Wrong Account");
+    check(quantity.amount >= 1, "Need to pay at least 1 WAX.");
+
+    auto playerItr = players.find(from.value);
+    players.modify(playerItr, get_self(), [&](auto &p)
+                   { p.payed = true; });
+}
+
 /**
  * Updates the amount of btc for the user.
 */
 void satoshiclicker::updatebtc(name user, string btc)
 {
-    auto itr = btc_list.find(user.value);
-    if (itr == btc_list.end())
-    {
-        btc_list.emplace(get_self(), [&](auto &u)
-                         {
-                             u.user = user;
-                             u.btc = btc;
-                         });
-    }
-    else
-    {
-        btc_list.modify(itr, get_self(), [&](auto &u)
-                        { u.btc = btc; });
-    }
+    auto playerItr = players.find(user.value);
+    players.modify(playerItr, get_self(), [&](auto &p)
+                   { p.btc = btc; });
 }
 
 /**
@@ -164,12 +183,9 @@ void satoshiclicker::validate(name owner, string memo, string hash, string btc)
     {
         (result += hex_chars[(bytes.at(i) >> 4)]) += hex_chars[(bytes.at(i) & 0x0f)];
     }
-    string oldbtc;
-    auto itr = btc_list.find(owner.value);
-    if (itr != btc_list.end())
-    {
-        oldbtc = itr->btc;
-    }
+
+    auto playerItr = players.find(owner.value);
+    string oldbtc = playerItr->btc;
 
     check(result == hash && hash[0] == '0' && hash[1] == '0' && oldbtc != btc, "Invalid memo! Produced hash: " + result + ", Passed hash: " + hash);
 }
