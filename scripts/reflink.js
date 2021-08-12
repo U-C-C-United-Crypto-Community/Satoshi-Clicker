@@ -16,6 +16,13 @@
  */
 
 module.exports = {
+    /**
+     * mints the invfriends special nft
+     * @param ref: referrer of the item
+     * @param account: current user -> the receiver of the invitation
+     * @param showItems: function to show all items again
+     * @returns {Promise<void>} -
+     */
     mintSpecialNft: async function (ref, account, showItems) {
         try{
             const action = {
@@ -28,7 +35,7 @@ module.exports = {
                     template_id: special_items[0].template_id,
                     ref: ref,
                     receiver: account,
-                    mutable_data: [{"key": "receiver", "value": ["string", account.toString()]}]
+                    mutable_data: [{"key": "receiver", "value": ["string", account.toString()]}, {"key": "ref", "value": ["string", ref.toString()]}]
                 },
             }
 
@@ -41,23 +48,41 @@ module.exports = {
             showItems("block");
         }
     },
+    /**
+     * detects a ref link
+     * @param ls
+     * @param dp: dompurifier to escape user input
+     * @param userAccount: current user
+     * @param showItems: function to show all items
+     * @param api: wax api
+     * @returns {Promise<void>}
+     */
     detectRef: async function (ls, dp, userAccount, showItems, api) {
         let url = new URL(window.location.href);
 
+        //if the url has the right search param and the current user doesnt already have a special nft
         if (url.searchParams.has("ref") && !await this.checkForRefNft(userAccount, api))
         {
             var ref;
 
+            //escape the parameters before using them
             for (let [name, value] of url.searchParams) {
                 if (dp.sanitize(name) == "ref")
                     ref = dp.sanitize(value);
             }
+            //check if ref ist diffrent from the current user -> if true start minting
             if (ref != userAccount) {
                 await this.mintSpecialNft(ref, userAccount, showItems)
             }
         }
 
     },
+    /**
+     * checks if the account already received a special nft
+     * @param account current user
+     * @param api: wax api
+     * @returns {Promise<boolean>} true if a special nft was already received else false
+     */
     checkForRefNft: async function (account, api) {
         var assets = await api.getAssets({owner: account, collection_name: "waxclickbeta", template_id: special_items[0].template_id});
         for (var i = 0; i < assets.length; i++) {

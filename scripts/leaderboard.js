@@ -16,6 +16,16 @@
  */
 
 module.exports = {
+    /**
+     * function which does everything necessary to show the leaderboard
+     * @param api: wax api
+     * @param templates: current templates of all items
+     * @param items: list containing all items
+     * @param calculateMultiplier: function to calculate the multiplier of an account
+     * @param roundNumber: function to round a number
+     * @param findAssetID: function for finding an asset
+     * @returns {Promise<void>} -
+     */
     showLeaderBoard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
         var close = document.getElementById("closeLbSpan");
         var modal = document.getElementById("leaderboardModal");
@@ -28,7 +38,6 @@ module.exports = {
                 modal.style.display = "none";
             }
         }
-
         //Close Button
         close.onclick = function () {
             modal.style.display = "none";
@@ -40,6 +49,16 @@ module.exports = {
             this.showLeaderBoard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
         }
     },
+    /**
+     * calculates the leader board
+     * @param api: wax api
+     * @param templates: templates of the current items
+     * @param items: list of the current items
+     * @param calculateMultiplier: function to calculate the multiplier for an account
+     * @param roundNumber: function to round a number
+     * @param findAssetID: function for finding an asset
+     * @returns {Promise<void>} -
+     */
     createLeaderboard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
         document.getElementById("lbLoading").style.display = "inline-block";
         document.getElementById("refreshSpan").style.display = "none";
@@ -65,15 +84,25 @@ module.exports = {
             //wait a second because of rate limiting
             await this.sleep(1000);
         }
-        //sort the map descending
+        //multiply the values in the map with the account multiplier
         for (let [key, value] of scores) {
             var multiplier = await calculateMultiplier.calculateMultiplier(key, api);
             var newValue = value * (1 + multiplier);
             scores.set(key, newValue);
         }
+        //sort the map descending
         scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
         this.fillLeaderboard(scores, roundNumber);
     },
+    /**
+     * fills the scores map with values
+     * @param accounts which own a NFT of the current item
+     * @param scores: the map containing all the scores
+     * @param bits_per_sec of the current item
+     * @param templateId of the current item
+     * @param findAssetID function for getting the highest level of the current item per account
+     * @returns {Promise<void>} -
+     */
     fillScores: async function (accounts, scores, bits_per_sec, templateId, findAssetID) {
         for (var i = 0; i < accounts.length; i++) {
             var bitcoinrate = 0;
@@ -91,6 +120,11 @@ module.exports = {
             scores.set(accounts[i].account, bitcoinrate);
         }
     },
+    /**
+     * function which handels the displaying of the leaderboard
+     * @param scores: map with all scores
+     * @param roundNumber: function to round the score numbers
+     */
     fillLeaderboard: function (scores, roundNumber) {
         var counter = 1;
 
@@ -106,6 +140,12 @@ module.exports = {
         document.getElementById("lbLoading").style.display = "none";
         document.getElementById("refreshSpan").style.display = "inline-block";
     },
+    /**
+     * sleep function for rate limiting
+     * @param ms:  amount of ms to sleep 1000ms = 1s
+     * @returns {Promise<unknown>}
+     */
+
     sleep: function (ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }

@@ -16,6 +16,13 @@
  */
 
 module.exports = {
+    /**
+     * Shows a dialog during which the user inputs how much wax he wants to donate.
+     * @param dp dompurifier to escape strings put in by the user.
+     * @param wax api
+     * @returns {Promise<void>}
+     */
+
     showDialog: async function (dp, wax) {
         var modal = document.getElementById("myModal");
         var span = document.getElementById("closeSpan");
@@ -50,6 +57,13 @@ module.exports = {
             }
         };
     },
+    /**
+     * executes the donation transaction
+     * @param wax wax api
+     * @param amount of wax to be donated
+     * @returns {Promise<void>} -
+     */
+
     sendDonation: async function (wax, amount) {
         if (wax.userAccount === undefined) {
             await wax.login();
@@ -60,10 +74,7 @@ module.exports = {
 
         quantity = quantity + ".00000000 WAX";
 
-
         //execute transaction
-
-
         const action =
             {
                 account: "eosio",
@@ -84,21 +95,5 @@ module.exports = {
         session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
-    },
-    onClickFunction: async function (modal, dp, input, wax) {
-        modal.style.display = "none";
-
-        //Get user input
-        var userinput = dp.sanitize(input.value);
-
-        if (userinput != "") userinput = parseFloat(userinput);
-
-        console.log(typeof userinput);
-        //Do transaction with the userinput
-        if (typeof userinput != "number") alert("Please input a number");
-        else {
-            console.log(this);
-            await this.sendDonation(wax, userinput);
-        }
     }
 }

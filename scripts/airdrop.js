@@ -55,7 +55,7 @@ module.exports = {
         }
     },
     /**
-     * creates the message if the verification was succesfull
+     * if the verification was succesfull this function creates the message containing the private key
      * @param amount of NFTs found
      */
     fetchJson: function (amount) {
@@ -64,6 +64,13 @@ module.exports = {
                 + amount + " assets from 1cryptobeard" + "\n" + "Link for the airdrop: "))
             .catch(err => console.log(err));
     },
+    /**
+     * counts the number of NFTs from the 1cryptobeard collection
+     * @param api: atmoicasset api
+     * @param account of the user
+     * @returns {Promise<number>} amount of NFTs from 1 cryptobeard
+     */
+
     checkForAirdrop: async function (api, account) {
         var assets = (await api.getAccount(account)).templates;
         var count = 0;

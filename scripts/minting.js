@@ -15,16 +15,19 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 const ecc = require("eosjs-ecc");
-// const EosApi = require("eosjs-api"); // Or EosApi = require('./src')
-
-// var eos = EosApi();
 
 module.exports = {
-
+    /**
+     * mints a NFt
+     * @param id: template id of the nft to be minted
+     * @param account which receives the nft
+     * @param bitcoinamount: current bitcoinamount
+     * @param showItems: function to show all items again
+     * @returns {Promise<void>} -
+     */
     mint: async function (id, account, bitcoinamount, showItems) {
 
         var hasharray = await this.createHash(account, bitcoinamount);
-        //await this.getLastTransaction(eosApi, rpc, account);
 
         try{
             const action = {
@@ -51,6 +54,12 @@ module.exports = {
             showItems("block");
         }
     },
+    /**
+     * function which creates a hash starting with two 0s
+     * @param account which receives the asset
+     * @param bitcoinamount: current bitcoin amount
+     * @returns {Promise<[{hash: *}, {array: *}, {amount: *}]>} the hash, the nonce and the bitcoin amount
+     */
     createHash:async function (account, bitcoinamount) {
         var hash;
         var random_array;
@@ -63,10 +72,14 @@ module.exports = {
 
             random_array = this.randomString(12);
             account = account.toString();
+            //message to be hashed
             var message = account   + amount + random_array;
+
+            //hashing with sha256
             hash = ecc.sha256(message);
             hex_digist = hash;
 
+            //check if hash starts with two 0s
             good = hex_digist.substr(0,2) == '00';
         }
 
@@ -81,19 +94,11 @@ module.exports = {
         }];
         return returnValues;
     },
-    getRand: function () {
-        const arr = new Uint8Array(8);
-        for (let i=0; i < 8; i++){
-            const rand = Math.floor(Math.random() * 255);
-            arr[i] = rand;
-        }
-        return arr;
-    },
-    toHex: function (buffer) {
-        return [...new Uint8Array (buffer)]
-            .map (b => b.toString (16).padStart (2, "0"))
-            .join ("");
-    },
+    /**
+     * function which creates a random string
+     * @param length of the random string
+     * @returns {string} the random string
+     */
   randomString: function (length) {
     var result = "";
     var characters =
@@ -104,6 +109,16 @@ module.exports = {
     }
     return result;
     },
+
+    /**
+     * updates the level of a nft
+     * @param account which owns the nft
+     * @param id of the nft to be updated
+     * @param newLevel: this function sets the nft to this level
+     * @param bitcoinamount: current bitcoin amount
+     * @param showItems: function to show all items
+     * @returns {Promise<void>} -
+     */
     updateAsset: async function (account, id, newLevel, bitcoinamount, showItems ) {
         var nonce;
         var hash;

@@ -12,7 +12,7 @@ async function getWAXWallets() {
   window.web3 = new Web3(ethereum);
   await ethereum.request({ method: "eth_requestAccounts" });
   const accounts = await ethereum.request({ method: "eth_accounts" });
-  currentUser = accounts[0];
+  var currentUser = accounts[0];
 
   let result = [];
   const contract = new web3.eth.Contract(
