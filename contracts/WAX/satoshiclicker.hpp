@@ -19,6 +19,16 @@ public:
 	{
 	}
 
+	struct accounts
+	{
+		eosio::asset balance;
+		uint64_t primary_key() const { return balance.symbol.code().raw(); }
+	};
+
+	typedef eosio::multi_index<"accounts"_n, accounts> accounts_table;
+
+	accounts_table accounts = accounts_table("eosio.token"_n, get_self().value);
+
 	struct st_frozen
 	{
 		uint64_t frozen;
@@ -34,7 +44,7 @@ public:
 		string btc;
 		bool banned;
 		bool received;
-		bool payed;
+		bool paid;
 		uint64_t primary_key() const { return user.value; }
 	};
 
@@ -77,6 +87,8 @@ public:
 	ACTION unfreeze();
 
 	ACTION login(name player);
+
+	ACTION checkplayer(name player);
 
 	st_frozen getFreezeFlag()
 	{

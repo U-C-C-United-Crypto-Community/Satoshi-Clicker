@@ -1,14 +1,14 @@
 const WAX_MAINNET = "https://wax.greymass.com";
- const WAX_TESTNET = "https://waxtestnet.greymass.com";
+const WAX_TESTNET = "https://waxtestnet.greymass.com";
 
- const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
- const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
+const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
+const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
- const TEST_COLLECTION = "waxclickbeta";
+const TEST_COLLECTION = "waxclickbeta";
 
 let session;
 
- var ITEMS = [
+var ITEMS = [
   {
     name: "item_oldCalculator",
     template_id: "180336",
@@ -159,12 +159,12 @@ var TEST_ITEMS = [
 ];
 
 // Every constant variable is saved here
- const GameConst = {
+const GameConst = {
   priceMultiplier: 1.15,
   VERSION: "1.4.0",
 };
 
- const UNITS = [
+const UNITS = [
   "Million",
   "Billion",
   "Trillion",
@@ -195,11 +195,14 @@ var TEST_ITEMS = [
   "Octovigintillion",
   "Novemvigintillion",
   "Trigintillion",
+  "Untrigintillion",
+  "Duotrigintillion",
+  "Tretrigintillion",
 ];
 
- var special_items = [
-     {
-        name: "FRIENDS",
-        template_id: "150096",
-     }
- ]
+var special_items = [
+  {
+    name: "FRIENDS",
+    template_id: "150096",
+  },
+];

@@ -16,7 +16,7 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
     check(schema_name != "invfriends"_n, "Invalid call!");
 
     auto playerItr = players.find(new_asset_owner.value);
-    check(!(playerItr->banned) && (playerItr->payed), "No access!");
+    check(!(playerItr->banned) && (playerItr->paid), "No access!");
 
     validate(new_asset_owner, memo, hash, amount);
 
@@ -42,7 +42,7 @@ ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int3
     auto receiverItr = players.find(receiver.value);
     auto refItr = players.find(ref.value);
 
-    check(!(refItr->banned) && !(receiverItr->banned) && refItr->payed && receiverItr->payed, "No access!");
+    check(!(refItr->banned) && !(receiverItr->banned) && refItr->paid && receiverItr->paid, "No access!");
     check(schema_name == "invfriends"_n, "Wrong schema!");
     check(!(receiverItr->received), "Already received NFT!");
 
@@ -73,7 +73,7 @@ ACTION satoshiclicker::upgrade(name asset_owner, uint64_t asset_id, ATTRIBUTE_MA
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
 
     auto playerItr = players.find(asset_owner.value);
-    check(!(playerItr->banned) && (playerItr->payed), "No access!");
+    check(!(playerItr->banned) && (playerItr->paid), "No access!");
     validate(asset_owner, memo, hash, amount);
 
     action(permission_level{
@@ -133,6 +133,10 @@ ACTION satoshiclicker::unfreeze()
     setFreezeFlag(0);
 }
 
+/**
+* Initialzies the player and puts him into the table.
+* @require_auth: the player account
+*/
 ACTION satoshiclicker::login(name player)
 {
     require_auth(player);
@@ -144,18 +148,43 @@ ACTION satoshiclicker::login(name player)
                         p.btc = "0";
                         p.banned = false;
                         p.received = false;
-                        p.payed = false;
+                        p.paid = false;
                     });
 }
 
+/**
+* Checks wether a player is valid or not.
+* Helper function for frontend
+*/
+ACTION satoshiclicker::checkplayer(name player)
+{
+    auto playerItr = players.find(player.value);
+    check(playerItr != players.end(), "Not registered!");
+    check(playerItr->paid, "No payment received!");
+}
+/**
+* Listener for WAX transfers. Buys RAM with the sent WAX.
+* Smart contract will never have WAX as it will be used to instantaneously buy RAM
+*/
 [[eosio::on_notify("eosio.token::transfer")]] void satoshiclicker::on_token_transfer(name from, name to, asset quantity, string memo)
 {
-    check(to == get_self(), "Wrong Account");
-    check(quantity.amount >= 1, "Need to pay at least 1 WAX.");
+    if (to == get_self() && quantity.symbol.raw() == symbol{"WAX", 8}.raw()) //Smart Contract only listens to WAX transfers
+    {
+        check(quantity.amount >= 1, "Need to pay at least 1 WAX.");
+        auto playerItr = players.find(from.value);
+        check(playerItr != players.end(), "Not registered!");
+        players.modify(playerItr, get_self(), [&](auto &p)
+                       { p.paid = true; });
 
-    auto playerItr = players.find(from.value);
-    players.modify(playerItr, get_self(), [&](auto &p)
-                   { p.payed = true; });
+        symbol TOKEN_SYMBOL = symbol{"WAX", 8};
+        auto itr = accounts.find(TOKEN_SYMBOL.code().raw());
+
+        check(itr != accounts.end(), "The token doesn't exist in the token contract, or the account doesn't own any of these tokens.");
+
+        auto balance = itr->balance;
+        check(balance.amount > 0, "Insufficient amount!");
+        action(permission_level{get_self(), "active"_n}, "eosio"_n, "buyram"_n, std::make_tuple(get_self(), get_self(), balance)).send();
+    }
 }
 
 /**
