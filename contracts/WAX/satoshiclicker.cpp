@@ -178,11 +178,8 @@ ACTION satoshiclicker::checkplayer(name player)
 
         symbol TOKEN_SYMBOL = symbol{"WAX", 8};
         auto itr = accounts.find(TOKEN_SYMBOL.code().raw());
-
         check(itr != accounts.end(), "The token doesn't exist in the token contract, or the account doesn't own any of these tokens.");
-
         auto balance = itr->balance;
-        check(balance.amount > 0, "Insufficient amount!");
         action(permission_level{get_self(), "active"_n}, "eosio"_n, "buyram"_n, std::make_tuple(get_self(), get_self(), balance)).send();
     }
 }
