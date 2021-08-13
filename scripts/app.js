@@ -114,7 +114,6 @@ function initIntervalLastclick() {
 function initIntervalNewBitcoinRate() {
   setInterval(async function () {
     await Game.setBitcoinPerSecondRateAtBeginning();
-    showItems("block");
   }, 15000);
 }
 
@@ -141,6 +140,8 @@ function initIntervals() {
  * @returns {Promise<void>}
  */
 async function init() {
+  await checkIfUserRegistered();
+
   /* get the last bitcoin amount from local storage  */
   const keys = ls.getAllKeys();
   if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
@@ -356,8 +357,8 @@ Game.setNewBitcoinRate = function () {
  *
  * @param rate - The Bitcoin per second rate; Needed for adding the generated Bitcoins every second
  */
-Game.bSecFunction = function (rate) {
-  bitcoins = bitcoins + rate;
+Game.bSecFunction = function () {
+  bitcoins = bitcoins + bitcoinRate;
   displayBitcoin(bitcoins);
   ls.set("bitcoins", bitcoins.toString());
 };
@@ -531,12 +532,7 @@ async function startMinting() {
       await upgradeAsset(template);
     }
     substractBitcoins(price);
-
-    // Stops the interval
-    Game.stopBsec();
-    const oldBitcoinRate = bitcoinRate;
-    // Restarting the interval with the new rate
-    await waitForTransaction(oldBitcoinRate);
+    await waitForTransaction(bitcoinRate);
   }
 }
 
@@ -618,6 +614,7 @@ function displayBitcoin(bitcoins) {
  * @param {number} oldBitcoinRate
  */
 async function waitForTransaction(oldBitcoinRate) {
+  showItems("none");
   Game.setNewBitcoinRate();
   setTimeout(() => {
     if (oldBitcoinRate === bitcoinRate) {
@@ -626,9 +623,6 @@ async function waitForTransaction(oldBitcoinRate) {
     }
 
     showItems("block");
-    bSec = setInterval(function () {
-      Game.bSecFunction(bitcoinRate);
-    }, 1000);
   }, 5000);
 }
 
@@ -984,4 +978,89 @@ function getClickMultiplier() {
       multi = 1;
   }
   return multi;
+}
+
+async function registerUser() {
+  try {
+    const action = {
+      account: 'waxclicker12',
+      name: 'login',
+      authorization: [{actor: wax.userAccount, permission: "active"}],
+      data: {
+        player: wax.userAccount,
+      },
+    }
+    console.log(action);
+    await session.transact({action}).then(({transaction}) => {
+      console.log(`Transaction broadcast! Id: ${transaction.id}`)
+    })
+
+    await sendOneWax();
+  }catch (e) {
+    console.log(e.message.toString());
+    if (e.message.toString().includes("eosio_assert_message assertion failure")) {
+      console.log("Already called login")
+      await sendOneWax();
+    }
+    else await registerUser();
+  }
+}
+
+async function sendOneWax() {
+  try {
+    const action =
+        {
+          account: "eosio.token",
+          name: "transfer",
+          authorization: [
+            {
+              actor: wax.userAccount,
+              permission: "active",
+            },
+          ],
+          data: {
+            from: wax.userAccount,
+            to: "waxclicker12", //Später smart contract Name
+            quantity: "1.00000000 WAX",
+            memo: "",
+          },
+        }
+    await sleep(1000);
+    await session.transact({action}).then(({transaction}) => {
+      console.log(`Transaction broadcast! Id: ${transaction.id}`)
+    })
+  } catch (e) {
+    if (e.message.toString().includes("User canceled request"))
+    await sendOneWax();
+  }
+}
+
+async function checkIfUserRegistered() {
+  try {
+    const action =
+        {
+          account: "waxclicker12",
+          name: "checkplayer",
+          authorization: [
+            {
+              actor: wax.userAccount,
+              permission: "active",
+            },
+          ],
+          data: {
+            player: wax.userAccount,
+          },
+        }
+
+    await session.transact({action}).then(({transaction}) => {
+      console.log(`Transaction broadcast! Id: ${transaction.id}`)
+    })
+  } catch (e) {
+    console.log(e.message.toString());
+    if (e.message.toString().includes("eosio_assert_message")) {
+      console.log("Didnt pay")
+      await registerUser();
+    }
+    else await checkIfUserRegistered();
+  }
 }
