@@ -12,22 +12,12 @@ public:
 	using contract::contract;
 
 	satoshiclicker(name receiver, name code, datastream<const char *> ds) : // contract base class contructor
-																			contract(receiver, code, ds),
-																			// instantiate multi-index instance as data member
-																			players(receiver, receiver.value),
-																			_frozen(receiver, receiver.value)
+		contract(receiver, code, ds),
+		// instantiate multi-index instance as data member
+		players(receiver, receiver.value),
+		_frozen(receiver, receiver.value)
 	{
 	}
-
-	struct accounts
-	{
-		eosio::asset balance;
-		uint64_t primary_key() const { return balance.symbol.code().raw(); }
-	};
-
-	typedef eosio::multi_index<"accounts"_n, accounts> accounts_table;
-
-	accounts_table accounts = accounts_table("eosio.token"_n, get_self().value);
 
 	struct st_frozen
 	{
