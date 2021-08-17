@@ -63,6 +63,7 @@ const leaderboardModule = require("./leaderboard");
 const airdropModule = require("./airdrop");
 const donationModule = require("./donation");
 const mintModule = require("./minting");
+const tabModule = require("./detectTabs");
 
 
 
@@ -133,6 +134,9 @@ function initIntervals() {
   initIntervalLastclick();
   initIntervalNewBitcoinRate();
   initIntervalShowNewRate();
+  setInterval( function () {
+     tabModule.detectTab();
+  }, 5000);
 }
 
 /**
@@ -442,7 +446,7 @@ async function findAssetID(templateID, account) {
   var id;
   var level = 0;
   while (id == undefined) {
-    assets = await api.getAssets({owner: account, collection_name: "waxclickbeta", template_id: templateID})
+    assets = await api.getAssets({owner: account, collection_name: "betawaxclick", template_id: templateID})
 
     for (var i = 0; i < assets.length; i++) {
       if (assets[i].mutable_data.level > level || assets[i].mutable_data.level == undefined) {
@@ -565,7 +569,7 @@ function setup() {
     }, 1000);
 
     // Write the version into the .version span element
-    $(".version").text("Version " + GameConst.VERSION);
+    $(".version").text(GameConst.VERSION);
     // Write the bitcoin per second rate into the .bSecRateNumber span element
     $(".bSecRateNumber").text(roundNumber(bitcoinRate));
     // If clicked on the big Bitcoin
@@ -663,7 +667,7 @@ document.getElementById("loginWaxWallet").onclick = async () => {
   }
 
   showItems("block");
-  document.getElementById("loginWaxWallet").style.display = "block";
+  document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "block";
 };
 
@@ -903,8 +907,8 @@ function makePurchaselist() {
   setup();
   showItems("block");
 
-  document.getElementById("verifyWaxWallet").style.display = "block";
-  document.getElementById("verifyCollection").style.display = "block";
+  document.getElementById("verifyWaxWallet").style.display = "none"; //show again
+  document.getElementById("verifyCollection").style.display = "none"; //show again
 
   return;
 }
@@ -921,7 +925,7 @@ async function anchorLogin() {
       didLogin();
     });
   } catch (e) {
-    document.getElementById("loginWaxWallet").style.display = "block";
+    document.getElementById("loginWaxWallet").style.display = "none"; //show again
     document.getElementById("loginAnchorWallet").style.display = "block";
   }
 
@@ -943,7 +947,7 @@ async function anchorLogin() {
 
   showItems("block");
 
-  document.getElementById("loginWaxWallet").style.display = "block";
+  document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "block";
 }
 
