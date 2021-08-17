@@ -9,11 +9,10 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
 {
     require_auth(new_asset_owner);
 
+    check(getFreezeFlag().frozen == 0, "Contract is frozen!"); 
+    check(schema_name != "invfriends"_n, "Invalid call!");
     // check is required to avoid string length overflow
     check(memo.length() == 12 && amount.length() < 150 && name{new_asset_owner}.to_string().length() < 15, "Invalid memo!");
-
-    check(getFreezeFlag().frozen == 0, "Contract is frozen!");
-    check(schema_name != "invfriends"_n, "Invalid call!");
 
     auto playerItr = players.find(new_asset_owner.value);
     check(!(playerItr->banned) && (playerItr->paid), "No access!");
@@ -38,12 +37,11 @@ ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int3
 {
     require_auth(receiver);
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
-
+    check(schema_name == "invfriends"_n, "Wrong schema!");
+    
     auto receiverItr = players.find(receiver.value);
     auto refItr = players.find(ref.value);
-
     check(!(refItr->banned) && !(receiverItr->banned) && refItr->paid && receiverItr->paid, "No access!");
-    check(schema_name == "invfriends"_n, "Wrong schema!");
     check(!(receiverItr->received), "Already received NFT!");
 
     ATTRIBUTE_MAP immutable_data;
@@ -104,7 +102,6 @@ ACTION satoshiclicker::ban(name user)
 ACTION satoshiclicker::unban(name user)
 {
     require_auth(get_self());
-    require_auth(get_self());
     // check if the user already exists
     auto playerItr = players.find(user.value);
     players.modify(playerItr, get_self(), [&](auto &p)
@@ -164,26 +161,22 @@ ACTION satoshiclicker::checkplayer(name player)
 }
 /**
 * Listener for WAX transfers. Buys RAM with the sent WAX.
-* Smart contract will never have WAX as it will be used to instantaneously buy RAM
+* Smart contract will never have WAX as it will be used to automatically buy RAM
 */
 [[eosio::on_notify("eosio.token::transfer")]] void satoshiclicker::on_token_transfer(name from, name to, asset quantity, string memo)
 {
     if (to == get_self() && quantity.symbol.raw() == symbol{"WAX", 8}.raw()) //Smart Contract only listens to WAX transfers
     {
-        check(quantity.amount >= 1, "Need to pay at least 1 WAX.");
+        check(quantity.amount >= 100000000, "Need to pay at least 1 WAX.");
         auto playerItr = players.find(from.value);
         check(playerItr != players.end(), "Not registered!");
         players.modify(playerItr, get_self(), [&](auto &p)
                        { p.paid = true; });
 
         symbol TOKEN_SYMBOL = symbol{"WAX", 8};
-        auto itr = accounts.find(TOKEN_SYMBOL.code().raw());
-
-        check(itr != accounts.end(), "The token doesn't exist in the token contract, or the account doesn't own any of these tokens.");
-
-        auto balance = itr->balance;
-        check(balance.amount > 0, "Insufficient amount!");
-        action(permission_level{get_self(), "active"_n}, "eosio"_n, "buyram"_n, std::make_tuple(get_self(), get_self(), balance)).send();
+        asset ram = asset{100000000, TOKEN_SYMBOL};
+        check(ram.amount == 0, ram.to_string());
+        action(permission_level{get_self(), "active"_n}, "eosio"_n, "buyram"_n, std::make_tuple(get_self(), get_self(), ram)).send();
     }
 }
 
