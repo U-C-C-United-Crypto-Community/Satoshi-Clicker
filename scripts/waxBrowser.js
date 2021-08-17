@@ -34136,12 +34136,14 @@ function roundNumber(thisValue) {
     valueString = thisValue.toFixed(0).toString();
   } else if (thisValue >= 1) {
     valueString = thisValue.toFixed(2).toString();
-  } else if (thisValue < 1 && thisValue.toString().includes("e")){
+  } else if (thisValue < 1 && thisValue.toString().includes("e")) {
     let decimalAmount = parseInt(thisValue.toString().split("-")[1]);
+    decimalAmount = decimalAmount <= 10 ? decimalAmount : 10;
     valueString = thisValue.toFixed(decimalAmount).toString();
   } else {
-    valueString = thisValue.toString();
+    valueString = thisValue.toFixed(8).toString();
   }
+  console.log(valueString)
   return valueString;
 }
 
