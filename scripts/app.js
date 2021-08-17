@@ -796,7 +796,6 @@ function roundNumber(thisValue) {
   } else {
     valueString = thisValue.toFixed(8).toString();
   }
-  console.log(valueString)
   return valueString;
 }
 
