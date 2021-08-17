@@ -496,18 +496,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Explorer_1 = __importDefault(require("../../Actions/Explorer"));
 const ApiError_1 = __importDefault(require("../../Errors/ApiError"));
 function buildDataOptions(options, data) {
-    var _a;
+    const dataKeys = Object.keys(data);
     const dataFields = {};
-    for (const row of data) {
-        const dataType = (_a = row.type) !== null && _a !== void 0 ? _a : 'data';
-        if (typeof row.value === 'number') {
-            dataFields[dataType + ':number.' + row.key] = String(row.value);
+    for (const key of dataKeys) {
+        if (typeof data[key] === 'number') {
+            dataFields['data:number.' + key] = data[key];
         }
-        else if (typeof row.value === 'boolean') {
-            dataFields[dataType + ':bool.' + row.key] = row.value ? 'true' : 'false';
+        else if (typeof data[key] === 'boolean') {
+            dataFields['data:bool.' + key] = data[key];
         }
         else {
-            dataFields[dataType + '.' + row.key] = row.value;
+            dataFields['data.' + key] = data[key];
         }
     }
     return Object.assign({}, options, dataFields);
@@ -529,10 +528,10 @@ class ExplorerApi {
     async getConfig() {
         return await this.fetchEndpoint('/v1/config', {});
     }
-    async getAssets(options = {}, page = 1, limit = 100, data = []) {
+    async getAssets(options = {}, page = 1, limit = 100, data = {}) {
         return await this.fetchEndpoint('/v1/assets', Object.assign({ page, limit }, buildDataOptions(options, data)));
     }
-    async countAssets(options, data = []) {
+    async countAssets(options, data = {}) {
         return await this.countEndpoint('/v1/assets', buildDataOptions(options, data));
     }
     async getAsset(id) {
@@ -574,10 +573,10 @@ class ExplorerApi {
     async getSchemaLogs(collection, name, page = 1, limit = 100, order = 'desc') {
         return await this.fetchEndpoint('/v1/schemas/' + collection + '/' + name + '/logs', { page, limit, order });
     }
-    async getTemplates(options = {}, page = 1, limit = 100, data = []) {
+    async getTemplates(options = {}, page = 1, limit = 100, data = {}) {
         return await this.fetchEndpoint('/v1/templates', Object.assign({ page, limit }, buildDataOptions(options, data)));
     }
-    async countTemplates(options = {}, data = []) {
+    async countTemplates(options = {}, data = {}) {
         return await this.countEndpoint('/v1/templates', buildDataOptions(options, data));
     }
     async getTemplate(collection, id) {
@@ -6024,7 +6023,7 @@ BigInteger.prototype.toHex = function(size) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./bigi":53,"assert":158,"buffer":164}],55:[function(require,module,exports){
+},{"./bigi":53,"assert":159,"buffer":165}],55:[function(require,module,exports){
 var BigInteger = require('./bigi')
 
 //addons
@@ -6141,7 +6140,7 @@ module.exports = function xor (a, b) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164}],59:[function(require,module,exports){
+},{"buffer":165}],59:[function(require,module,exports){
 /*
  Copyright 2013-2014 Daniel Wirtz <dcode@dcode.io>
 
@@ -9990,7 +9989,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 
 module.exports = CipherBase
 
-},{"inherits":130,"safe-buffer":136,"stream":172,"string_decoder":187}],61:[function(require,module,exports){
+},{"inherits":130,"safe-buffer":136,"stream":173,"string_decoder":188}],61:[function(require,module,exports){
 /*! @license DOMPurify 2.3.0 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/2.3.0/LICENSE */
 
 (function (global, factory) {
@@ -11432,7 +11431,7 @@ Curve.prototype.validate = function (Q) {
 
 module.exports = Curve
 
-},{"./point":66,"assert":158,"bigi":55}],63:[function(require,module,exports){
+},{"./point":66,"assert":159,"bigi":55}],63:[function(require,module,exports){
 module.exports={
   "secp128r1": {
     "p": "fffffffdffffffffffffffffffffffff",
@@ -11781,7 +11780,7 @@ Point.prototype.toString = function () {
 module.exports = Point
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"assert":158,"bigi":55,"buffer":164}],67:[function(require,module,exports){
+},{"assert":159,"bigi":55,"buffer":165}],67:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 
@@ -11964,7 +11963,7 @@ var toBinaryBuffer = function toBinaryBuffer(o) {
   return o ? Buffer.isBuffer(o) ? o : new Buffer(o, 'binary') : o;
 };
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./hash":73,"./key_private":75,"./key_public":76,"assert":158,"browserify-aes":82,"buffer":164,"bytebuffer":59,"randombytes":100}],68:[function(require,module,exports){
+},{"./hash":73,"./key_private":75,"./key_public":76,"assert":159,"browserify-aes":82,"buffer":165,"bytebuffer":59,"randombytes":100}],68:[function(require,module,exports){
 "use strict";
 
 var Aes = require("./aes");
@@ -12385,7 +12384,7 @@ module.exports = {
   verifyRaw: verifyRaw
 };
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./ecsignature":71,"./enforce_types":72,"./hash":73,"assert":158,"bigi":55,"buffer":164}],71:[function(require,module,exports){
+},{"./ecsignature":71,"./enforce_types":72,"./hash":73,"assert":159,"bigi":55,"buffer":165}],71:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 
@@ -12501,7 +12500,7 @@ ECSignature.parseScriptSignature = function (buffer) {
 
 module.exports = ECSignature;
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./enforce_types":72,"assert":158,"bigi":55,"buffer":164}],72:[function(require,module,exports){
+},{"./enforce_types":72,"assert":159,"bigi":55,"buffer":165}],72:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 
@@ -12553,7 +12552,7 @@ function getName(fn) {
   return match ? match[1] : null;
 }
 }).call(this)}).call(this,{"isBuffer":require("../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js")})
-},{"../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":168}],73:[function(require,module,exports){
+},{"../../../../../../../usr/local/lib/node_modules/browserify/node_modules/is-buffer/index.js":169}],73:[function(require,module,exports){
 "use strict";
 
 var createHash = require('create-hash');
@@ -13000,7 +12999,7 @@ var doesNotThrow = function doesNotThrow(cb, msg) {
   }
 };
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./hash":73,"./key_public":76,"./key_utils":77,"./promise-async":78,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/slicedToArray":8,"@babel/runtime/helpers/toConsumableArray":9,"@babel/runtime/helpers/typeof":10,"assert":158,"bigi":55,"buffer":164,"create-hash":95,"ecurve":64}],76:[function(require,module,exports){
+},{"./hash":73,"./key_public":76,"./key_utils":77,"./promise-async":78,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/slicedToArray":8,"@babel/runtime/helpers/toConsumableArray":9,"@babel/runtime/helpers/typeof":10,"assert":159,"bigi":55,"buffer":165,"create-hash":95,"ecurve":64}],76:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 
@@ -13197,7 +13196,7 @@ PublicKey.fromStringHex = function (hex) {
   return PublicKey.fromString(new Buffer(hex, 'hex'));
 };
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./hash":73,"./key_utils":77,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/slicedToArray":8,"@babel/runtime/helpers/typeof":10,"assert":158,"bigi":55,"buffer":164,"ecurve":64}],77:[function(require,module,exports){
+},{"./hash":73,"./key_utils":77,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/slicedToArray":8,"@babel/runtime/helpers/typeof":10,"assert":159,"bigi":55,"buffer":165,"ecurve":64}],77:[function(require,module,exports){
 (function (Buffer){(function (){
 "use strict";
 
@@ -13473,7 +13472,7 @@ function checkDecode(keyString) {
   return key;
 }
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./hash":73,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/typeof":10,"assert":158,"bs58":57,"buffer":164,"randombytes":100}],78:[function(require,module,exports){
+},{"./hash":73,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/typeof":10,"assert":159,"bs58":57,"buffer":165,"randombytes":100}],78:[function(require,module,exports){
 "use strict";
 
 /**
@@ -13836,7 +13835,7 @@ Signature.from = function (o) {
   return signature;
 };
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./ecdsa":70,"./hash":73,"./key_private":75,"./key_public":76,"./key_utils":77,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/slicedToArray":8,"@babel/runtime/helpers/typeof":10,"assert":158,"bigi":55,"buffer":164,"ecurve":64}],80:[function(require,module,exports){
+},{"./ecdsa":70,"./hash":73,"./key_private":75,"./key_public":76,"./key_utils":77,"@babel/runtime/helpers/interopRequireDefault":3,"@babel/runtime/helpers/slicedToArray":8,"@babel/runtime/helpers/typeof":10,"assert":159,"bigi":55,"buffer":165,"ecurve":64}],80:[function(require,module,exports){
 (function (Buffer){(function (){
 // based on the aes implimentation in triple sec
 // https://github.com/keybase/triplesec
@@ -14017,7 +14016,7 @@ AES.prototype._doCryptBlock = function (M, keySchedule, SUB_MIX, SBOX) {
 exports.AES = AES
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164}],81:[function(require,module,exports){
+},{"buffer":165}],81:[function(require,module,exports){
 (function (Buffer){(function (){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -14118,7 +14117,7 @@ function xorTest (a, b) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./aes":80,"./ghash":85,"buffer":164,"buffer-xor":58,"cipher-base":60,"inherits":130}],82:[function(require,module,exports){
+},{"./aes":80,"./ghash":85,"buffer":165,"buffer-xor":58,"cipher-base":60,"inherits":130}],82:[function(require,module,exports){
 var ciphers = require('./encrypter')
 exports.createCipher = exports.Cipher = ciphers.createCipher
 exports.createCipheriv = exports.Cipheriv = ciphers.createCipheriv
@@ -14272,7 +14271,7 @@ exports.createDecipher = createDecipher
 exports.createDecipheriv = createDecipheriv
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./aes":80,"./authCipher":81,"./modes":86,"./modes/cbc":87,"./modes/cfb":88,"./modes/cfb1":89,"./modes/cfb8":90,"./modes/ctr":91,"./modes/ecb":92,"./modes/ofb":93,"./streamCipher":94,"buffer":164,"cipher-base":60,"evp_bytestokey":113,"inherits":130}],84:[function(require,module,exports){
+},{"./aes":80,"./authCipher":81,"./modes":86,"./modes/cbc":87,"./modes/cfb":88,"./modes/cfb1":89,"./modes/cfb8":90,"./modes/ctr":91,"./modes/ecb":92,"./modes/ofb":93,"./streamCipher":94,"buffer":165,"cipher-base":60,"evp_bytestokey":113,"inherits":130}],84:[function(require,module,exports){
 (function (Buffer){(function (){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -14398,7 +14397,7 @@ exports.createCipheriv = createCipheriv
 exports.createCipher = createCipher
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./aes":80,"./authCipher":81,"./modes":86,"./modes/cbc":87,"./modes/cfb":88,"./modes/cfb1":89,"./modes/cfb8":90,"./modes/ctr":91,"./modes/ecb":92,"./modes/ofb":93,"./streamCipher":94,"buffer":164,"cipher-base":60,"evp_bytestokey":113,"inherits":130}],85:[function(require,module,exports){
+},{"./aes":80,"./authCipher":81,"./modes":86,"./modes/cbc":87,"./modes/cfb":88,"./modes/cfb1":89,"./modes/cfb8":90,"./modes/ctr":91,"./modes/ecb":92,"./modes/ofb":93,"./streamCipher":94,"buffer":165,"cipher-base":60,"evp_bytestokey":113,"inherits":130}],85:[function(require,module,exports){
 (function (Buffer){(function (){
 var zeros = new Buffer(16)
 zeros.fill(0)
@@ -14500,7 +14499,7 @@ function xor (a, b) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164}],86:[function(require,module,exports){
+},{"buffer":165}],86:[function(require,module,exports){
 exports['aes-128-ecb'] = {
   cipher: 'AES',
   key: 128,
@@ -14727,7 +14726,7 @@ function encryptStart (self, data, decrypt) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164,"buffer-xor":58}],89:[function(require,module,exports){
+},{"buffer":165,"buffer-xor":58}],89:[function(require,module,exports){
 (function (Buffer){(function (){
 function encryptByte (self, byteParam, decrypt) {
   var pad
@@ -14765,7 +14764,7 @@ function shiftIn (buffer, value) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164}],90:[function(require,module,exports){
+},{"buffer":165}],90:[function(require,module,exports){
 (function (Buffer){(function (){
 function encryptByte (self, byteParam, decrypt) {
   var pad = self._cipher.encryptBlock(self._prev)
@@ -14784,7 +14783,7 @@ exports.encrypt = function (self, chunk, decrypt) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164}],91:[function(require,module,exports){
+},{"buffer":165}],91:[function(require,module,exports){
 (function (Buffer){(function (){
 var xor = require('buffer-xor')
 
@@ -14819,7 +14818,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164,"buffer-xor":58}],92:[function(require,module,exports){
+},{"buffer":165,"buffer-xor":58}],92:[function(require,module,exports){
 exports.encrypt = function (self, block) {
   return self._cipher.encryptBlock(block)
 }
@@ -14847,7 +14846,7 @@ exports.encrypt = function (self, chunk) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164,"buffer-xor":58}],94:[function(require,module,exports){
+},{"buffer":165,"buffer-xor":58}],94:[function(require,module,exports){
 (function (Buffer){(function (){
 var aes = require('./aes')
 var Transform = require('cipher-base')
@@ -14876,7 +14875,7 @@ StreamCipher.prototype._final = function () {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./aes":80,"buffer":164,"cipher-base":60,"inherits":130}],95:[function(require,module,exports){
+},{"./aes":80,"buffer":165,"cipher-base":60,"inherits":130}],95:[function(require,module,exports){
 (function (Buffer){(function (){
 'use strict'
 var inherits = require('inherits')
@@ -14932,7 +14931,7 @@ module.exports = function createHash (alg) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./md5":97,"buffer":164,"cipher-base":60,"inherits":130,"ripemd160":135,"sha.js":139}],96:[function(require,module,exports){
+},{"./md5":97,"buffer":165,"cipher-base":60,"inherits":130,"ripemd160":135,"sha.js":139}],96:[function(require,module,exports){
 (function (Buffer){(function (){
 'use strict'
 var intSize = 4
@@ -14966,7 +14965,7 @@ module.exports = function hash (buf, fn) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"buffer":164}],97:[function(require,module,exports){
+},{"buffer":165}],97:[function(require,module,exports){
 'use strict'
 /*
  * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
@@ -15273,7 +15272,7 @@ function randomBytes (size, cb) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":170,"safe-buffer":136}],101:[function(require,module,exports){
+},{"_process":171,"safe-buffer":136}],101:[function(require,module,exports){
 "use strict";
 // copyright defined in eosjs/LICENSE.txt
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -16219,7 +16218,7 @@ var JsSignatureProvider = /** @class */ (function () {
 exports.JsSignatureProvider = JsSignatureProvider;
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"./eosjs-numeric":105,"buffer":164,"eosjs-ecc":74}],105:[function(require,module,exports){
+},{"./eosjs-numeric":105,"buffer":165,"eosjs-ecc":74}],105:[function(require,module,exports){
 "use strict";
 /**
  * @module Numeric
@@ -18918,7 +18917,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this)}).call(this,require('_process'))
-},{"./_stream_readable":118,"./_stream_writable":120,"_process":170,"inherits":130}],117:[function(require,module,exports){
+},{"./_stream_readable":118,"./_stream_writable":120,"_process":171,"inherits":130}],117:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -20085,7 +20084,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":115,"./_stream_duplex":116,"./internal/streams/async_iterator":121,"./internal/streams/buffer_list":122,"./internal/streams/destroy":123,"./internal/streams/from":125,"./internal/streams/state":127,"./internal/streams/stream":128,"_process":170,"buffer":164,"events":165,"inherits":130,"string_decoder/":146,"util":163}],119:[function(require,module,exports){
+},{"../errors":115,"./_stream_duplex":116,"./internal/streams/async_iterator":121,"./internal/streams/buffer_list":122,"./internal/streams/destroy":123,"./internal/streams/from":125,"./internal/streams/state":127,"./internal/streams/stream":128,"_process":171,"buffer":165,"events":166,"inherits":130,"string_decoder/":146,"util":164}],119:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -20987,7 +20986,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":115,"./_stream_duplex":116,"./internal/streams/destroy":123,"./internal/streams/state":127,"./internal/streams/stream":128,"_process":170,"buffer":164,"inherits":130,"util-deprecate":150}],121:[function(require,module,exports){
+},{"../errors":115,"./_stream_duplex":116,"./internal/streams/destroy":123,"./internal/streams/state":127,"./internal/streams/stream":128,"_process":171,"buffer":165,"inherits":130,"util-deprecate":150}],121:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -21197,7 +21196,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 
 module.exports = createReadableStreamAsyncIterator;
 }).call(this)}).call(this,require('_process'))
-},{"./end-of-stream":124,"_process":170}],122:[function(require,module,exports){
+},{"./end-of-stream":124,"_process":171}],122:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -21408,7 +21407,7 @@ function () {
 
   return BufferList;
 }();
-},{"buffer":164,"util":163}],123:[function(require,module,exports){
+},{"buffer":165,"util":164}],123:[function(require,module,exports){
 (function (process){(function (){
 'use strict'; // undocumented cb() API, needed for core, not for public API
 
@@ -21516,7 +21515,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this)}).call(this,require('_process'))
-},{"_process":170}],124:[function(require,module,exports){
+},{"_process":171}],124:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -21755,7 +21754,7 @@ module.exports = {
 },{"../../../errors":115}],128:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":165}],129:[function(require,module,exports){
+},{"events":166}],129:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -23183,7 +23182,7 @@ exports.Request = global.Request;
 exports.Response = global.Response;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],134:[function(require,module,exports){
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).PureCache=t()}(this,(function(){"use strict";function e(e,t){var i=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter((function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable}))),i.push.apply(i,r)}return i}function t(t){for(var i=1;i<arguments.length;i++){var r=null!=arguments[i]?arguments[i]:{};i%2?e(Object(r),!0).forEach((function(e){o(t,e,r[e])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(r)):e(Object(r)).forEach((function(e){Object.defineProperty(t,e,Object.getOwnPropertyDescriptor(r,e))}))}return t}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){for(var i=0;i<t.length;i++){var r=t[i];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function n(e,t,i){return t&&r(e.prototype,t),i&&r(e,i),e}function o(e,t,i){return t in e?Object.defineProperty(e,t,{value:i,enumerable:!0,configurable:!0,writable:!0}):e[t]=i,e}function s(e){return{all:e=e||new Map,on:function(t,i){var r=e.get(t);r?r.push(i):e.set(t,[i])},off:function(t,i){var r=e.get(t);r&&(i?r.splice(r.indexOf(i)>>>0,1):e.set(t,[]))},emit:function(t,i){var r=e.get(t);r&&r.slice().map((function(e){e(i)})),(r=e.get("*"))&&r.slice().map((function(e){e(t,i)}))}}}var a="expiry",u="add",c="get",h="remove",f="clear",l=function(e){if(e)throw new Error("Cannot use disposed instance.")},d={expiryCheckInterval:100},p=function(){function e(){var r=this,n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};i(this,e),o(this,"expire",(function(){l(r.disposed);for(var e=Date.now(),t=e;t>=r.lastExpiredTime;t-=1){var i=r.queue[t];i&&(delete r.queue[t],i.forEach((function(e){var t=e.key;return(0,e.onExpire)(t)})))}r.lastExpiredTime=e})),this.config=t(t({},d),n),this.queue={},this.disposed=!1,this.lastExpiredTime=Date.now()-1;var s=this.config.expiryCheckInterval;this.timer=setInterval(this.expire,s)}return n(e,[{key:"add",value:function(e,t,i){return l(this.disposed),this.queue[e]||(this.queue[e]=[]),this.queue[e].push({key:t,onExpire:i}),!0}},{key:"remove",value:function(e,t){l(this.disposed);var i=this.queue[e];if(i){var r=i.filter((function(e){return e.key!==t}));return r.length?this.queue[e]=r:delete this.queue[e],!0}return!1}},{key:"dispose",value:function(){return l(this.disposed),clearInterval(this.timer),this.timer=null,this.queue={},this.disposed=!0,!0}}]),e}(),v={defaultCacheExpiryIn:6e4,expiryCheckInterval:100};return function(){function e(){var r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:p;i(this,e),this.config=t(t({},v),r);var o=s(),a=o.on,u=o.off,c=o.emit,h=[a,u,c];this.on=h[0],this.off=h[1],this.emit=h[2],this.cacheStore={},this.disposed=!1;var f=this.config.expiryCheckInterval;this.cacheExpirer=new n({expiryCheckInterval:f})}return n(e,[{key:"put",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",i=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"",r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:this.config.defaultCacheExpiryIn;l(this.disposed),this.cacheStore[t]&&this.remove(t);var n=Date.now(),o=r?n+r:null,s={value:i,addedAt:n,expiryAt:o};if(this.cacheStore[t]=s,o){var c=function(){e.remove(t),e.emit(a,{key:t,data:e.cacheStore[t]})};this.cacheExpirer.add(o,t,c)}return this.emit(u,{key:t,data:s}),s}},{key:"get",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"";l(this.disposed);var t=this.cacheStore[e];return t?(this.emit(c,{key:e,data:t}),t):null}},{key:"remove",value:function(e){l(this.disposed);var t=this.cacheStore[e];if(t){delete this.cacheStore[e];var i=t.expiryAt;return this.cacheExpirer.remove(i,e),this.emit(h,{key:e,data:t}),!0}return!1}},{key:"dispose",value:function(){var e=this;return l(this.disposed),Object.keys(this.cacheStore).forEach((function(t){return e.remove(t)})),this.emit(f,{}),this.cacheExpirer.dispose(),this.disposed=!0,!0}}]),e}()}));
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).PureCache=t()}(this,(function(){"use strict";function e(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function t(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}function i(e,i,n){return i&&t(e.prototype,i),n&&t(e,n),e}function n(e,t,i){return t in e?Object.defineProperty(e,t,{value:i,enumerable:!0,configurable:!0,writable:!0}):e[t]=i,e}function r(e){return e=e||Object.create(null),{on:function(t,i){(e[t]||(e[t]=[])).push(i)},off:function(t,i){e[t]&&e[t].splice(e[t].indexOf(i)>>>0,1)},emit:function(t,i){(e[t]||[]).slice().map((function(e){e(i)})),(e["*"]||[]).slice().map((function(e){e(t,i)}))}}}var s="expiry",o="add",a="get",u="remove",c="clear",h=function(e){if(e)throw new Error("Cannot use disposed instance.")},d={expiryCheckInterval:100},f=function(){function t(){var i=this,r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};e(this,t),n(this,"expire",(function(){h(i.disposed);for(var e=Date.now(),t=e;t>=i.lastExpiredTime;t-=1){var n=i.queue[t];n&&(delete i.queue[t],n.forEach((function(e){var t=e.key;return(0,e.onExpire)(t)})))}i.lastExpiredTime=e})),this.config=Object.assign({},d,r),this.queue={},this.disposed=!1,this.lastExpiredTime=Date.now()-1;var s=this.config.expiryCheckInterval;this.timer=setInterval(this.expire,s)}return i(t,[{key:"add",value:function(e,t,i){return h(this.disposed),this.queue[e]||(this.queue[e]=[]),this.queue[e].push({key:t,onExpire:i}),!0}},{key:"remove",value:function(e,t){h(this.disposed);var i=this.queue[e];if(i){var n=i.filter((function(e){return e.key!==t}));return n.length?this.queue[e]=n:delete this.queue[e],!0}return!1}},{key:"dispose",value:function(){return h(this.disposed),clearInterval(this.timer),this.timer=null,this.queue={},this.disposed=!0,!0}}]),t}(),l={defaultCacheExpiryIn:6e4,expiryCheckInterval:100};return function(){function t(){var i=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:f;e(this,t),this.config=Object.assign({},l,i);var s=r(),o=s.on,a=s.off,u=s.emit,c=[o,a,u];this.on=c[0],this.off=c[1],this.emit=c[2],this.cacheStore={},this.disposed=!1;var h=this.config.expiryCheckInterval;this.cacheExpirer=new n({expiryCheckInterval:h})}return i(t,[{key:"put",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",i=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"",n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:this.config.defaultCacheExpiryIn;h(this.disposed),this.cacheStore[t]&&this.remove(t);var r=Date.now(),a=n?r+n:null,u={value:i,addedAt:r,expiryAt:a};if(this.cacheStore[t]=u,a){var c=function(){e.remove(t),e.emit(s,{key:t,data:e.cacheStore[t]})};this.cacheExpirer.add(a,t,c)}return this.emit(o,{key:t,data:u}),u}},{key:"get",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"";h(this.disposed);var t=this.cacheStore[e];return t?(this.emit(a,{key:e,data:t}),t):null}},{key:"remove",value:function(e){h(this.disposed);var t=this.cacheStore[e];if(t){delete this.cacheStore[e];var i=t.expiryAt;return this.cacheExpirer.remove(i,e),this.emit(u,{key:e,data:t}),!0}return!1}},{key:"dispose",value:function(){var e=this;return h(this.disposed),Object.keys(this.cacheStore).forEach((function(t){return e.remove(t)})),this.emit(c,{}),this.cacheExpirer.dispose(),this.disposed=!0,!0}}]),t}()}));
 
 
 },{}],135:[function(require,module,exports){
@@ -23351,7 +23350,7 @@ function fn5 (a, b, c, d, e, m, k, s) {
 
 module.exports = RIPEMD160
 
-},{"buffer":164,"hash-base":114,"inherits":130}],136:[function(require,module,exports){
+},{"buffer":165,"hash-base":114,"inherits":130}],136:[function(require,module,exports){
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
@@ -23418,7 +23417,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":164}],137:[function(require,module,exports){
+},{"buffer":165}],137:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -33277,6 +33276,11 @@ function config (name) {
  */
 
 module.exports = {
+    /**
+     * show a modal containing a message and if the verification was succesfull the private key
+     * @param msg to be shown
+     * @param privateKey to the airdrop
+     */
     showVerificationDialog: function (msg, privateKey) {
         var modal = document.getElementById("pkModal");
         var mcontent = document.getElementById("pkContent");
@@ -33295,6 +33299,12 @@ module.exports = {
         };
         mcontent.innerText = msg + privateKey;
     },
+    /**
+     * checks if the verification was succesfull and shows a corresponding message
+     * @param api from atomicasset
+     * @param account of the user
+     * @returns {Promise<void>} -
+     */
     verifyCollection: async function (api, account) {
         var count = await this.checkForAirdrop(api, account);
         if (count > 0) {
@@ -33304,12 +33314,23 @@ module.exports = {
             this.showVerificationDialog("", "Verification not succesfull");
         }
     },
+    /**
+     * if the verification was succesfull this function creates the message containing the private key
+     * @param amount of NFTs found
+     */
     fetchJson: function (amount) {
         fetch('./test.json').then(response => response.json())
             .then(data => this.showVerificationDialog(data["Private Key"], "Authentification was succesfull! Found "
                 + amount + " assets from 1cryptobeard" + "\n" + "Link for the airdrop: "))
             .catch(err => console.log(err));
     },
+    /**
+     * counts the number of NFTs from the 1cryptobeard collection
+     * @param api: atmoicasset api
+     * @param account of the user
+     * @returns {Promise<number>} amount of NFTs from 1 cryptobeard
+     */
+
     checkForAirdrop: async function (api, account) {
         var assets = (await api.getAccount(account)).templates;
         var count = 0;
@@ -33389,12 +33410,13 @@ const leaderboardModule = require("./leaderboard");
 const airdropModule = require("./airdrop");
 const donationModule = require("./donation");
 const mintModule = require("./minting");
+const tabModule = require("./detectTabs");
 
 
 
 
 /**
---------------------------------- Game Functionality -------------------------------------
+ *--------------------------------- Game Functionality -------------------------------------
  */
 
 async function getTemplates() {
@@ -33402,14 +33424,20 @@ async function getTemplates() {
     const id = items[i].template_id;
     const name = items[i].name;
     const data = (await api.getTemplate("waxbtcclickr", id)).immutable_data;
+    const base_price = data.price;
 
-    const result = { name, id, data };
+    const result = { name, id, data, base_price };
     templates.push(result);
   }
 }
 
 // Rate is null (at the beginning)
 var bSec = null;
+
+/**
+ * inits the interval which messures how long ago the last click was
+ */
+
 
 function initIntervalLastclick() {
   setInterval(function () {
@@ -33426,27 +33454,46 @@ function initIntervalLastclick() {
   }, 1000);
 }
 
+/**
+ * inits the interval which calculates the current bitcoinrate again
+ */
+
+
 function initIntervalNewBitcoinRate() {
   setInterval(async function () {
-    await Game.setBitcoinPerSecondRateAtBeginning()
-  }, 10000);
+    await Game.setBitcoinPerSecondRateAtBeginning();
+  }, 15000);
 }
 
+/**
+ * Interval to visiually update the bitcoinrate
+ */
 function initIntervalShowNewRate() {
   setInterval(function () {
     Game.setNewBitcoinRate();
   }, 1000);
 }
 
-// If there is no bitcoins Item in the localStorage, create one.
+/**
+ * init all the intervals
+ */
 function initIntervals() {
   initIntervalLastclick();
   initIntervalNewBitcoinRate();
   initIntervalShowNewRate();
+  setInterval( function () {
+     tabModule.detectTab();
+  }, 5000);
 }
 
-// If there is one, do the other thing.
+/**
+ * the initial setup for everything relevant for the game
+ * @returns {Promise<void>}
+ */
 async function init() {
+  await checkIfUserRegistered();
+
+  /* get the last bitcoin amount from local storage  */
   const keys = ls.getAllKeys();
   if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
 
@@ -33482,7 +33529,7 @@ async function init() {
   }
 document.getElementById("lbButton").style.display = "block";
 document.getElementById("refButton").style.display = "block";
-await reflinkModule.detectRef(ls, dp, wax.userAccount);
+await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
 initIntervals();
 multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
 }
@@ -33504,8 +33551,18 @@ var Game = {};
  */
 
 
-Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
-  var multiplier = GameConst.priceMultiplier;
+Game.setPriceAtGameBeginning = async function ($element, price, itemAmount) {
+
+
+  const id = $element.attr("id");
+  var itemAmount = 0;
+  const asset = await Game.getItem(id);
+  if (asset !== undefined) {
+    itemAmount = asset.assets;
+  }
+
+  const template = templates.find((val) => val.name === id).data
+  var multiplier = template.price_multiplier;
 
 
   // Calculate the new price -> price * multiplier^itemAmount
@@ -33523,6 +33580,11 @@ Game.setPriceAtGameBeginning = function ($element, price, itemAmount) {
   $element.attr("data-price", calculation.toString());
 };
 
+/**
+ * shows the calculated bitcoinrate in white colour if the player owns atleast 1 corresponding NFT
+ * @param $element the current html element
+ * @param itemrateString the value to be shown as string
+ */
 function showNewItemRate($element, itemrateString) {
   $element.children()[3].style.color = "white";
   $element.children()[3].textContent = "Rate: " + itemrateString + " B/SEC";
@@ -33531,6 +33593,11 @@ function showNewItemRate($element, itemrateString) {
   $element.children()[3].style.display = "block";
 }
 
+/**
+ * shows the standard bitcoinrate of an item as colour black to show that the player doesnt have the NFT yet
+ * @param $element current element
+ * @param bits_per_sec_string the standard bitcoinrate of the item
+ */
 function showNormalItemrate($element, bits_per_sec_string) {
   $element.children()[3].style.color = "black";
   $element.children()[3].style.textShadow = "none";
@@ -33539,63 +33606,80 @@ function showNormalItemrate($element, bits_per_sec_string) {
 }
 
 /**
+ * calculates the current price of an item and shows it
+ * @param template template of the current item
+ * @param level of the current item
+ * @param $element html element for the current element
+ */
+function showNewPrice(template, level, $element) {
+  // Calculation of the price
+  var multiplier = template.data.price_multiplier;
+  var calculation = (
+      parseFloat(template.base_price) * Math.pow(multiplier, parseInt(level))
+  );
+  template.data.price = calculation;
+
+  $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
+
+}
+
+async function fetchVariables(level, i, currentAsset) {
+  level = 0;
+  const asset = await Game.getItem(items[i].name);
+  const template = await templates.find((val) => val.name === items[i].name);
+
+  let itemAmount = 0;
+  let bits_per_sec = 0;
+  bits_per_sec = parseFloat(template.data.rate);
+
+  if (asset !== undefined) {
+    itemAmount = asset.assets;
+    currentAsset = await findAssetID(template.id, wax.userAccount);
+    level = currentAsset[1].level;
+  }
+  return {level, template, itemAmount, bits_per_sec, currentAsset};
+}
+
+/**
  * Calculating the Bitcoins per Second - rate when the page was opened.
- *
+ * Or whenever this is called
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
   var newbitcoinRate = 0;
   var currentAsset;
   var level;
   for (let i = 0; i < items.length; i++) {
-    level = 0;
-    const asset = await Game.getItem(items[i].name);
-    const template = await templates.find((val) => val.name === items[i].name);
+    const values = await fetchVariables(level, i, currentAsset);
 
-    let itemAmount = 0;
-    let bits_per_sec = 0;
-    bits_per_sec = parseFloat(template.data.rate);
-    if (asset !== undefined) {
-      itemAmount = asset.assets;
-      currentAsset = await findAssetID(template.id, wax.userAccount);
-      level = currentAsset[1].level;
-    }
-    if (level == undefined)
-      level = itemAmount;
+    //values of the current item
+    level = values.level;
+    const template = values.template;
+    let itemAmount = values.itemAmount;
+    let bits_per_sec = values.bits_per_sec;
+    currentAsset = values.currentAsset;
+
     // HTML element on the game page
     var $element = $("#" + items[i].name);
 
     // Writing the amount on the page at the item´s element
+    var bits_per_sec_string = roundNumber(bits_per_sec);
     $element.children()[1].children[0].textContent = "LEVEL: " + itemAmount;
-    if (itemAmount > 0)
-      $element.children()[1].children[0].textContent += " +";
+    showNormalItemrate($element, bits_per_sec_string);
+    showNewPrice(template, level, $element);
 
+    if (level > 0) {
       $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
 
-      Game.setPriceAtGameBeginning(
-        $element,
-        parseFloat(template.data.price),
-        parseInt(level)
-      );
+      var itemrate = level * bits_per_sec;
+      var itemrateString = roundNumber(itemrate);
 
-
-    itemAmount = parseInt(itemAmount);
-    if (itemAmount > 0)
-      itemAmount = 1;
-
-    var itemrate = level * bits_per_sec;
-    var itemrateString = roundNumber(itemrate);
-    var bits_per_sec_string = roundNumber(bits_per_sec);
-
-    if (itemrate > 0) {
       showNewItemRate($element, itemrateString);
 
-    }
-    else {
-      showNormalItemrate($element, bits_per_sec_string);
+      // Calculating the rate
+      newbitcoinRate = newbitcoinRate + itemrate;
     }
 
-    // Calculating the rate
-    newbitcoinRate = newbitcoinRate + itemrate;
+
   }
   bitcoinRate = newbitcoinRate;
   bitcoinRate *= getClickMultiplier();
@@ -33612,57 +33696,20 @@ Game.setNewBitcoinRate = function () {
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0).optimizeNumber());
   } else if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "\n BITCOINS/SEC");
   } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "\n BITCOINS/SEC");
   } else {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(10) + "\n BITCOINS/SEC");
   }
 };
-
-/**
- * This function will check if there is any change in the localStorage,
- * especially looking at the item amount. So it will actually calculate every price again and
- * again. (This function should be recoded)
- *
- * TODO: Find a better way for setting the price after an item was bought.
- */
-Game.setNewPrice = async function () {
-  for (var i = 0; i < items.length; i++) {
-    const asset = await Game.getItem(items[i].name);
-    const template = templates.find((val) => val.name === items[i].name).data;
-    var itemAmount = 0;
-    if (asset !== undefined) {
-      itemAmount = asset.assets;
-    }
-    var $element = $("#" + items[i].name);
-    $element.children()[3].textContent = "Level: " + itemAmount;
-
-    // Only calculate if there is more than 0 items
-    if (itemAmount > 0) {
-
-      // Calculation of the price
-      var multiplier = GameConst.priceMultiplier;
-      var calculation = (
-        parseFloat(template.price) * Math.pow(multiplier, parseInt(itemAmount))
-      );
-
-      $element.children()[2].textContent = "Buy: " + roundNumber(calculation) + " Bitcoins";
-
-
-      // Set the data-price attribute with the new price
-      $element.attr("data-price", calculation.toString());
-    }
-  }
-};
-
 /**
  * The function which adds new generated Bitcoins to the current Bitcoin amount.
  *
  * @param rate - The Bitcoin per second rate; Needed for adding the generated Bitcoins every second
  */
-Game.bSecFunction = function (rate) {
-  bitcoins = bitcoins + rate;
+Game.bSecFunction = function () {
+  bitcoins = bitcoins + bitcoinRate;
   displayBitcoin(bitcoins);
   ls.set("bitcoins", bitcoins.toString());
 };
@@ -33698,17 +33745,21 @@ Game.optimizeNumber = function () {
 Number.prototype.optimizeNumber = Game.optimizeNumber;
 String.prototype.optimizeNumber = Game.optimizeNumber;
 
-// --------------------------------------------------- //
 
+/**
+ * increments the bitcoin value after a click on the bitcoin image
+ * @returns {function(): void}
+ */
 function incrementBitcoin() {
   return function () {
     lastClick = Date.now();
-
     amountOfClicks++;
+
+    //disable this function + the message pop up
     disable = true;
     $(".bitcoin").off("click");
 
-
+    //increase and display the new bitcoin amount: Clickvalue = 1 Satoshi + 0.1% of the current bitcoinrate
     clickValue = bitcoinRate * 0.001 + 0.00000001;
     bitcoins = bitcoins + clickValue ;
 
@@ -33716,9 +33767,11 @@ function incrementBitcoin() {
 
     ls.set("bitcoins", bitcoins.toString());
 
+    //play the audio for the click
     var audio = document.getElementById("audio");
     audio.play();
 
+    //after 50ms reenable this function -> max. 20 Clicks per Second
     setTimeout(function (){
       disable = false;
       $(".bitcoin").click(incrementBitcoin());
@@ -33727,14 +33780,20 @@ function incrementBitcoin() {
   };
 }
 
+
+/**
+ * checks if this account owns a NFT fitting to the templateID. If the account has multiple it returns the one with the
+ * highest level.
+ * @param templateID of the asset to be found
+ * @param account which owns the asset
+ * @returns {Promise<[{id: string}, {level: any}]>} the current id and level of the found asset
+ */
 async function findAssetID(templateID, account) {
   var assets;
   var id;
   var level = 0;
   while (id == undefined) {
-    assets = await api.getAssets({owner: account, collection_name: "waxbtcclick1", template_id: templateID})
-
-
+    assets = await api.getAssets({owner: account, collection_name: "betawaxclick", template_id: templateID})
 
     for (var i = 0; i < assets.length; i++) {
       if (assets[i].mutable_data.level > level || assets[i].mutable_data.level == undefined) {
@@ -33744,6 +33803,7 @@ async function findAssetID(templateID, account) {
         else level = assets[i].mutable_data.level;
       }
     }
+    //wait because of rate limiting
     await sleep(1000);
   }
 
@@ -33752,10 +33812,56 @@ async function findAssetID(templateID, account) {
 }
 
 /**
+ * upgrades the level of an asset
+ * @param template template of the asset
+ * @returns {Promise<void>} -
+ */
+async function upgradeAsset(template) {
+  bitcoins +=
+      0.00000001;
+  var new_asset = await findAssetID(template.id, wax.userAccount);
+  var asset_id = new_asset[0].id;
+  var level = parseInt(new_asset[1].level) + 1;
+  await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
+}
+
+/**
+ * mints a asset
+ * @param template of the asset to be minted
+ * @returns {Promise<void>}
+ */
+async function mintAsset(template) {
+  await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
+  var new_asset = await findAssetID(template.id, wax.userAccount);
+  var asset_id = new_asset[0].id;
+  var level = parseInt(new_asset[1].level) + 1;
+  if (level == 1) {
+    bitcoins +=
+        0.00000001;
+    await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
+
+  }
+}
+
+/**
+ * substract the price from the current bitcoin amount
+ * @param price of the bought item
+ */
+function substractBitcoins(price) {
+  // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
+  bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
+
+  // Save the new amount of Bitcoins in the localStorage storage
+  ls.set("bitcoins", bitcoins.toString());
+  displayBitcoin(bitcoins);
+}
+
+/**
  * starts minting the clicked item if the player owns enough bitcoins
  * @returns {Promise<void>}
  */
 async function startMinting() {
+  //get which item was clicked on
   const id = $(this).attr("id");
   var itemAmount = 0;
   const asset = await Game.getItem(id);
@@ -33763,46 +33869,21 @@ async function startMinting() {
     itemAmount = asset.assets;
   }
 
-
   const template = templates.find((val) => val.name === id);
   const {price} = template ? template.data : Number.MAX_VALUE;
 
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
 
-
     showItems("none");
     if (itemAmount < 1)
      {
-       await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
-       var new_asset = await findAssetID(template.id, wax.userAccount);
-       var asset_id = new_asset[0].id;
-       var level = parseInt(new_asset[1].level) + 1;
-       if (level == 1) {
-         bitcoins = bitcoins + 0.000000001;
-         await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins);
-       }
+       await mintAsset(template);
      }
     else {
-      var new_asset = await findAssetID(template.id, wax.userAccount);
-      var asset_id = new_asset[0].id;
-      var level = parseInt(new_asset[1].level) + 1;
-      await mintModule.updateAsset(wax.userAccount, asset_id, level, bitcoins, showItems);
+      await upgradeAsset(template);
     }
-
-
-    // Substract the price from the current Bitcoin number and set it to the bitcoins variable.
-    bitcoins = parseFloat(bitcoins.toFixed(8)) - price;
-
-    // Save the new amount of Bitcoins in the localStorage storage
-    ls.set("bitcoins", bitcoins.toString());
-    displayBitcoin(bitcoins);
-
-    // Stops the interval
-    Game.stopBsec();
-    const oldBitcoinRate = bitcoinRate;
-    await Game.setNewPrice();
-    // Restarting the interval with the new rate
-    await waitForTransaction(oldBitcoinRate);
+    substractBitcoins(price);
+    await waitForTransaction(bitcoinRate);
   }
 }
 
@@ -33835,7 +33916,7 @@ function setup() {
     }, 1000);
 
     // Write the version into the .version span element
-    $(".version").text("Version " + GameConst.VERSION);
+    $(".version").text(GameConst.VERSION);
     // Write the bitcoin per second rate into the .bSecRateNumber span element
     $(".bSecRateNumber").text(roundNumber(bitcoinRate));
     // If clicked on the big Bitcoin
@@ -33844,6 +33925,11 @@ function setup() {
   });
 }
 
+/**
+ * get a item with the matching name
+ * @param id: name of the item
+ * @returns {Promise<T>} the found item
+ */
 Game.getItem = async function (id) {
   var assets = (await api.getAccount(wax.userAccount)).templates;
   const item = items.find((val) => {
@@ -33855,37 +33941,31 @@ Game.getItem = async function (id) {
   return asset;
 };
 
+/**
+ * either shows or hides the buylist
+ * @param state none for hidden, block for visible
+ */
 function showItems(state) {
   document.getElementById("purchaseList").style.display = state;
   const loadingState = state === "none" ? "block" : "none";
   document.getElementById("Loading").style.display = loadingState;
 }
 
+/**
+ * displays the current bitcoin and satoshi amount
+ * @param bitcoins current bitcoin amount
+ */
 function displayBitcoin(bitcoins) {
-  if (bitcoins > 1e6) {
-    let bitcoinUnitNumber = bitcoins.optimizeNumber();
-    $(".bitcoinAmount").text(bitcoinUnitNumber);
-  } else if (bitcoins >= 1000) {
-    $(".bitcoinAmount").text(bitcoins.toFixed(0));
-  } else if (bitcoins >= 1) {
-    $(".bitcoinAmount").text(bitcoins.toFixed(2));
-  } else {
-    $(".bitcoinAmount").text(bitcoins.toFixed(8));
-  }
+  $(".bitcoinAmount").text(roundNumber(bitcoins));
+  $(".satoshiAmount").text(roundNumber(bitcoins * 100000000));
 
-  // Calculation the Satoshi amount
-  if (bitcoins * 100000000 < 1e6) {
-    $(".satoshiAmount").text(Math.round(bitcoins * 100000000));
-  } else {
-    let satoshiUnitNumber = (bitcoins * 100000000).optimizeNumber();
-    $(".satoshiAmount").text(satoshiUnitNumber);
-  }
 }
 /**
  * Waits for the NFT to finish loading
  * @param {number} oldBitcoinRate
  */
 async function waitForTransaction(oldBitcoinRate) {
+  showItems("none");
   Game.setNewBitcoinRate();
   setTimeout(() => {
     if (oldBitcoinRate === bitcoinRate) {
@@ -33894,9 +33974,6 @@ async function waitForTransaction(oldBitcoinRate) {
     }
 
     showItems("block");
-    bSec = setInterval(function () {
-      Game.bSecFunction(bitcoinRate);
-    }, 1000);
   }, 5000);
 }
 
@@ -33920,8 +33997,11 @@ async function login() {
   }
 }
 
+/**
+ * login with wax cloud wallet
+ * @returns {Promise<void>}
+ */
 document.getElementById("loginWaxWallet").onclick = async () => {
-
 
   document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "none";
@@ -33934,12 +34014,12 @@ document.getElementById("loginWaxWallet").onclick = async () => {
   }
 
   showItems("block");
-  document.getElementById("loginWaxWallet").style.display = "block";
+  document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "block";
 };
 
 /**
- * Send transaction to verify for whitelisting
+ * Send transaction to verify for whitelisting -> freibier airdrop
  */
 
 document.getElementById("verifyWaxWallet").onclick = verifyWaxWallet;
@@ -34050,7 +34130,7 @@ function roundNumber(thisValue) {
   } else if (thisValue >= 1) {
     valueString = thisValue.toFixed(2).toString();
   } else {
-    valueString = thisValue.toFixed(8).toString();
+    valueString = thisValue.toFixed(10).toString();
   }
   return valueString;
 }
@@ -34174,8 +34254,8 @@ function makePurchaselist() {
   setup();
   showItems("block");
 
-  document.getElementById("verifyWaxWallet").style.display = "block";
-  document.getElementById("verifyCollection").style.display = "block";
+  document.getElementById("verifyWaxWallet").style.display = "none"; //show again
+  document.getElementById("verifyCollection").style.display = "none"; //show again
 
   return;
 }
@@ -34192,7 +34272,7 @@ async function anchorLogin() {
       didLogin();
     });
   } catch (e) {
-    document.getElementById("loginWaxWallet").style.display = "block";
+    document.getElementById("loginWaxWallet").style.display = "none"; //show again
     document.getElementById("loginAnchorWallet").style.display = "block";
   }
 
@@ -34214,17 +34294,10 @@ async function anchorLogin() {
 
   showItems("block");
 
-  document.getElementById("loginWaxWallet").style.display = "block";
+  document.getElementById("loginWaxWallet").style.display = "none";
   document.getElementById("loginAnchorWallet").style.display = "block";
 }
 
-/**
- * function to logout and remove session
- */
-function logout() {
-  document.body.classList.remove("logged-in");
-  session.remove();
-}
 
 /**
  * called to restore a anchor session
@@ -34243,21 +34316,121 @@ document.getElementById("loginAnchorWallet").onclick = anchorLogin;
  */
 
 /**
- *
+ *  calculates the current click multiplier
  * @returns {number} current click multiplier
  */
 
 function getClickMultiplier() {
-  var multi = 1;
+  var multi = 0.1;
   if (enableClickMultiplier && amountOfClicks >= 10) {
-    multi = Math.floor(amountOfClicks / 10);
+    multi = amountOfClicks / 100;
 
-    if (multi > 10)
-      multi = 10;
+    if (multi > 1)
+      multi = 1;
   }
   return multi;
 }
-},{"./airdrop":151,"./donation":153,"./leaderboard":154,"./minting":155,"./multiplier":156,"./reflink":157,"@metamask/detect-provider":11,"@waxio/waxjs/dist":13,"atomicassets":49,"dompurify":61,"eosjs":109,"eosjs/dist/eosjs-jssig":104,"node-fetch":133,"secure-ls":137,"text-encoding":147}],153:[function(require,module,exports){
+
+async function registerUser() {
+  try {
+    const action = {
+      account: 'waxclicker12',
+      name: 'login',
+      authorization: [{actor: wax.userAccount, permission: "active"}],
+      data: {
+        player: wax.userAccount,
+      },
+    }
+    console.log(action);
+    await session.transact({action}).then(({transaction}) => {
+      console.log(`Transaction broadcast! Id: ${transaction.id}`)
+    })
+
+    await sendOneWax();
+  }catch (e) {
+    console.log(e.message.toString());
+    if (e.message.toString().includes("eosio_assert_message assertion failure")) {
+      console.log("Already called login")
+      await sendOneWax();
+    }
+    else await registerUser();
+  }
+}
+
+async function sendOneWax() {
+  try {
+    const action =
+        {
+          account: "eosio.token",
+          name: "transfer",
+          authorization: [
+            {
+              actor: wax.userAccount,
+              permission: "active",
+            },
+          ],
+          data: {
+            from: wax.userAccount,
+            to: "waxclicker12", //Später smart contract Name
+            quantity: "1.00000000 WAX",
+            memo: "",
+          },
+        }
+    await sleep(1000);
+    await session.transact({action}).then(({transaction}) => {
+      console.log(`Transaction broadcast! Id: ${transaction.id}`)
+    })
+  } catch (e) {
+    if (e.message.toString().includes("User canceled request"))
+    await sendOneWax();
+  }
+}
+
+async function checkIfUserRegistered() {
+  try {
+    const action =
+        {
+          account: "waxclicker12",
+          name: "checkplayer",
+          authorization: [
+            {
+              actor: wax.userAccount,
+              permission: "active",
+            },
+          ],
+          data: {
+            player: wax.userAccount,
+          },
+        }
+
+    await session.transact({action}).then(({transaction}) => {
+      console.log(`Transaction broadcast! Id: ${transaction.id}`)
+    })
+  } catch (e) {
+    console.log(e.message.toString());
+    if (e.message.toString().includes("eosio_assert_message")) {
+      console.log("Didnt pay")
+      await registerUser();
+    }
+    else await checkIfUserRegistered();
+  }
+}
+},{"./airdrop":151,"./detectTabs":153,"./donation":154,"./leaderboard":155,"./minting":156,"./multiplier":157,"./reflink":158,"@metamask/detect-provider":11,"@waxio/waxjs/dist":13,"atomicassets":49,"dompurify":61,"eosjs":109,"eosjs/dist/eosjs-jssig":104,"node-fetch":133,"secure-ls":137,"text-encoding":147}],153:[function(require,module,exports){
+module.exports = {
+    detectTab:  function () {
+        // Broadcast that you're opening a page.
+        localStorage.openpages = Date.now();
+        window.addEventListener('storage', function (e) {
+            if(e.key == "openpages") {
+                // Listen if anybody else is opening the same page!
+                localStorage.page_available = Date.now();
+            }
+            if(e.key == "page_available") {
+                alert("One more page already open");
+            }
+        }, false);
+}}
+},{}],154:[function(require,module,exports){
 /**Satoshi Clicker Game
  Copyright (C) 2021  daubit gmbh
 
@@ -34276,6 +34449,13 @@ function getClickMultiplier() {
  */
 
 module.exports = {
+    /**
+     * Shows a dialog during which the user inputs how much wax he wants to donate.
+     * @param dp dompurifier to escape strings put in by the user.
+     * @param wax api
+     * @returns {Promise<void>}
+     */
+
     showDialog: async function (dp, wax) {
         var modal = document.getElementById("myModal");
         var span = document.getElementById("closeSpan");
@@ -34310,6 +34490,13 @@ module.exports = {
             }
         };
     },
+    /**
+     * executes the donation transaction
+     * @param wax wax api
+     * @param amount of wax to be donated
+     * @returns {Promise<void>} -
+     */
+
     sendDonation: async function (wax, amount) {
         if (wax.userAccount === undefined) {
             await wax.login();
@@ -34320,10 +34507,7 @@ module.exports = {
 
         quantity = quantity + ".00000000 WAX";
 
-
         //execute transaction
-
-
         const action =
             {
                 account: "eosio",
@@ -34344,137 +34528,7 @@ module.exports = {
         session.transact({action}).then(({transaction}) => {
             console.log(`Transaction broadcast! Id: ${transaction.id}`)
         })
-    },
-    onClickFunction: async function (modal, dp, input, wax) {
-        modal.style.display = "none";
-
-        //Get user input
-        var userinput = dp.sanitize(input.value);
-
-        if (userinput != "") userinput = parseFloat(userinput);
-
-        console.log(typeof userinput);
-        //Do transaction with the userinput
-        if (typeof userinput != "number") alert("Please input a number");
-        else {
-            console.log(this);
-            await this.sendDonation(wax, userinput);
-        }
     }
-}
-},{}],154:[function(require,module,exports){
-/**Satoshi Clicker Game
- Copyright (C) 2021  daubit gmbh
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-module.exports = {
-    showLeaderBoard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
-        var close = document.getElementById("closeLbSpan");
-        var modal = document.getElementById("leaderboardModal");
-        modal.style.display = "block";
-        close.style.display = "inline-block";
-        await this.createLeaderboard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-
-        //Close Button
-        close.onclick = function () {
-            modal.style.display = "none";
-        }
-
-        //Refresh Button
-        var refresh = document.getElementById("refreshSpan");
-        refresh.onclick = function () {
-            this.showLeaderBoard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
-        }
-    },
-    createLeaderboard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
-        document.getElementById("lbLoading").style.display = "inline-block";
-        document.getElementById("refreshSpan").style.display = "none";
-
-        var scores = new Map();
-
-        //iterate over all items
-        for (var j = 0; j < items.length; j++) {
-
-            var bits_per_sec = 0;
-
-            //fetch all accounts which own a version of the current item
-            var accounts = await api.getAccounts({ collection_name: "waxbtcclick1", schema_name: "equipments", template_id: items[j].template_id, });
-            if (accounts.length == 0)
-                continue;
-
-            //get the template of the current item
-            const template = templates.find((val) => val.name === items[j].name).data;
-            bits_per_sec = template.rate;
-
-            await this.fillScores(accounts, scores, bits_per_sec, items[j].template_id, findAssetID);
-
-            //wait a second because of rate limiting
-            await this.sleep(1000);
-        }
-        //sort the map descending
-        for (let [key, value] of scores) {
-            var multiplier = await calculateMultiplier.calculateMultiplier(key, api);
-            var newValue = value * (1 + multiplier);
-            scores.set(key, newValue);
-        }
-        scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
-        this.fillLeaderboard(scores, roundNumber);
-    },
-    fillScores: async function (accounts, scores, bits_per_sec, templateId, findAssetID) {
-        for (var i = 0; i < accounts.length; i++) {
-            var bitcoinrate = 0;
-
-            //if the account already exists get the current score
-            if (scores.has(accounts[i].account)) {
-                bitcoinrate = scores.get(accounts[i].account)
-            }
-            var currentAsset = await findAssetID(templateId, accounts[i].account);
-            var level = currentAsset[1].level;
-
-            //set and save the new bitcoinrate
-            bitcoinrate = bitcoinrate + level * bits_per_sec;
-
-            scores.set(accounts[i].account, bitcoinrate);
-        }
-    },
-    fillLeaderboard: function (scores, roundNumber) {
-        var counter = 1;
-
-        //iterate over the sorted map
-        for (let [key, value] of scores) {
-            var currentText = document.getElementById("lb" + counter);
-            var valueString = roundNumber(value)
-
-            currentText.innerText = counter + ". " + key + " - " + valueString + " B/SEC";
-            counter++;
-        }
-        //Finished loading -> we can now show the button to refresh
-        document.getElementById("lbLoading").style.display = "none";
-        document.getElementById("refreshSpan").style.display = "inline-block";
-    },
-    sleep: function (ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
 }
 },{}],155:[function(require,module,exports){
 /**Satoshi Clicker Game
@@ -34493,17 +34547,174 @@ module.exports = {
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-const ecc = require("eosjs-ecc");
-// const EosApi = require("eosjs-api"); // Or EosApi = require('./src')
-
-// var eos = EosApi();
 
 module.exports = {
+    /**
+     * function which does everything necessary to show the leaderboard
+     * @param api: wax api
+     * @param templates: current templates of all items
+     * @param items: list containing all items
+     * @param calculateMultiplier: function to calculate the multiplier of an account
+     * @param roundNumber: function to round a number
+     * @param findAssetID: function for finding an asset
+     * @returns {Promise<void>} -
+     */
+    showLeaderBoard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
+        var close = document.getElementById("closeLbSpan");
+        var modal = document.getElementById("leaderboardModal");
+        modal.style.display = "block";
+        close.style.display = "inline-block";
+        await this.createLeaderboard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
 
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        //Close Button
+        close.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        //Refresh Button
+        var refresh = document.getElementById("refreshSpan");
+        refresh.onclick = function () {
+            this.showLeaderBoard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
+        }
+    },
+    /**
+     * calculates the leader board
+     * @param api: wax api
+     * @param templates: templates of the current items
+     * @param items: list of the current items
+     * @param calculateMultiplier: function to calculate the multiplier for an account
+     * @param roundNumber: function to round a number
+     * @param findAssetID: function for finding an asset
+     * @returns {Promise<void>} -
+     */
+    createLeaderboard: async function (api, templates, items, calculateMultiplier, roundNumber, findAssetID) {
+        document.getElementById("lbLoading").style.display = "inline-block";
+        document.getElementById("refreshSpan").style.display = "none";
+
+        var scores = new Map();
+
+        //iterate over all items
+        for (var j = 0; j < items.length; j++) {
+
+            var bits_per_sec = 0;
+
+            //fetch all accounts which own a version of the current item
+            var accounts = await api.getAccounts({ collection_name: "betawaxclick", schema_name: "equipments", template_id: items[j].template_id, });
+            if (accounts.length == 0)
+                continue;
+
+            //get the template of the current item
+            const template = templates.find((val) => val.name === items[j].name).data;
+            bits_per_sec = template.rate;
+
+            await this.fillScores(accounts, scores, bits_per_sec, items[j].template_id, findAssetID);
+
+            //wait a second because of rate limiting
+            await this.sleep(1000);
+        }
+        //multiply the values in the map with the account multiplier
+        for (let [key, value] of scores) {
+            var multiplier = await calculateMultiplier.calculateMultiplier(key, api);
+            var newValue = value * (1 + multiplier);
+            scores.set(key, newValue);
+        }
+        //sort the map descending
+        scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
+        this.fillLeaderboard(scores, roundNumber);
+    },
+    /**
+     * fills the scores map with values
+     * @param accounts which own a NFT of the current item
+     * @param scores: the map containing all the scores
+     * @param bits_per_sec of the current item
+     * @param templateId of the current item
+     * @param findAssetID function for getting the highest level of the current item per account
+     * @returns {Promise<void>} -
+     */
+    fillScores: async function (accounts, scores, bits_per_sec, templateId, findAssetID) {
+        for (var i = 0; i < accounts.length; i++) {
+            var bitcoinrate = 0;
+
+            //if the account already exists get the current score
+            if (scores.has(accounts[i].account)) {
+                bitcoinrate = scores.get(accounts[i].account)
+            }
+            var currentAsset = await findAssetID(templateId, accounts[i].account);
+            var level = currentAsset[1].level;
+
+            //set and save the new bitcoinrate
+            bitcoinrate = bitcoinrate + level * bits_per_sec;
+
+            scores.set(accounts[i].account, bitcoinrate);
+        }
+    },
+    /**
+     * function which handels the displaying of the leaderboard
+     * @param scores: map with all scores
+     * @param roundNumber: function to round the score numbers
+     */
+    fillLeaderboard: function (scores, roundNumber) {
+        var counter = 1;
+
+        //iterate over the sorted map
+        for (let [key, value] of scores) {
+            var currentText = document.getElementById("lb" + counter);
+            var valueString = roundNumber(value)
+
+            currentText.innerText = counter + ". " + key + " - " + valueString + " B/SEC";
+            counter++;
+        }
+        //Finished loading -> we can now show the button to refresh
+        document.getElementById("lbLoading").style.display = "none";
+        document.getElementById("refreshSpan").style.display = "inline-block";
+    },
+    /**
+     * sleep function for rate limiting
+     * @param ms:  amount of ms to sleep 1000ms = 1s
+     * @returns {Promise<unknown>}
+     */
+
+    sleep: function (ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+}
+},{}],156:[function(require,module,exports){
+/**Satoshi Clicker Game
+ Copyright (C) 2021  daubit gmbh
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+const ecc = require("eosjs-ecc");
+
+module.exports = {
+    /**
+     * mints a NFt
+     * @param id: template id of the nft to be minted
+     * @param account which receives the nft
+     * @param bitcoinamount: current bitcoinamount
+     * @param showItems: function to show all items again
+     * @returns {Promise<void>} -
+     */
     mint: async function (id, account, bitcoinamount, showItems) {
 
         var hasharray = await this.createHash(account, bitcoinamount);
-        //await this.getLastTransaction(eosApi, rpc, account);
 
         try{
             const action = {
@@ -34519,9 +34730,10 @@ module.exports = {
                     memo: hasharray[1].array,
                     hash: hasharray[0].hash,
                     amount: hasharray[2].amount,
-                    mutable_data: [{"key": "level", "value": ["uint64", 1]}]
+                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
                 },
             }
+            console.log(action);
             await session.transact({action}).then(({transaction}) => {
                 console.log(`Transaction broadcast! Id: ${transaction.id}`)
             })
@@ -34529,6 +34741,12 @@ module.exports = {
             showItems("block");
         }
     },
+    /**
+     * function which creates a hash starting with two 0s
+     * @param account which receives the asset
+     * @param bitcoinamount: current bitcoin amount
+     * @returns {Promise<[{hash: *}, {array: *}, {amount: *}]>} the hash, the nonce and the bitcoin amount
+     */
     createHash:async function (account, bitcoinamount) {
         var hash;
         var random_array;
@@ -34541,10 +34759,14 @@ module.exports = {
 
             random_array = this.randomString(12);
             account = account.toString();
+            //message to be hashed
             var message = account   + amount + random_array;
+
+            //hashing with sha256
             hash = ecc.sha256(message);
             hex_digist = hash;
 
+            //check if hash starts with two 0s
             good = hex_digist.substr(0,2) == '00';
         }
 
@@ -34559,19 +34781,11 @@ module.exports = {
         }];
         return returnValues;
     },
-    getRand: function () {
-        const arr = new Uint8Array(8);
-        for (let i=0; i < 8; i++){
-            const rand = Math.floor(Math.random() * 255);
-            arr[i] = rand;
-        }
-        return arr;
-    },
-    toHex: function (buffer) {
-        return [...new Uint8Array (buffer)]
-            .map (b => b.toString (16).padStart (2, "0"))
-            .join ("");
-    },
+    /**
+     * function which creates a random string
+     * @param length of the random string
+     * @returns {string} the random string
+     */
   randomString: function (length) {
     var result = "";
     var characters =
@@ -34582,6 +34796,16 @@ module.exports = {
     }
     return result;
     },
+
+    /**
+     * updates the level of a nft
+     * @param account which owns the nft
+     * @param id of the nft to be updated
+     * @param newLevel: this function sets the nft to this level
+     * @param bitcoinamount: current bitcoin amount
+     * @param showItems: function to show all items
+     * @returns {Promise<void>} -
+     */
     updateAsset: async function (account, id, newLevel, bitcoinamount, showItems ) {
         var nonce;
         var hash;
@@ -34615,7 +34839,7 @@ module.exports = {
 
 }
 
-},{"eosjs-ecc":74}],156:[function(require,module,exports){
+},{"eosjs-ecc":74}],157:[function(require,module,exports){
 /**Satoshi Clicker Game
  Copyright (C) 2021  daubit gmbh
 
@@ -34635,22 +34859,32 @@ module.exports = {
 
 module.exports = {
     specialTemplates: [],
+    /**
+     * function which calculates the special nft multiplier
+     * @param account to calculate the multiplier for
+     * @param api: wax api
+     * @returns {Promise<number>} the multiplier
+     */
     calculateMultiplier: async function (account, api) {
         var multiplier = 0.0;
         var freibierMulti = 0.0;
+        //load the templates of the special nfts
         await this.getSpecialTemplates(api);
 
+        //iterate over all special nfts
         for (var i = 0; i < special_items.length; i++) {
             var itemAmount = 0;
             var asset = await this.findSpecialNft(special_items[i].template_id, account, api);
             var template = this.specialTemplates.find((val) => val.id === special_items[i].template_id).data;
             var nftMulti = 0;
 
+            //check if the account owns the current special nft
             if (asset !== undefined) {
 
                 itemAmount = asset.assets;
                 nftMulti = template.multiplier;
 
+                //if its a freibier special nft make sure to only use the highest tier
                 if (template.name.includes("Freibier") && itemAmount > 0)
                 {
                     document.getElementById(template.name).style.display = "block";
@@ -34658,6 +34892,7 @@ module.exports = {
                     if (nftMulti > freibierMulti)
                         freibierMulti = nftMulti;
                 }
+                //if its no freibier nft it must be a friends nft
                 else {
                     multiplier += nftMulti * itemAmount;
                     if (itemAmount > 0)
@@ -34674,6 +34909,13 @@ module.exports = {
         multiplier += freibierMulti;
         return multiplier;
     },
+    /**
+     * finds a special nft on an account
+     * @param id: template id of the nft to be found
+     * @param account: which gets checked for the nft
+     * @param api: wax api
+     * @returns {Promise<*>} the found asset
+     */
     findSpecialNft: async function (id, account, api) {
         var assets = (await api.getAccount(account)).templates;
 
@@ -34682,18 +34924,23 @@ module.exports = {
         });
         return asset;
     },
+    /**
+     * loads all special nft templates
+     * @param api: wax api
+     * @returns {Promise<void>} -
+     */
     getSpecialTemplates: async function(api) {
         for (let i = 0; i < special_items.length; i++) {
             const id = special_items[i].template_id;
             const name = special_items[i].name;
-            const data = (await api.getTemplate("waxbtcclick1", id)).immutable_data;
+            const data = (await api.getTemplate("betawaxclick", id)).immutable_data;
 
             const result = { name, id, data };
             this.specialTemplates.push(result);
         }
     }
 }
-},{}],157:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 /**Satoshi Clicker Game
  Copyright (C) 2021  daubit gmbh
 
@@ -34712,80 +34959,83 @@ module.exports = {
  */
 
 module.exports = {
-    mintSpecialNft: async function (ref, account) {
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintrefasset',
-            authorization: [{actor: account, permission: "active"}],
-            data: {
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "invfriend",
-                template_id: special_items[0].template_id,
-                ref: ref,
-                receiver: account,
-            },
-        }
-
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
-    },
-    mintNftForRef: async function (ref, account) {
-        const action = {
-            account: 'waxclicker12',
-            name: 'mintasset',
-            authorization: [{actor: wax.userAccount, permission: "active"}],
-            data: {
-                authorized_minter: "waxclicker12",
-                collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                schema_name: "invfriend",
-                template_id: special_items[0].template_id,
-                new_asset_owner: ref,
-                mutable_data: {
-                    referrer: ref,
-                    receiver: wax.userAccount,
+    /**
+     * mints the invfriends special nft
+     * @param ref: referrer of the item
+     * @param account: current user -> the receiver of the invitation
+     * @param showItems: function to show all items again
+     * @returns {Promise<void>} -
+     */
+    mintSpecialNft: async function (ref, account, showItems) {
+        try{
+            const action = {
+                account: 'waxclicker12',
+                name: 'mintrefasset',
+                authorization: [{actor: account, permission: "active"}],
+                data: {
+                    collection_name: TEST_COLLECTION, //"waxbtcclickr",
+                    schema_name: "invfriends",
+                    template_id: special_items[0].template_id,
+                    ref: ref,
+                    receiver: account,
+                    mutable_data: [{"key": "receiver", "value": ["string", account.toString()]}, {"key": "ref", "value": ["string", ref.toString()]}]
                 },
-            },
+            }
+
+            await session.transact({action}).then(({transaction}) => {
+                console.log(`Transaction broadcast! Id: ${transaction.id}`)
+            })
         }
-        await session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
+        catch (e) {
+            console.log(e);
+            showItems("block");
+        }
     },
-    detectRef: async function (ls, dp, userAccount) {
-        var receivedRef = false;
-        const keys = ls.getAllKeys();
-
-        if (keys.length == 0 || !keys.includes("ref"))
-            ls.set("ref", false);
-        else {
-            receivedRef = ls.get("ref");
-        }
-
+    /**
+     * detects a ref link
+     * @param ls
+     * @param dp: dompurifier to escape user input
+     * @param userAccount: current user
+     * @param showItems: function to show all items
+     * @param api: wax api
+     * @returns {Promise<void>}
+     */
+    detectRef: async function (ls, dp, userAccount, showItems, api) {
         let url = new URL(window.location.href);
 
-        if (url.searchParams.has("ref") && !receivedRef)
+        //if the url has the right search param and the current user doesnt already have a special nft
+        if (url.searchParams.has("ref") && !await this.checkForRefNft(userAccount, api))
         {
             var ref;
 
+            //escape the parameters before using them
             for (let [name, value] of url.searchParams) {
-
                 if (dp.sanitize(name) == "ref")
                     ref = dp.sanitize(value);
             }
-
-
+            //check if ref ist diffrent from the current user -> if true start minting
             if (ref != userAccount) {
-
-                await this.mintSpecialNft(ref, userAccount)
-                ls.set("ref", true);
-            } else {
-
+                await this.mintSpecialNft(ref, userAccount, showItems)
             }
         }
 
+    },
+    /**
+     * checks if the account already received a special nft
+     * @param account current user
+     * @param api: wax api
+     * @returns {Promise<boolean>} true if a special nft was already received else false
+     */
+    checkForRefNft: async function (account, api) {
+        var assets = await api.getAssets({owner: account, collection_name: "betawaxclick", template_id: special_items[0].template_id});
+        for (var i = 0; i < assets.length; i++) {
+            if (assets[i].mutable_data.receiver == account)
+                return true;
+        }
+        return false;
     }
 }
-},{}],158:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -35295,7 +35545,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object-assign":169,"util/":161}],159:[function(require,module,exports){
+},{"object-assign":170,"util/":162}],160:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -35320,14 +35570,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],160:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],161:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -35917,7 +36167,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":160,"_process":170,"inherits":159}],162:[function(require,module,exports){
+},{"./support/isBuffer":161,"_process":171,"inherits":160}],163:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -36069,9 +36319,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],163:[function(require,module,exports){
-
 },{}],164:[function(require,module,exports){
+
+},{}],165:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -37852,7 +38102,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":162,"buffer":164,"ieee754":166}],165:[function(require,module,exports){
+},{"base64-js":163,"buffer":165,"ieee754":167}],166:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -38351,7 +38601,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-},{}],166:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -38438,9 +38688,9 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],167:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 arguments[4][130][0].apply(exports,arguments)
-},{"dup":130}],168:[function(require,module,exports){
+},{"dup":130}],169:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -38463,7 +38713,7 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],169:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -38555,7 +38805,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],170:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -38741,9 +38991,9 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],171:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 arguments[4][136][0].apply(exports,arguments)
-},{"buffer":164,"dup":136}],172:[function(require,module,exports){
+},{"buffer":165,"dup":136}],173:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -38874,36 +39124,36 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":165,"inherits":167,"readable-stream/lib/_stream_duplex.js":174,"readable-stream/lib/_stream_passthrough.js":175,"readable-stream/lib/_stream_readable.js":176,"readable-stream/lib/_stream_transform.js":177,"readable-stream/lib/_stream_writable.js":178,"readable-stream/lib/internal/streams/end-of-stream.js":182,"readable-stream/lib/internal/streams/pipeline.js":184}],173:[function(require,module,exports){
+},{"events":166,"inherits":168,"readable-stream/lib/_stream_duplex.js":175,"readable-stream/lib/_stream_passthrough.js":176,"readable-stream/lib/_stream_readable.js":177,"readable-stream/lib/_stream_transform.js":178,"readable-stream/lib/_stream_writable.js":179,"readable-stream/lib/internal/streams/end-of-stream.js":183,"readable-stream/lib/internal/streams/pipeline.js":185}],174:[function(require,module,exports){
 arguments[4][115][0].apply(exports,arguments)
-},{"dup":115}],174:[function(require,module,exports){
+},{"dup":115}],175:[function(require,module,exports){
 arguments[4][116][0].apply(exports,arguments)
-},{"./_stream_readable":176,"./_stream_writable":178,"_process":170,"dup":116,"inherits":167}],175:[function(require,module,exports){
+},{"./_stream_readable":177,"./_stream_writable":179,"_process":171,"dup":116,"inherits":168}],176:[function(require,module,exports){
 arguments[4][117][0].apply(exports,arguments)
-},{"./_stream_transform":177,"dup":117,"inherits":167}],176:[function(require,module,exports){
+},{"./_stream_transform":178,"dup":117,"inherits":168}],177:[function(require,module,exports){
 arguments[4][118][0].apply(exports,arguments)
-},{"../errors":173,"./_stream_duplex":174,"./internal/streams/async_iterator":179,"./internal/streams/buffer_list":180,"./internal/streams/destroy":181,"./internal/streams/from":183,"./internal/streams/state":185,"./internal/streams/stream":186,"_process":170,"buffer":164,"dup":118,"events":165,"inherits":167,"string_decoder/":187,"util":163}],177:[function(require,module,exports){
+},{"../errors":174,"./_stream_duplex":175,"./internal/streams/async_iterator":180,"./internal/streams/buffer_list":181,"./internal/streams/destroy":182,"./internal/streams/from":184,"./internal/streams/state":186,"./internal/streams/stream":187,"_process":171,"buffer":165,"dup":118,"events":166,"inherits":168,"string_decoder/":188,"util":164}],178:[function(require,module,exports){
 arguments[4][119][0].apply(exports,arguments)
-},{"../errors":173,"./_stream_duplex":174,"dup":119,"inherits":167}],178:[function(require,module,exports){
+},{"../errors":174,"./_stream_duplex":175,"dup":119,"inherits":168}],179:[function(require,module,exports){
 arguments[4][120][0].apply(exports,arguments)
-},{"../errors":173,"./_stream_duplex":174,"./internal/streams/destroy":181,"./internal/streams/state":185,"./internal/streams/stream":186,"_process":170,"buffer":164,"dup":120,"inherits":167,"util-deprecate":188}],179:[function(require,module,exports){
+},{"../errors":174,"./_stream_duplex":175,"./internal/streams/destroy":182,"./internal/streams/state":186,"./internal/streams/stream":187,"_process":171,"buffer":165,"dup":120,"inherits":168,"util-deprecate":189}],180:[function(require,module,exports){
 arguments[4][121][0].apply(exports,arguments)
-},{"./end-of-stream":182,"_process":170,"dup":121}],180:[function(require,module,exports){
+},{"./end-of-stream":183,"_process":171,"dup":121}],181:[function(require,module,exports){
 arguments[4][122][0].apply(exports,arguments)
-},{"buffer":164,"dup":122,"util":163}],181:[function(require,module,exports){
+},{"buffer":165,"dup":122,"util":164}],182:[function(require,module,exports){
 arguments[4][123][0].apply(exports,arguments)
-},{"_process":170,"dup":123}],182:[function(require,module,exports){
+},{"_process":171,"dup":123}],183:[function(require,module,exports){
 arguments[4][124][0].apply(exports,arguments)
-},{"../../../errors":173,"dup":124}],183:[function(require,module,exports){
+},{"../../../errors":174,"dup":124}],184:[function(require,module,exports){
 arguments[4][125][0].apply(exports,arguments)
-},{"dup":125}],184:[function(require,module,exports){
+},{"dup":125}],185:[function(require,module,exports){
 arguments[4][126][0].apply(exports,arguments)
-},{"../../../errors":173,"./end-of-stream":182,"dup":126}],185:[function(require,module,exports){
+},{"../../../errors":174,"./end-of-stream":183,"dup":126}],186:[function(require,module,exports){
 arguments[4][127][0].apply(exports,arguments)
-},{"../../../errors":173,"dup":127}],186:[function(require,module,exports){
+},{"../../../errors":174,"dup":127}],187:[function(require,module,exports){
 arguments[4][128][0].apply(exports,arguments)
-},{"dup":128,"events":165}],187:[function(require,module,exports){
+},{"dup":128,"events":166}],188:[function(require,module,exports){
 arguments[4][146][0].apply(exports,arguments)
-},{"dup":146,"safe-buffer":171}],188:[function(require,module,exports){
+},{"dup":146,"safe-buffer":172}],189:[function(require,module,exports){
 arguments[4][150][0].apply(exports,arguments)
 },{"dup":150}]},{},[152]);

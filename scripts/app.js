@@ -353,7 +353,7 @@ Game.setNewBitcoinRate = function () {
   } else if (bitcoinRate >= 1) {
     $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "\n BITCOINS/SEC");
   } else {
-    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(8) + "\n BITCOINS/SEC");
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(10) + "\n BITCOINS/SEC");
   }
 };
 /**
@@ -783,7 +783,7 @@ function roundNumber(thisValue) {
   } else if (thisValue >= 1) {
     valueString = thisValue.toFixed(2).toString();
   } else {
-    valueString = thisValue.toFixed(8).toString();
+    valueString = thisValue.toFixed(10).toString();
   }
   return valueString;
 }

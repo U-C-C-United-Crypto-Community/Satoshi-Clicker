@@ -98,7 +98,7 @@ var TEST_ITEMS = [
   },
   {
     name: "item_raspberrypi",
-    template_id: "154320",
+    template_id: "154615",
   },
   {
     name: "item_smartphone",
