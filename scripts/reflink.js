@@ -84,7 +84,7 @@ module.exports = {
      * @returns {Promise<boolean>} true if a special nft was already received else false
      */
     checkForRefNft: async function (account, api) {
-        var assets = await api.getAssets({owner: account, collection_name: "waxclickbeta", template_id: special_items[0].template_id});
+        var assets = await api.getAssets({owner: account, collection_name: "betawaxclick", template_id: special_items[0].template_id});
         for (var i = 0; i < assets.length; i++) {
             if (assets[i].mutable_data.receiver == account)
                 return true;
