@@ -478,13 +478,14 @@ async function upgradeAsset(template) {
   var new_asset = await findAssetID(template.id, wax.userAccount);
   var asset_id = new_asset[0].id;
   var level = parseInt(new_asset[1].level) + 1;
-  await mintModule.updateAsset(
+  const success = await mintModule.updateAsset(
     wax.userAccount,
     asset_id,
     level,
     bitcoins,
     showItems
   );
+  return success;
 }
 
 /**
@@ -493,7 +494,13 @@ async function upgradeAsset(template) {
  * @returns {Promise<void>}
  */
 async function mintAsset(template) {
-  await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
+  const success = await mintModule.mint(
+    template.id,
+    wax.userAccount,
+    bitcoins,
+    showItems
+  );
+  if (!success) return false;
   var new_asset = await findAssetID(template.id, wax.userAccount);
   var asset_id = new_asset[0].id;
   var level = parseInt(new_asset[1].level) + 1;
@@ -507,6 +514,7 @@ async function mintAsset(template) {
       showItems
     );
   }
+  return true;
 }
 
 /**
@@ -537,16 +545,17 @@ async function startMinting() {
 
   const template = templates.find((val) => val.name === id);
   const { price } = template ? template.data : Number.MAX_VALUE;
-
+  let success;
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
     showItems("none");
     if (itemAmount < 1) {
-      await mintAsset(template);
+      success = await mintAsset(template);
     } else {
-      await upgradeAsset(template);
+      success = await upgradeAsset(template);
     }
-    substractBitcoins(price);
+    if (!success) return;
     await waitForTransaction(bitcoinRate);
+    substractBitcoins(price);
   }
 }
 

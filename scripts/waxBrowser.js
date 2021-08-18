@@ -33825,13 +33825,14 @@ async function upgradeAsset(template) {
   var new_asset = await findAssetID(template.id, wax.userAccount);
   var asset_id = new_asset[0].id;
   var level = parseInt(new_asset[1].level) + 1;
-  await mintModule.updateAsset(
+  const success = await mintModule.updateAsset(
     wax.userAccount,
     asset_id,
     level,
     bitcoins,
     showItems
   );
+  return success;
 }
 
 /**
@@ -33840,7 +33841,13 @@ async function upgradeAsset(template) {
  * @returns {Promise<void>}
  */
 async function mintAsset(template) {
-  await mintModule.mint(template.id, wax.userAccount, bitcoins, showItems);
+  const success = await mintModule.mint(
+    template.id,
+    wax.userAccount,
+    bitcoins,
+    showItems
+  );
+  if (!success) return false;
   var new_asset = await findAssetID(template.id, wax.userAccount);
   var asset_id = new_asset[0].id;
   var level = parseInt(new_asset[1].level) + 1;
@@ -33854,6 +33861,7 @@ async function mintAsset(template) {
       showItems
     );
   }
+  return true;
 }
 
 /**
@@ -33884,16 +33892,17 @@ async function startMinting() {
 
   const template = templates.find((val) => val.name === id);
   const { price } = template ? template.data : Number.MAX_VALUE;
-
+  let success;
   if (parseFloat(bitcoins.toFixed(8)) >= price) {
     showItems("none");
     if (itemAmount < 1) {
-      await mintAsset(template);
+      success = await mintAsset(template);
     } else {
-      await upgradeAsset(template);
+      success = await upgradeAsset(template);
     }
-    substractBitcoins(price);
+    if (!success) return;
     await waitForTransaction(bitcoinRate);
+    substractBitcoins(price);
   }
 }
 
@@ -34703,88 +34712,89 @@ module.exports = {
 const ecc = require("eosjs-ecc");
 
 module.exports = {
-    /**
-     * mints a NFt
-     * @param id: template id of the nft to be minted
-     * @param account which receives the nft
-     * @param bitcoinamount: current bitcoinamount
-     * @param showItems: function to show all items again
-     * @returns {Promise<void>} -
-     */
-    mint: async function (id, account, bitcoinamount, showItems) {
+  /**
+   * mints a NFt
+   * @param id: template id of the nft to be minted
+   * @param account which receives the nft
+   * @param bitcoinamount: current bitcoinamount
+   * @param showItems: function to show all items again
+   * @returns true if the transaction was successful
+   */
+  mint: async function (id, account, bitcoinamount, showItems) {
+    var hasharray = await this.createHash(account, bitcoinamount);
 
-        var hasharray = await this.createHash(account, bitcoinamount);
-
-        try{
-            const action = {
-                account: 'waxclicker12',
-                name: 'mintasset',
-                authorization: [{actor: account, permission: "active"}],
-                data: {
-                    authorized_minter: "waxclicker12",
-                    collection_name: TEST_COLLECTION, //"waxbtcclickr",
-                    schema_name: "equipments",
-                    template_id: id,
-                    new_asset_owner: account,
-                    memo: hasharray[1].array,
-                    hash: hasharray[0].hash,
-                    amount: hasharray[2].amount,
-                    mutable_data: [{"key": "level", "value": ["uint64", 1]}],
-                },
-            }
-            console.log(action);
-            await session.transact({action}).then(({transaction}) => {
-                console.log(`Transaction broadcast! Id: ${transaction.id}`)
-            })
-        } catch (e){
-            showItems("block");
-        }
-    },
-    /**
-     * function which creates a hash starting with two 0s
-     * @param account which receives the asset
-     * @param bitcoinamount: current bitcoin amount
-     * @returns {Promise<[{hash: *}, {array: *}, {amount: *}]>} the hash, the nonce and the bitcoin amount
-     */
-    createHash:async function (account, bitcoinamount) {
-        var hash;
-        var random_array;
-        var good = false;
-        var hex_digist;
-        var amount = bitcoinamount.toString();
-
-
-        while (!good  ) {
-
-            random_array = this.randomString(12);
-            account = account.toString();
-            //message to be hashed
-            var message = account   + amount + random_array;
-
-            //hashing with sha256
-            hash = ecc.sha256(message);
-            hex_digist = hash;
-
-            //check if hash starts with two 0s
-            good = hex_digist.substr(0,2) == '00';
-        }
-
-        var returnValues = [{
-            hash: hex_digist
+    try {
+      const action = {
+        account: "waxclicker12",
+        name: "mintasset",
+        authorization: [{ actor: account, permission: "active" }],
+        data: {
+          authorized_minter: "waxclicker12",
+          collection_name: TEST_COLLECTION, //"waxbtcclickr",
+          schema_name: "equipments",
+          template_id: id,
+          new_asset_owner: account,
+          memo: hasharray[1].array,
+          hash: hasharray[0].hash,
+          amount: hasharray[2].amount,
+          mutable_data: [{ key: "level", value: ["uint64", 1] }],
         },
-        {
-            array: random_array
-        },
-        {
-            amount: amount
-        }];
-        return returnValues;
-    },
-    /**
-     * function which creates a random string
-     * @param length of the random string
-     * @returns {string} the random string
-     */
+      };
+      console.log(action);
+      await session.transact({ action }).then(({ transaction }) => {
+        console.log(`Transaction broadcast! Id: ${transaction.id}`);
+      });
+      return true;
+    } catch (e) {
+      showItems("block");
+      return false;
+    }
+  },
+  /**
+   * function which creates a hash starting with two 0s
+   * @param account which receives the asset
+   * @param bitcoinamount: current bitcoin amount
+   * @returns {Promise<[{hash: *}, {array: *}, {amount: *}]>} the hash, the nonce and the bitcoin amount
+   */
+  createHash: async function (account, bitcoinamount) {
+    var hash;
+    var random_array;
+    var good = false;
+    var hex_digist;
+    var amount = bitcoinamount.toString();
+
+    while (!good) {
+      random_array = this.randomString(12);
+      account = account.toString();
+      //message to be hashed
+      var message = account + amount + random_array;
+
+      //hashing with sha256
+      hash = ecc.sha256(message);
+      hex_digist = hash;
+
+      //check if hash starts with two 0s
+      good = hex_digist.substr(0, 2) == "00";
+    }
+
+    var returnValues = [
+      {
+        hash: hex_digist,
+      },
+      {
+        array: random_array,
+      },
+      {
+        amount: amount,
+      },
+    ];
+    return returnValues;
+  },
+  /**
+   * function which creates a random string
+   * @param length of the random string
+   * @returns {string} the random string
+   */
   randomString: function (length) {
     var result = "";
     var characters =
@@ -34794,49 +34804,54 @@ module.exports = {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
-    },
+  },
 
-    /**
-     * updates the level of a nft
-     * @param account which owns the nft
-     * @param id of the nft to be updated
-     * @param newLevel: this function sets the nft to this level
-     * @param bitcoinamount: current bitcoin amount
-     * @param showItems: function to show all items
-     * @returns {Promise<void>} -
-     */
-    updateAsset: async function (account, id, newLevel, bitcoinamount, showItems ) {
-        var nonce;
-        var hash;
-        var hashResult = await this.createHash(account, bitcoinamount);
-        hash = hashResult[0].hash;
-        nonce = hashResult[1].array;
+  /**
+   * updates the level of a nft
+   * @param account which owns the nft
+   * @param id of the nft to be updated
+   * @param newLevel: this function sets the nft to this level
+   * @param bitcoinamount: current bitcoin amount
+   * @param showItems: function to show all items
+   * @returns true if the transaction was successful
+   */
+  updateAsset: async function (
+    account,
+    id,
+    newLevel,
+    bitcoinamount,
+    showItems
+  ) {
+    var nonce;
+    var hash;
+    var hashResult = await this.createHash(account, bitcoinamount);
+    hash = hashResult[0].hash;
+    nonce = hashResult[1].array;
 
-
-        try{
-            const action = {
-                account: 'waxclicker12',
-                name: 'upgrade',
-                authorization: [{actor: account, permission: "active"}],
-                data: {
-                    asset_id: id,
-                    asset_owner: account,
-                    new_mutable_data: [{"key": "level", "value": ["uint64", newLevel]}],
-                    memo: nonce,
-                    hash: hash,
-                    amount: hashResult[2].amount
-                },
-            }
-            await session.transact({action}).then(({transaction}) => {
-                console.log(`Transaction broadcast! Id: ${transaction.id}`)
-            })
-        }catch (e) {
-            showItems("block");
-        }
+    try {
+      const action = {
+        account: "waxclicker12",
+        name: "upgrade",
+        authorization: [{ actor: account, permission: "active" }],
+        data: {
+          asset_id: id,
+          asset_owner: account,
+          new_mutable_data: [{ key: "level", value: ["uint64", newLevel] }],
+          memo: nonce,
+          hash: hash,
+          amount: hashResult[2].amount,
+        },
+      };
+      await session.transact({ action }).then(({ transaction }) => {
+        console.log(`Transaction broadcast! Id: ${transaction.id}`);
+      });
+      return true;
+    } catch (e) {
+      showItems("block");
+      return false;
     }
-
-
-}
+  },
+};
 
 },{"eosjs-ecc":74}],157:[function(require,module,exports){
 /**Satoshi Clicker Game
