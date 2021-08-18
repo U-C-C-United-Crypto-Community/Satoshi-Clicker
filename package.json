@@ -9,6 +9,9 @@
     "lib": "lib",
     "test": "test"
   },
+  "scripts": {
+    "build": "browserify scripts/app.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/waxBrowser.js -o scripts/waxBrowser.js"
+  },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "@waxio/waxjs": "^0.0.15",
