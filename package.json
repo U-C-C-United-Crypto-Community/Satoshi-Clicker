@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "browserify scripts/app.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/waxBrowser.js -o scripts/waxBrowser.js"
+    "build": "browserify scripts/app.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/waxBrowser.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/constants.js -o scripts/constants-ob.js && javascript-obfuscator scripts/contractABI.js -o scripts/contractABI-ob.js"
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
