@@ -35,31 +35,67 @@ before	        string($date-time)
     limit: 100,
     };
 */
-const index = process.argv.slice(2)[0] || 0;
+async function fetchData() {
+  const startTime = new Date("2021-08-18T00:00:00").getTime();
+  let players = {};
+  let skip = 0;
+  let finished = false;
+  while (!finished) {
+    let data = await fetch(getURL(skip), {
+      method: "get",
+    }).then((val) => {
+      return val.json();
+    });
+    data = data.actions
+      .map((val) => {
+        const action = val.act.name;
+        const contract = val.act.account;
+        if (action == "mintasset" && contract == "atomicassets") {
+          return {
+            account: val.act.data.data.new_asset_owner,
+            act: val.act.name,
+            timestamp: val.timestamp,
+          };
+        } else if (action == "setassetdata") {
+          return {
+            account: val.act.data.asset_owner,
+            act: val.act.name,
+            timestamp: val.timestamp,
+            item: val.act.data.template_id,
+          };
+        }
+      })
+      .filter(function (x) {
+        return x !== undefined;
+      });
+    for (let i in data) {
+      const account = data[i].account;
+      const action = data[i].act;
+      const timestamp = data[i].timestamp;
+      const actionTime = new Date(data[i].timestamp).getTime();
+      if (actionTime < startTime) {
+        finished = true;
+        break;
+      }
+      players[account] = players[account]
+        ? [...players[account], { action, timestamp }]
+        : [{ action, timestamp }];
+    }
+    skip += 100;
+  }
+  console.log(players);
+}
 
-let API_URL =
-  "https://testnet.wax.pink.gg/v2/history/get_actions?" +
-  "limit=" +
-  20 +
-  "&skip=" +
-  index +
-  "&account=" +
-  "waxclicker12";
+function getURL(skip) {
+  return (
+    "https://testnet.wax.pink.gg/v2/history/get_actions?" +
+    "limit=" +
+    100 +
+    "&skip=" +
+    skip +
+    "&account=" +
+    "waxclicker12"
+  );
+}
 
-var result = await fetch(API_URL, {
-  method: "get",
-}).then((val) => {
-  return val.json();
-});
-result = result.actions
-  .map((val) => {
-    return {
-      account: val.act.data.asset_owner,
-      act: val.act.name,
-      timestamp: val.timestamp,
-    };
-  })
-  .filter((value) => {
-    return value.account;
-  });
-console.log(result);
+await fetchData();
