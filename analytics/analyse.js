@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import fs from "fs";
 
 /*
 https://testnet.wax.pink.gg/v2/docs/index.html#/history/post_v1_history_get_actions
@@ -37,7 +38,7 @@ before	        string($date-time)
 */
 async function fetchData() {
   const startTime = new Date("2021-08-18T00:00:00").getTime();
-  let players = {};
+  let players = [];
   let skip = 0;
   let finished = false;
   while (!finished) {
@@ -61,7 +62,6 @@ async function fetchData() {
             account: val.act.data.asset_owner,
             act: val.act.name,
             timestamp: val.timestamp,
-            item: val.act.data.template_id,
           };
         }
       })
@@ -69,21 +69,26 @@ async function fetchData() {
         return x !== undefined;
       });
     for (let i in data) {
-      const account = data[i].account;
-      const action = data[i].act;
-      const timestamp = data[i].timestamp;
       const actionTime = new Date(data[i].timestamp).getTime();
       if (actionTime < startTime) {
         finished = true;
         break;
       }
-      players[account] = players[account]
-        ? [...players[account], { action, timestamp }]
-        : [{ action, timestamp }];
     }
+    players.push(...data);
     skip += 100;
   }
-  console.log(players);
+  players = players.sort(compare);
+  function compare(a, b) {
+    if (a.account < b.account) {
+      return -1;
+    }
+    if (a.account > b.account) {
+      return 1;
+    }
+    return 0;
+  }
+  writeToCSVFile(players);
 }
 
 function getURL(skip) {
@@ -96,6 +101,34 @@ function getURL(skip) {
     "&account=" +
     "waxclicker12"
   );
+}
+
+function writeToCSVFile(players) {
+  const filename = "players.csv";
+  fs.writeFile(filename, extractAsCSV(players), (err) => {
+    if (err) {
+      console.log("Error writing to csv file", err);
+    } else {
+      console.log(`saved as ${filename}`);
+    }
+  });
+}
+
+Date.prototype.addHours = function (h) {
+  this.setTime(this.getTime() + h * 60 * 60 * 1000);
+  return this;
+};
+
+function extractAsCSV(players) {
+  players.keys();
+  const header = ["Player, Action, Timestamp"];
+  const rows = players.map(
+    (player) =>
+      `${player.account}, ${player.act}, ${new Date(player.timestamp).addHours(
+        2
+      )}`
+  );
+  return header.concat(rows).join("\n");
 }
 
 await fetchData();
