@@ -2,6 +2,8 @@
 
 This repository contains the source code of the game **Satoshi Clicker**.
 
+The game can be visited here: https://satoshiclicker.com/
+
 ## Contributing
 
 If you found any issues or typos, just clone the repository and do the changes you want.
