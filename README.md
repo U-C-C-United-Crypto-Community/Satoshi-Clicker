@@ -6,7 +6,8 @@ The game can be visited here: https://satoshiclicker.com/
 
 # Build
 Run to get the obfuscated version. 
-npm run build
+
+`` npm run build ``
 
 ## Contributing
 
