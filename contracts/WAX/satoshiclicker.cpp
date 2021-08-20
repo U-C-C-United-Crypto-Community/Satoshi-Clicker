@@ -9,7 +9,7 @@ ACTION satoshiclicker::mintasset(name collection_name, name schema_name,
 {
     require_auth(new_asset_owner);
 
-    check(getFreezeFlag().frozen == 0, "Contract is frozen!"); 
+    check(getFreezeFlag().frozen == 0, "Contract is frozen!");
     check(schema_name != "invfriends"_n, "Invalid call!");
     // check is required to avoid string length overflow
     check(memo.length() == 12 && amount.length() < 150 && name{new_asset_owner}.to_string().length() < 15, "Invalid memo!");
@@ -38,7 +38,7 @@ ACTION satoshiclicker::mintrefasset(name collection_name, name schema_name, int3
     require_auth(receiver);
     check(getFreezeFlag().frozen == 0, "Contract is frozen!");
     check(schema_name == "invfriends"_n, "Wrong schema!");
-    
+
     auto receiverItr = players.find(receiver.value);
     auto refItr = players.find(ref.value);
     check(!(refItr->banned) && !(receiverItr->banned) && refItr->paid && receiverItr->paid, "No access!");
@@ -90,6 +90,7 @@ ACTION satoshiclicker::ban(name user)
     require_auth(get_self());
     // check if the user already exists
     auto playerItr = players.find(user.value);
+    check(playerItr == players.end(), "Not registered!");
     players.modify(playerItr, get_self(), [&](auto &p)
                    { p.banned = true; });
 }
