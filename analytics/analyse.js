@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import fs from "fs";
+import { ExplorerApi } from "atomicassets";
 
 /*
 https://testnet.wax.pink.gg/v2/docs/index.html#/history/post_v1_history_get_actions
@@ -36,6 +37,15 @@ before	        string($date-time)
     limit: 100,
     };
 */
+
+const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
+const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
+const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
+  fetch,
+});
+
+const COLLECTION_NAME = "betawaxclick";
+
 async function fetchData() {
   const startTime = new Date("2021-08-18T00:00:00").getTime();
   let players = [];
@@ -47,30 +57,25 @@ async function fetchData() {
     }).then((val) => {
       return val.json();
     });
-    data = data.actions
-      .map((val) => {
-        const action = val.act.name;
-        const contract = val.act.account;
-        if (action == "mintasset" && contract == "atomicassets") {
-          return {
-            account: val.act.data.data.new_asset_owner,
-            act: val.act.name,
-            timestamp: val.timestamp,
-          };
-        } else if (action == "setassetdata") {
-          return {
-            account: val.act.data.asset_owner,
-            act: val.act.name,
-            timestamp: val.timestamp,
-          };
-        }
-      })
-      .filter(function (x) {
-        return x !== undefined;
-      });
+
+    data = transformData(data);
+
     for (let i in data) {
+      if (data[i].action == "setassetdata") {
+        const asset_id = data[i].asset_id;
+        const asset = await api.getAsset(asset_id);
+        delete data[i].asset_id;
+        data[i].item = asset.name;
+      } else {
+        const template_id = data[i].template_id;
+        const template = await api.getTemplate(COLLECTION_NAME, template_id);
+        delete data[i].template_id;
+        data[i].item = template.name;
+      }
       const actionTime = new Date(data[i].timestamp).getTime();
       if (actionTime < startTime) {
+        const container = [...data].slice(0, i);
+        data = container;
         finished = true;
         break;
       }
@@ -78,7 +83,7 @@ async function fetchData() {
     players.push(...data);
     skip += 100;
   }
-  players = players.sort(compare);
+
   function compare(a, b) {
     if (a.account < b.account) {
       return -1;
@@ -88,7 +93,40 @@ async function fetchData() {
     }
     return 0;
   }
+  players = players.sort(compare);
+  console.log(players);
   writeToCSVFile(players);
+}
+
+function transformData(data) {
+  return data.actions
+    .map((val) => {
+      const action = val.act.name;
+      const contract = val.act.account;
+      if (action == "mintasset" && contract == "atomicassets") {
+        const template_id = val.act.data.data.template_id;
+        return {
+          account: val.act.data.data.new_asset_owner,
+          action,
+          timestamp: val.timestamp,
+          template_id,
+          level: "1",
+        };
+      } else if (action == "setassetdata") {
+        const asset_id = val.act.data.asset_id;
+        const level = val.act.data.new_mutable_data[0].value[1];
+        return {
+          account: val.act.data.asset_owner,
+          action,
+          timestamp: val.timestamp,
+          asset_id,
+          level,
+        };
+      }
+    })
+    .filter(function (x) {
+      return x !== undefined;
+    });
 }
 
 function getURL(skip) {
@@ -121,12 +159,12 @@ Date.prototype.addHours = function (h) {
 
 function extractAsCSV(players) {
   players.keys();
-  const header = ["Player, Action, Timestamp"];
+  const header = ["Player, Action, Item, Level, Timestamp"];
   const rows = players.map(
     (player) =>
-      `${player.account}, ${player.act}, ${new Date(player.timestamp).addHours(
-        2
-      )}`
+      `${player.account}, ${player.action}, ${player.item}, ${
+        player.level
+      },${new Date(player.timestamp).addHours(2)}`
   );
   return header.concat(rows).join("\n");
 }
