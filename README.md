@@ -4,6 +4,10 @@ This repository contains the source code of the game **Satoshi Clicker**.
 
 The game can be visited here: https://satoshiclicker.com/
 
+# Build
+Run to get the obfuscated version. 
+npm run build
+
 ## Contributing
 
 If you found any issues or typos, just clone the repository and do the changes you want.
