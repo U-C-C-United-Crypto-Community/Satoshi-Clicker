@@ -26,7 +26,7 @@ const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
 
-var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
+var wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
 
 const detectEthereumProvider = require("@metamask/detect-provider");
 const dp = new DOMPurify();
@@ -136,7 +136,7 @@ async function init() {
 
   const wallet = localStorage.getItem("waxWallet");
   const btcs = ls.get("bitcoins");
-  
+
   await getTemplates();
   if (
     btcs === null ||
@@ -980,14 +980,24 @@ function getClickMultiplier() {
 async function registerUser() {
   try {
     const action = {
-      account: "waxclicker12",
+      account: CONTRACT_ADDRESS,
       name: "login",
       authorization: [{ actor: wax.userAccount, permission: "active" }],
       data: {
         player: wax.userAccount,
       },
     };
-    await session.transact({ action }).then(sendOneWax);
+    wax.api
+      .transact(
+        {
+          actions: [{ action }],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      )
+      .then(sendOneWax);
   } catch (e) {
     console.log(e.message.toString());
     if (
@@ -1012,13 +1022,21 @@ async function sendOneWax() {
       ],
       data: {
         from: wax.userAccount,
-        to: "waxclicker12", //Später smart contract Name
+        to: CONTRACT_ADDRESS, //Später smart contract Name
         quantity: "1.00000000 WAX",
         memo: "",
       },
     };
     await sleep(1000);
-    await session.transact({ action });
+    await wax.api.transact(
+      {
+        actions: [{ action }],
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 120,
+      }
+    );
   } catch (e) {
     if (e.message.toString().includes("User canceled request"))
       await sendOneWax();
@@ -1028,7 +1046,7 @@ async function sendOneWax() {
 async function checkIfUserRegistered() {
   try {
     const action = {
-      account: "waxclicker12",
+      account: CONTRACT_ADDRESS,
       name: "checkplayer",
       authorization: [
         {
@@ -1040,8 +1058,15 @@ async function checkIfUserRegistered() {
         player: wax.userAccount,
       },
     };
-
-    await session.transact({ action });
+    await wax.api.transact(
+      {
+        actions: [{ action }],
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 120,
+      }
+    );
   } catch (e) {
     console.log(e.message.toString());
     if (e.message.toString().includes("eosio_assert_message")) {
