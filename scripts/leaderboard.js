@@ -17,6 +17,22 @@
 
 module.exports = {
     /**
+     * Sets event listener on buttons
+     */
+    initLeaderboard: function(){  
+        var close = document.getElementById("closeLbSpan");
+        var modal = document.getElementById("leaderboardModal");
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+        //Close Button
+        close.onclick = function () {
+            modal.style.display = "none";
+        }
+    },
+    /**
      * function which does everything necessary to show the leaderboard
      * @param api: wax api
      * @param templates: current templates of all items
@@ -32,16 +48,6 @@ module.exports = {
         modal.style.display = "block";
         close.style.display = "inline-block";
         await this.createLeaderboard(api, templates, items, calculateMultiplier, roundNumber, findAssetID);
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
-        //Close Button
-        close.onclick = function () {
-            modal.style.display = "none";
-        }
 
         //Refresh Button
         var refresh = document.getElementById("refreshSpan");
