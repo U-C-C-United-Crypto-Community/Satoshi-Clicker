@@ -172,12 +172,10 @@ async function init() {
     localStorage.setItem("waxWallet", waxWallet);
 
     // Write the current amount of Bitcoins on the page
-    $(".bitcoinAmount").text(bitcoins.toFixed(8));
+    displayBitcoin(bitcoins);
   } else {
     // Get the amount of Bitcoins and parse them to a float number
     bitcoins = parseFloat(ls.get("bitcoins"));
-    $(".bitcoinAmount").text("loading...");
-    $(".satoshiAmount").text("loading...");
   }
   document.getElementById("lbButton").style.display = "block";
   document.getElementById("refButton").style.display = "block";
@@ -202,23 +200,27 @@ var Game = {};
  * @param itemAmount {Number} - The current amount of the item, saved in the localStorage
  */
 
-Game.setPriceAtGameBeginning = async function ($element, price, itemAmount) {
+Game.setPriceAtGameBeginning = async function (
+  $element,
+  price,
+  itemAmount = 0
+) {
   const id = $element.attr("id");
-  var itemAmount = 0;
   const asset = await Game.getItem(id);
   if (asset !== undefined) {
     itemAmount = asset.assets;
   }
 
   const template = templates.find((val) => val.name === id).data;
-  var multiplier = template.price_multiplier;
+  let multiplier = template.price_multiplier;
 
   // Calculate the new price -> price * multiplier^itemAmount
-  var calculation =
+  let calculation =
     parseFloat(price) * Math.pow(multiplier, parseInt(itemAmount));
-
   $element.children()[2].textContent =
-    "Buy: " + roundNumber(calculation) + " Bitcoins";
+    "Buy: " +
+    roundNumber(calculation) +
+    (calculation > 0.1 ? " Bitcoins" : " Satoshi");
 
   // Showing the actual price
   //element.children()[2].textContent = calculation + " Bitcoins";
@@ -232,60 +234,53 @@ Game.setPriceAtGameBeginning = async function ($element, price, itemAmount) {
  * @param $element the current html element
  * @param itemrateString the value to be shown as string
  */
-function showNewItemRate($element, itemrateString) {
-  $element.children()[3].style.color = "white";
-  $element.children()[3].textContent = "Rate: " + itemrateString + " B/SEC";
-  $element.children()[3].style.textShadow =
-    "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,\n" +
-    "  -1px -1px 1px black";
+function showItemRate($element, rate, level) {
   $element.children()[3].style.display = "block";
-}
-
-/**
- * shows the standard bitcoinrate of an item as colour black to show that the player doesnt have the NFT yet
- * @param $element current element
- * @param bits_per_sec_string the standard bitcoinrate of the item
- */
-function showNormalItemrate($element, bits_per_sec_string) {
-  $element.children()[3].style.color = "black";
-  $element.children()[3].style.textShadow = "none";
-  $element.children()[3].textContent =
-    "( Rate: " + bits_per_sec_string + " B/SEC )";
-  $element.children()[3].style.display = "block";
+  if (level == 0) {
+    $element.children()[3].style.color = "black";
+    $element.children()[3].style.textShadow = "none";
+    $element.children()[3].style.opacity = 0.5;
+  } else {
+    $element.children()[3].style.color = "white";
+    $element.children()[3].style.textShadow =
+      "1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,\n" +
+      "  -1px -1px 1px black";
+    $element.children()[3].style.opacity = 1;
+  }
+  const UNIT = rate > 0.1 ? " BTC/SEC" : " SATOSHI/SEC";
+  $element.children()[3].textContent = "Rate: " + roundNumber(rate) + UNIT;
 }
 
 /**
  * calculates the current price of an item and shows it
- * @param template template of the current item
- * @param level of the current item
  * @param $element html element for the current element
+ * @param level of the current item
+ * @param template template of the current item
  */
-function showNewPrice(template, level, $element) {
+function showNewPrice($element, level, template) {
   // Calculation of the price
-  var multiplier = template.data.price_multiplier;
-  var calculation =
+  let multiplier = template.data.price_multiplier;
+  let calculation =
     parseFloat(template.base_price) * Math.pow(multiplier, parseInt(level));
   template.data.price = calculation;
-
+  const UNIT = calculation > 0.1 ? " Bitcoins" : " Satoshi";
   $element.children()[2].textContent =
-    "Buy: " + roundNumber(calculation) + " Bitcoins";
+    "Buy: " + roundNumber(calculation) + UNIT;
 }
 
-async function fetchVariables(level, i, currentAsset) {
-  level = 0;
+async function fetchVariables(i) {
+  let level = 0;
   const asset = await Game.getItem(items[i].name);
-  const template = await templates.find((val) => val.name === items[i].name);
+  const template = templates.find((val) => val.name === items[i].name);
 
   let itemAmount = 0;
-  let bits_per_sec = 0;
-  bits_per_sec = parseFloat(template.data.rate);
+  let bits_per_sec = parseFloat(template.data.rate);
 
   if (asset !== undefined) {
     itemAmount = asset.assets;
-    currentAsset = await findAssetID(template.id, wax.userAccount);
-    level = currentAsset[1].level;
+    level = (await findAssetID(template.id, wax.userAccount))[1].level;
   }
-  return { level, template, itemAmount, bits_per_sec, currentAsset };
+  return { level, template, itemAmount, bits_per_sec };
 }
 
 /**
@@ -293,38 +288,30 @@ async function fetchVariables(level, i, currentAsset) {
  * Or whenever this is called
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
-  var newbitcoinRate = 0;
-  var currentAsset;
-  var level;
+  let newbitcoinRate = 0;
   for (let i = 0; i < items.length; i++) {
-    const values = await fetchVariables(level, i, currentAsset);
+    const values = await fetchVariables(i);
 
     //values of the current item
-    level = values.level;
+    const level = values.level;
     const template = values.template;
+    let rate = values.bits_per_sec;
     let itemAmount = values.itemAmount;
-    let bits_per_sec = values.bits_per_sec;
-    currentAsset = values.currentAsset;
 
     // HTML element on the game page
     var $element = $("#" + items[i].name);
 
-    // Writing the amount on the page at the item´s element
-    var bits_per_sec_string = roundNumber(bits_per_sec);
+    // Writing the amount on the page at the items element
     $element.children()[1].children[0].textContent = "LEVEL: " + itemAmount;
-    showNormalItemrate($element, bits_per_sec_string);
-    showNewPrice(template, level, $element);
+    showNewPrice($element, level, template);
 
     if (level > 0) {
       $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
-
-      var itemrate = level * bits_per_sec;
-      var itemrateString = roundNumber(itemrate);
-
-      showNewItemRate($element, itemrateString);
-
+      showItemRate($element, rate * level, level);
       // Calculating the rate
-      newbitcoinRate = newbitcoinRate + itemrate;
+      newbitcoinRate = newbitcoinRate + rate;
+    } else {
+      showItemRate($element, rate, level);
     }
   }
   bitcoinRate = newbitcoinRate;
@@ -341,19 +328,16 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
 Game.setNewBitcoinRate = function () {
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text(
-      "Rate: " + bitcoinRate.toFixed(0).optimizeNumber()
+      "Rate: " + bitcoinRate.toFixed(0).optimizeNumber() + "\n BTC/SEC"
     );
   } else if (bitcoinRate >= 1000) {
-    $(".bSecRateNumber").text(
-      "Rate: " + bitcoinRate.toFixed(0) + "\n BITCOINS/SEC"
-    );
-  } else if (bitcoinRate >= 1) {
-    $(".bSecRateNumber").text(
-      "Rate: " + bitcoinRate.toFixed(2) + "\n BITCOINS/SEC"
-    );
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(0) + "\n BTC/SEC");
+  } else if (bitcoinRate >= 0.1) {
+    $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "\n BTC/SEC");
   } else {
+    let satoshi = bitcoinRate * Math.pow(10, 8);
     $(".bSecRateNumber").text(
-      "Rate: " + bitcoinRate.toFixed(10) + "\n BITCOINS/SEC"
+      "Rate: " + satoshi.toFixed(0).toString() + "\n SATOSHI/SEC"
     );
   }
 };
@@ -581,7 +565,7 @@ function initOnClicks() {
 
 // Doing everything here when the game is ready to be used.
 function setup() {
-  $(document).ready(async function () {
+  $(document).ready(function () {
     // Stating the interval with the calculated Bitcoin/second rate.
     bSec = setInterval(function () {
       Game.bSecFunction(bitcoinRate);
@@ -628,8 +612,14 @@ function showItems(state) {
  * @param bitcoins current bitcoin amount
  */
 function displayBitcoin(bitcoins) {
-  $(".bitcoinAmount").text(roundNumber(bitcoins));
-  $(".satoshiAmount").text(roundNumber(bitcoins * 100000000));
+  if (bitcoins < 1) {
+    $(".bitcoinAmount").text(roundNumber(bitcoins) + " Satoshi");
+    $(".satoshiAmount").hide();
+  } else {
+    $(".bitcoinAmount").text(roundNumber(bitcoins) + "BTC");
+    $(".satoshiAmount").show();
+    $(".satoshiAmount").text(roundNumber(bitcoins) + " Satoshi");
+  }
 }
 /**
  * Waits for the NFT to finish loading
@@ -786,26 +776,23 @@ function generateRefLink() {
 
 /**
  * rounds or adds a unit type to a number
- * @param thisValue value to be rounded/shortened
+ * @param value value to be rounded/shortened
  * @returns {string} the value converted to a fitting string
  */
-function roundNumber(thisValue) {
-  var valueString;
-  if (thisValue > 1e6) {
-    let bitcoinUnitNumber = thisValue.optimizeNumber();
-    valueString = bitcoinUnitNumber;
-  } else if (thisValue >= 1000) {
-    valueString = thisValue.toFixed(0).toString();
-  } else if (thisValue >= 1) {
-    valueString = thisValue.toFixed(2).toString();
-  } else if (thisValue < 1 && thisValue.toString().includes("e")) {
-    let decimalAmount = parseInt(thisValue.toString().split("-")[1]);
-    decimalAmount = decimalAmount <= 10 ? decimalAmount : 10;
-    valueString = thisValue.toFixed(decimalAmount).toString();
+function roundNumber(num) {
+  let value;
+  if (num > 1e6) {
+    let bitcoinUnitNumber = num.optimizeNumber();
+    value = bitcoinUnitNumber;
+  } else if (num >= 1000) {
+    value = num.toFixed(0).toString();
+  } else if (num >= 0.1) {
+    value = num.toFixed(2).toString();
   } else {
-    valueString = thisValue.toFixed(8).toString();
+    const DIGITS = num * Math.pow(10, 8) > 1 ? 0 : 1;
+    value = (num * Math.pow(10, 8)).toFixed(DIGITS).toString();
   }
-  return valueString;
+  return value;
 }
 
 /**
