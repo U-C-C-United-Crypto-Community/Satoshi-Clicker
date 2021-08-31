@@ -144,14 +144,14 @@ function initIntervals() {
  */
 async function init() {
   await checkIfUserRegistered();
-
+  leaderboardModule.initLeaderboard();
   /* get the last bitcoin amount from local storage  */
   const keys = ls.getAllKeys();
   if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
 
   const wallet = localStorage.getItem("waxWallet");
   const btcs = ls.get("bitcoins");
-
+  
   await getTemplates();
   if (
     btcs === null ||
@@ -179,6 +179,7 @@ async function init() {
     $(".bitcoinAmount").text("loading...");
     $(".satoshiAmount").text("loading...");
   }
+
   document.getElementById("lbButton").style.display = "block";
   document.getElementById("refButton").style.display = "block";
   await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
@@ -1003,12 +1004,7 @@ async function registerUser() {
         player: wax.userAccount,
       },
     };
-    console.log(action);
-    await session.transact({ action }).then(({ transaction }) => {
-      console.log(`Transaction broadcast! Id: ${transaction.id}`);
-    });
-
-    await sendOneWax();
+    await session.transact({ action }).then(sendOneWax);
   } catch (e) {
     console.log(e.message.toString());
     if (
@@ -1039,9 +1035,7 @@ async function sendOneWax() {
       },
     };
     await sleep(1000);
-    await session.transact({ action }).then(({ transaction }) => {
-      console.log(`Transaction broadcast! Id: ${transaction.id}`);
-    });
+    await session.transact({ action });
   } catch (e) {
     if (e.message.toString().includes("User canceled request"))
       await sendOneWax();
@@ -1064,9 +1058,7 @@ async function checkIfUserRegistered() {
       },
     };
 
-    await session.transact({ action }).then(({ transaction }) => {
-      console.log(`Transaction broadcast! Id: ${transaction.id}`);
-    });
+    await session.transact({ action });
   } catch (e) {
     console.log(e.message.toString());
     if (e.message.toString().includes("eosio_assert_message")) {
