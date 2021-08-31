@@ -2,4 +2,7 @@
 .idea
 node_modules
 .vscode
+
 scripts/waxBrowser.js
+scripts/constants-ob.js
+scripts/contractABI-ob.js
