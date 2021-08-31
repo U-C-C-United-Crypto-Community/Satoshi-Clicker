@@ -94,7 +94,6 @@ async function fetchData() {
     return 0;
   }
   players = players.sort(compare);
-  console.log(players);
   writeToCSVFile(players);
 }
 
