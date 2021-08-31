@@ -6,6 +6,8 @@ const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
 const TEST_COLLECTION = "betawaxclick";
 
+const CONTRACT_ADDRESS = "g4rew.wam";
+
 const ITEMS = [
   {
     name: "item_oldCalculator",
