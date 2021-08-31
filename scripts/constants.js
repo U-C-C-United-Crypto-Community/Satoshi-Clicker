@@ -6,9 +6,7 @@ const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
 const TEST_COLLECTION = "betawaxclick";
 
-let session;
-
-var ITEMS = [
+const ITEMS = [
   {
     name: "item_oldCalculator",
     template_id: "180336",
