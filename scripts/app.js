@@ -177,8 +177,7 @@ async function init() {
     // Get the amount of Bitcoins and parse them to a float number
     bitcoins = parseFloat(ls.get("bitcoins"));
   }
-  document.getElementById("lbButton").style.display = "block";
-  document.getElementById("refButton").style.display = "block";
+  $(".settingBtn").show();
   await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
   initIntervals();
   multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
@@ -406,7 +405,7 @@ function incrementBitcoin() {
 
     //play the audio for the click
     var audio = document.getElementById("audio");
-    audio.play();
+    if(!mute) audio.play();
 
     //after 50ms reenable this function -> max. 20 Clicks per Second
     setTimeout(function () {
@@ -766,9 +765,21 @@ function generateRefLink() {
   navigator.clipboard.writeText(url);
   airdropModule.showVerificationDialog(
     "",
-    "Url: " + url + " is also copied to the clipboard"
+    "Url: " + url + " copied to clipboard"
   );
 }
+
+/**
+ * -----------------------------------------------Mute/Unmute Button---------------------------------------------------------------
+ */
+
+var mute = false;
+$("#muteButton").click((e) => {
+  console.log("mute");
+  let msg = mute ? "MUTE" : "UNMUTE";
+  $("#muteButton").text(msg);
+  mute = !mute;
+});
 
 /**
  * ---------------------------------------------Animated Message--------------------------------------------------------
