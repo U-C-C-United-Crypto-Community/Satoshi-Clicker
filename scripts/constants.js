@@ -6,80 +6,82 @@ const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
 const TEST_COLLECTION = "betawaxclick";
 
-const CONTRACT_ADDRESS = "g4rew.wam";
+const COLLECTION = "satoshic1ick";
+
+const CONTRACT_ADDRESS = "satoshiclick";
 
 const ITEMS = [
   {
     name: "item_oldCalculator",
-    template_id: "180336",
+    template_id: "272761",
   },
   {
     name: "item_oldCpu",
-    template_id: "180473",
+    template_id: "272762",
   },
   {
     name: "item_oldComputerFromGrandpa",
-    template_id: "180512",
+    template_id: "272763",
   },
   {
     name: "item_raspberrypi",
-    template_id: "180513",
+    template_id: "272769",
   },
   {
     name: "item_smartphone",
-    template_id: "180515",
+    template_id: "272766",
   },
   {
     name: "item_middleClassPC",
-    template_id: "180516",
+    template_id: "272767",
   },
   {
     name: "item_cheapServer",
-    template_id: "180517",
+    template_id: "272770",
   },
   {
     name: "item_gamingPC",
-    template_id: "180519",
+    template_id: "272771",
   },
   {
     name: "item_cheapMiner",
-    template_id: "180521",
+    template_id: "272772",
   },
   {
     name: "item_highEndUltraPC",
-    template_id: "180522",
+    template_id: "272775",
   },
   {
     name: "item_bigMiner",
-    template_id: "180524",
+    template_id: "272777",
   },
   {
     name: "item_miningFarm",
-    template_id: "180525",
+    template_id: "272779",
   },
   {
     name: "item_nasaPC",
-    template_id: "180526",
+    template_id: "272782",
   },
   {
     name: "item_quantumRig",
-    template_id: "180528",
+    template_id: "272783",
   },
   {
     name: "item_miningFarmSpace",
-    template_id: "180529",
+    template_id: "272788",
   },
   {
     name: "item_miningFarmMoon",
-    template_id: "180530",
+    template_id: "272789",
   },
   {
     name: "item_bitcoinTimeMachine",
-    template_id: "180531",
+    template_id: "272791",
   },
   {
     name: "item_blackHolePoweredMiner",
-    template_id: "180532",
+    template_id: "272792",
   },
 ];
 
