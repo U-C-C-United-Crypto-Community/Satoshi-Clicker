@@ -4,8 +4,6 @@ const WAX_TESTNET = "https://waxtestnet.greymass.com";
 const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
 const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
-const TEST_COLLECTION = "betawaxclick";
-
 const COLLECTION = "satoshic1ick";
 
 const CONTRACT_ADDRESS = "satoshiclick";

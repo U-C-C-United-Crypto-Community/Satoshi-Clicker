@@ -87,7 +87,7 @@ module.exports = {
                 ],
                 data: {
                     payer: wax.userAccount,
-                    receiver: "waxclicker12", //Später smart contract Name
+                    receiver: CONTRACT_ADDRESS, //Später smart contract Name
                     quant: quantity,
                 },
             }

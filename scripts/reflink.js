@@ -26,11 +26,11 @@ module.exports = {
     mintSpecialNft: async function (ref, account, showItems) {
         try{
             const action = {
-                account: 'waxclicker12',
+                account: CONTRACT_ADDRESS,
                 name: 'mintrefasset',
                 authorization: [{actor: account, permission: "active"}],
                 data: {
-                    collection_name: TEST_COLLECTION, //"waxbtcclickr",
+                    collection_name: COLLECTION, //"waxbtcclickr",
                     schema_name: "invfriends",
                     template_id: special_items[0].template_id,
                     ref: ref,

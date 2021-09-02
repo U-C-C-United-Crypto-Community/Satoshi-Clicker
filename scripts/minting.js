@@ -30,12 +30,12 @@ module.exports = {
 
     try {
       const action = {
-        account: "waxclicker12",
+        account: CONTRACT_ADDRESS,
         name: "mintasset",
         authorization: [{ actor: account, permission: "active" }],
         data: {
-          authorized_minter: "waxclicker12",
-          collection_name: TEST_COLLECTION, //"waxbtcclickr",
+          authorized_minter: CONTRACT_ADDRESS,
+          collection_name: COLLECTION, //"waxbtcclickr",
           schema_name: "equipments",
           template_id: id,
           new_asset_owner: account,
@@ -135,7 +135,7 @@ module.exports = {
 
     try {
       const action = {
-        account: "waxclicker12",
+        account: CONTRACT_ADDRESS,
         name: "upgrade",
         authorization: [{ actor: account, permission: "active" }],
         data: {

@@ -32,7 +32,7 @@ before	        string($date-time)
 /* POST Request
     const API_URL = "https://testnet.wax.pink.gg/v1/history/get_actions";
     var body = {
-    account_name: "waxclicker12",
+    account_name: CONTRACT_ADDRESS,
     pos: index,
     limit: 100,
     };
@@ -136,7 +136,7 @@ function getURL(skip) {
     "&skip=" +
     skip +
     "&account=" +
-    "waxclicker12"
+    CONTRACT_ADDRESS
   );
 }
 
