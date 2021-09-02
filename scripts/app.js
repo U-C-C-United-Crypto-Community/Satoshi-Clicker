@@ -62,7 +62,7 @@ async function getTemplates() {
   for (let i = 0; i < ITEMS.length; i++) {
     const id = ITEMS[i].template_id;
     const name = ITEMS[i].name;
-    const data = (await api.getTemplate("waxbtcclickr", id)).immutable_data;
+    const data = (await api.getTemplate(COLLECTION, id)).immutable_data;
     const base_price = data.price;
 
     const result = { name, id, data, base_price };
@@ -150,11 +150,9 @@ async function init() {
 
     // Set the localStorage Item for the first time
     ls.clear();
-    localStorage.clear();
 
     ls.set("bitcoins", 0);
-
-    localStorage.setItem("waxWallet", waxWallet);
+    ls.set("waxWallet", waxWallet);
 
     // Write the current amount of Bitcoins on the page
     $(".bitcoinAmount").text(bitcoins.toFixed(8));
