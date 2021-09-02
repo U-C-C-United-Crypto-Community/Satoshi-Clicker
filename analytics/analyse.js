@@ -44,8 +44,6 @@ const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
 
-const COLLECTION_NAME = "betawaxclick";
-
 async function fetchData() {
   const startTime = new Date("2021-08-18T00:00:00").getTime();
   let players = [];
@@ -68,7 +66,7 @@ async function fetchData() {
         data[i].item = asset.name;
       } else {
         const template_id = data[i].template_id;
-        const template = await api.getTemplate(COLLECTION_NAME, template_id);
+        const template = await api.getTemplate(COLLECTION, template_id);
         delete data[i].template_id;
         data[i].item = template.name;
       }

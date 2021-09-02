@@ -1,13 +1,12 @@
 {
   "name": "wax-bitcoin-clicker",
   "version": "1.0.0",
-  "description": "Bitcoin Clicker with NFTs",
+  "description": "Satoshi Clicker Game",
   "main": "index.html",
   "type": "module",
   "sourceType": "module",
   "directories": {
-    "lib": "lib",
-    "test": "test"
+    "lib": "lib"
   },
   "scripts": {
     "build": "browserify scripts/app.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/waxBrowser.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/constants.js -o scripts/constants-ob.js && javascript-obfuscator scripts/contractABI.js -o scripts/contractABI-ob.js"

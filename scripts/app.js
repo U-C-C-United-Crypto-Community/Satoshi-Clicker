@@ -134,7 +134,7 @@ async function init() {
   const keys = ls.getAllKeys();
   if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
 
-  const wallet = localStorage.getItem("waxWallet");
+  const wallet = ls.get("waxWallet");
   const btcs = ls.get("bitcoins");
 
   await getTemplates();
@@ -165,7 +165,7 @@ async function init() {
 
   document.getElementById("lbButton").style.display = "block";
   document.getElementById("refButton").style.display = "block";
-  await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
+  await reflinkModule.detectRef(dp, wax.userAccount, showItems, api);
   initIntervals();
   multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
 }
@@ -186,9 +186,8 @@ var Game = {};
  * @param itemAmount {Number} - The current amount of the item, saved in the localStorage
  */
 
-Game.setPriceAtGameBeginning = async function ($element, price, itemAmount) {
+Game.setPriceAtGameBeginning = async function ($element, price, itemAmount = 0) {
   const id = $element.attr("id");
-  var itemAmount = 0;
   const asset = await Game.getItem(id);
   if (asset !== undefined) {
     itemAmount = asset.assets;
@@ -430,7 +429,7 @@ async function findAssetID(templateID, account) {
   while (id == undefined) {
     assets = await api.getAssets({
       owner: account,
-      collection_name: "betawaxclick",
+      collection_name: COLLECTION,
       template_id: templateID,
     });
 

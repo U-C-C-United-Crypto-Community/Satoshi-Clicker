@@ -91,7 +91,7 @@ module.exports = {
         for (let i = 0; i < special_items.length; i++) {
             const id = special_items[i].template_id;
             const name = special_items[i].name;
-            const data = (await api.getTemplate("betawaxclick", id)).immutable_data;
+            const data = (await api.getTemplate(COLLECTION, id)).immutable_data;
 
             const result = { name, id, data };
             this.specialTemplates.push(result);

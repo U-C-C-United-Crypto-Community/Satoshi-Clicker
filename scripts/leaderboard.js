@@ -77,7 +77,7 @@ module.exports = {
             var bits_per_sec = 0;
 
             //fetch all accounts which own a version of the current item
-            var accounts = await api.getAccounts({ collection_name: "betawaxclick", schema_name: "equipments", template_id: items[j].template_id, });
+            var accounts = await api.getAccounts({ collection_name: COLLECTION, schema_name: "equipments", template_id: items[j].template_id, });
             if (accounts.length == 0)
                 continue;
 
