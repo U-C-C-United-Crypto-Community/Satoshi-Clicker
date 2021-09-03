@@ -26,20 +26,6 @@ const api = new ExplorerApi(ATOMIC_TEST_URL, "atomicassets", {
   fetch,
 });
 
-const { Api, JsonRpc } = require("eosjs");
-const { JsSignatureProvider } = require("eosjs/dist/eosjs-jssig"); // development only
-const { TextEncoder, TextDecoder } = require("text-encoding"); //node only
-
-const defaultPrivateKey = "5JtUScZK2XEp3g9gh7F8bwtPTRAkASmNrrftmx4AxDKD5K4zDnr";
-const signatureProvider = new JsSignatureProvider([defaultPrivateKey]);
-const rpc = new JsonRpc("http://127.0.0.1:8888", { fetch }); //required to read blockchain state
-const eosApi = new Api({
-  rpc,
-  signatureProvider,
-  textDecoder: new TextDecoder(),
-  textEncoder: new TextEncoder(),
-}); //required to submit transactions
-
 var wax = new waxjs.WaxJS(WAX_TESTNET, null, null, false);
 
 const detectEthereumProvider = require("@metamask/detect-provider");
@@ -98,7 +84,7 @@ function initIntervalLastclick() {
 
     var timeBetweenCLicks = currentTime - lastClick;
 
-    if (Math.floor(timeBetweenCLicks / 1000) > 30) {
+    if (Math.floor(timeBetweenCLicks / 1000) > 120) {
       enableClickMultiplier = false;
       amountOfClicks = 0;
     } else {
@@ -313,10 +299,11 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       showItemRate($element, rate, level);
     }
   }
-  console.log({ newbitcoinRate });
+
   bitcoinRate = newbitcoinRate;
   bitcoinRate *= getClickMultiplier();
   bitcoinRate *= 1 + multiplier;
+  console.log({ bitcoinRate });
 };
 
 /**
@@ -388,7 +375,6 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
  * @returns {function(): void}
  */
 function incrementBitcoin() {
-  return function () {
     lastClick = Date.now();
     amountOfClicks++;
 
@@ -411,9 +397,8 @@ function incrementBitcoin() {
     //after 50ms reenable this function -> max. 20 Clicks per Second
     setTimeout(function () {
       disable = false;
-      $(".bitcoin").click(incrementBitcoin());
+      $(".bitcoin").click(incrementBitcoin);
     }, 50);
-  };
 }
 
 /**
@@ -573,7 +558,7 @@ function initOnClicks() {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
     const level = parseInt(lvlDisplay);
-    
+
     const rateDisplay = $(e.currentTarget).find(".itemPrice:last-child");
     if (level > 0) rateDisplay.css({ color: "white" }).text(preUpgrade);
   });
@@ -596,7 +581,7 @@ function setup() {
     // Write the bitcoin per second rate into the .bSecRateNumber span element
     $(".bSecRateNumber").text(roundNumber(bitcoinRate));
     // If clicked on the big Bitcoin
-    $(".bitcoin").click(incrementBitcoin());
+    $(".bitcoin").click(incrementBitcoin);
     initOnClicks();
   });
 }
@@ -1007,7 +992,6 @@ function getClickMultiplier() {
   var multi = 0.1;
   if (enableClickMultiplier && amountOfClicks >= 10) {
     multi = amountOfClicks / 100;
-
     if (multi > 1) multi = 1;
   }
   return multi;
