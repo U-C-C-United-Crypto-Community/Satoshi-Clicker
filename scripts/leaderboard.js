@@ -139,7 +139,7 @@ module.exports = {
             var currentText = document.getElementById("lb" + counter);
             var valueString = roundNumber(value)
 
-            currentText.innerText = counter + ". " + key + " - " + valueString + " B/SEC";
+            currentText.innerText = counter + ". " + key + " - " + valueString + value > 0.1 ? " B/SEC" : "Satoshi/SEC";
             counter++;
         }
         //Finished loading -> we can now show the button to refresh

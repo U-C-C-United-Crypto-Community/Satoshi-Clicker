@@ -93,9 +93,17 @@
 
         <div class="leftContainer">
             <span class="version"></span>
-            <h1 class="bitcoinAmountDisplay"><span class="bitcoinAmount">0</span> BITCOINS</h1>
-            <p class="satoshiAmountDisplay"><span class="satoshiAmount">0</span> SATOSHI</p>
-            <p class="bSecRate"><span class="bSecRateNumber">0</span> </p>
+            <h1 class="bitcoinAmountDisplay bitcoinAmount"></h1>
+            <p class="satoshiAmountDisplay satoshiAmount"></p>
+            <p class="bSecRate"><span class="bSecRateNumber"></span> </p>
+
+            <div class="btnGroup">
+                <button class="settingBtn" id="donateButton" type="button">DONATE!</button>
+                <button class="settingBtn" id="lbButton" type="button">LEADERBOARD</button>
+                <button class="settingBtn" id="refButton" type="button">INVITE FRIEND</button>
+                <button class="settingBtn" id="muteButton" type="button">MUTE</button>
+
+            </div>
         </div>
         <div class="mainGameContent" id="mainGame">
 
@@ -270,9 +278,8 @@
                 </li>
             </ul>
         </div>
-        <button class="resetButton" id="donateButton" type="button">DONATE!</button>
-        <button class="lbButton" id="lbButton" type="button">LEADERBOARD</button>
-        <button class="reflinkButton" id="refButton" type="button">INVITE FRIEND</button>
+
+
         <!-- The Modal -->
         <div id="myModal" class="modal">
 
