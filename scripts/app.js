@@ -573,6 +573,7 @@ function initOnClicks() {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
     const level = parseInt(lvlDisplay);
+    
     const rateDisplay = $(e.currentTarget).find(".itemPrice:last-child");
     if (level > 0) rateDisplay.css({ color: "white" }).text(preUpgrade);
   });
