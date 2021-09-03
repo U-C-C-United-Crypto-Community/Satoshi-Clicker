@@ -26,7 +26,7 @@ const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
 
-var wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
+const wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
 
 const detectEthereumProvider = require("@metamask/detect-provider");
 const dp = new DOMPurify();
@@ -128,7 +128,8 @@ function initIntervals() {
  * @returns {Promise<void>}
  */
 async function init() {
-  await checkIfUserRegistered();
+  let success = await hasRegistered(10);
+  if (!success) return;
   leaderboardModule.initLeaderboard();
   /* get the last bitcoin amount from local storage  */
   const keys = ls.getAllKeys();
@@ -1038,10 +1039,14 @@ async function sendOneWax() {
   }
 }
 
-async function checkIfUserRegistered() {
+async function hasRegistered(n) {
   try {
+    if (n == 0) {
+      alert("Please reload...");
+      return;
+    }
     const action = {
-      account: CONTRACT_ADDRESS,
+      account: "satoshiclick",
       name: "checkplayer",
       authorization: [
         {
@@ -1053,6 +1058,7 @@ async function checkIfUserRegistered() {
         player: wax.userAccount,
       },
     };
+    console.log(action);
     await wax.api.transact(
       {
         actions: [{ action }],
@@ -1067,6 +1073,6 @@ async function checkIfUserRegistered() {
     if (e.message.toString().includes("eosio_assert_message")) {
       console.log("Didnt pay");
       await registerUser();
-    } else await checkIfUserRegistered();
+    } else await hasRegistered(n - 1);
   }
 }
