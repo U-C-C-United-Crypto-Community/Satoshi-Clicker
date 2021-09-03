@@ -313,6 +313,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       showItemRate($element, rate, level);
     }
   }
+  console.log({ newbitcoinRate });
   bitcoinRate = newbitcoinRate;
   bitcoinRate *= getClickMultiplier();
   bitcoinRate *= 1 + multiplier;
@@ -405,7 +406,7 @@ function incrementBitcoin() {
 
     //play the audio for the click
     var audio = document.getElementById("audio");
-    if(!mute) audio.play();
+    if (!mute) audio.play();
 
     //after 50ms reenable this function -> max. 20 Clicks per Second
     setTimeout(function () {
@@ -537,24 +538,43 @@ async function startMinting() {
       success = await upgradeAsset(template);
     }
     if (!success) return;
-    await waitForTransaction(bitcoinRate);
+    //await waitForTransaction(bitcoinRate);
     substractBitcoins(price);
+    showItems("block");
   }
 }
 
 function initOnClicks() {
+  let items =
+    ".purchaseItemCommon, .purchaseItemRare,.purchaseItemLegendary,.purchaseItemUltimate";
   // If any item from the list was clicked...
-  $(".purchaseItemCommon").click(async function () {
+  $(items).click(async function () {
     await startMinting.call(this);
   });
-  $(".purchaseItemRare").click(async function () {
-    await startMinting.call(this);
+  let preUpgrade = "";
+  let upgradeDisplay = "";
+  $(items).bind("mouseover", (e) => {
+    let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
+    lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
+    const level = parseInt(lvlDisplay);
+
+    const rateDisplay = $(e.currentTarget).find(".itemPrice:last-child");
+    preUpgrade = rateDisplay.text();
+    upgradeDisplay = preUpgrade.replace(/[^0-9\.]?/g, "");
+
+    let rate = (parseFloat(upgradeDisplay) * (level + 1)) / level;
+    const UNIT = preUpgrade.includes("BTC") ? " BTC/SEC" : " SATOSHI/SEC";
+    if (level > 0)
+      rateDisplay
+        .css({ color: "green" })
+        .text("Rate: " + roundNumber(rate) + UNIT);
   });
-  $(".purchaseItemLegendary").click(async function () {
-    await startMinting.call(this);
-  });
-  $(".purchaseItemUltimate").click(async function () {
-    await startMinting.call(this);
+  $(items).bind("mouseout", (e) => {
+    let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
+    lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
+    const level = parseInt(lvlDisplay);
+    const rateDisplay = $(e.currentTarget).find(".itemPrice:last-child");
+    if (level > 0) rateDisplay.css({ color: "white" }).text(preUpgrade);
   });
 }
 
@@ -627,6 +647,7 @@ function displayBitcoin(bitcoins) {
 async function waitForTransaction(oldBitcoinRate) {
   showItems("none");
   Game.setNewBitcoinRate();
+  console.log({ oldBitcoinRate, bitcoinRate });
   setTimeout(() => {
     if (oldBitcoinRate === bitcoinRate) {
       waitForTransaction(oldBitcoinRate);
