@@ -496,17 +496,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Explorer_1 = __importDefault(require("../../Actions/Explorer"));
 const ApiError_1 = __importDefault(require("../../Errors/ApiError"));
 function buildDataOptions(options, data) {
-    const dataKeys = Object.keys(data);
+    var _a;
     const dataFields = {};
-    for (const key of dataKeys) {
-        if (typeof data[key] === 'number') {
-            dataFields['data:number.' + key] = data[key];
+    for (const row of data) {
+        const dataType = (_a = row.type) !== null && _a !== void 0 ? _a : 'data';
+        if (typeof row.value === 'number') {
+            dataFields[dataType + ':number.' + row.key] = String(row.value);
         }
-        else if (typeof data[key] === 'boolean') {
-            dataFields['data:bool.' + key] = data[key];
+        else if (typeof row.value === 'boolean') {
+            dataFields[dataType + ':bool.' + row.key] = row.value ? 'true' : 'false';
         }
         else {
-            dataFields['data.' + key] = data[key];
+            dataFields[dataType + '.' + row.key] = row.value;
         }
     }
     return Object.assign({}, options, dataFields);
@@ -528,10 +529,10 @@ class ExplorerApi {
     async getConfig() {
         return await this.fetchEndpoint('/v1/config', {});
     }
-    async getAssets(options = {}, page = 1, limit = 100, data = {}) {
+    async getAssets(options = {}, page = 1, limit = 100, data = []) {
         return await this.fetchEndpoint('/v1/assets', Object.assign({ page, limit }, buildDataOptions(options, data)));
     }
-    async countAssets(options, data = {}) {
+    async countAssets(options, data = []) {
         return await this.countEndpoint('/v1/assets', buildDataOptions(options, data));
     }
     async getAsset(id) {
@@ -573,10 +574,10 @@ class ExplorerApi {
     async getSchemaLogs(collection, name, page = 1, limit = 100, order = 'desc') {
         return await this.fetchEndpoint('/v1/schemas/' + collection + '/' + name + '/logs', { page, limit, order });
     }
-    async getTemplates(options = {}, page = 1, limit = 100, data = {}) {
+    async getTemplates(options = {}, page = 1, limit = 100, data = []) {
         return await this.fetchEndpoint('/v1/templates', Object.assign({ page, limit }, buildDataOptions(options, data)));
     }
-    async countTemplates(options = {}, data = {}) {
+    async countTemplates(options = {}, data = []) {
         return await this.countEndpoint('/v1/templates', buildDataOptions(options, data));
     }
     async getTemplate(collection, id) {
@@ -9990,7 +9991,7 @@ CipherBase.prototype._toString = function (value, enc, fin) {
 module.exports = CipherBase
 
 },{"inherits":129,"safe-buffer":135,"stream":169,"string_decoder":184}],61:[function(require,module,exports){
-/*! @license DOMPurify 2.3.0 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/2.3.0/LICENSE */
+/*! @license DOMPurify 2.3.1 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/2.3.1/LICENSE */
 
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -10241,7 +10242,7 @@ module.exports = CipherBase
      * Version label, exposed for easier checks
      * if DOMPurify is up to date or not
      */
-    DOMPurify.version = '2.3.0';
+    DOMPurify.version = '2.3.1';
 
     /**
      * Array of elements that DOMPurify removed during sanitation.
@@ -10407,7 +10408,8 @@ module.exports = CipherBase
     var USE_PROFILES = {};
 
     /* Tags to ignore content of when KEEP_CONTENT is true */
-    var FORBID_CONTENTS = addToSet({}, ['annotation-xml', 'audio', 'colgroup', 'desc', 'foreignobject', 'head', 'iframe', 'math', 'mi', 'mn', 'mo', 'ms', 'mtext', 'noembed', 'noframes', 'noscript', 'plaintext', 'script', 'style', 'svg', 'template', 'thead', 'title', 'video', 'xmp']);
+    var FORBID_CONTENTS = null;
+    var DEFAULT_FORBID_CONTENTS = addToSet({}, ['annotation-xml', 'audio', 'colgroup', 'desc', 'foreignobject', 'head', 'iframe', 'math', 'mi', 'mn', 'mo', 'ms', 'mtext', 'noembed', 'noframes', 'noscript', 'plaintext', 'script', 'style', 'svg', 'template', 'thead', 'title', 'video', 'xmp']);
 
     /* Tags that are safe for data: URIs */
     var DATA_URI_TAGS = null;
@@ -10415,7 +10417,7 @@ module.exports = CipherBase
 
     /* Attributes safe for values like "javascript:" */
     var URI_SAFE_ATTRIBUTES = null;
-    var DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, ['alt', 'class', 'for', 'id', 'label', 'name', 'pattern', 'placeholder', 'summary', 'title', 'value', 'style', 'xmlns']);
+    var DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, ['alt', 'class', 'for', 'id', 'label', 'name', 'pattern', 'placeholder', 'role', 'summary', 'title', 'value', 'style', 'xmlns']);
 
     var MATHML_NAMESPACE = 'http://www.w3.org/1998/Math/MathML';
     var SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
@@ -10456,6 +10458,7 @@ module.exports = CipherBase
       ALLOWED_ATTR = 'ALLOWED_ATTR' in cfg ? addToSet({}, cfg.ALLOWED_ATTR) : DEFAULT_ALLOWED_ATTR;
       URI_SAFE_ATTRIBUTES = 'ADD_URI_SAFE_ATTR' in cfg ? addToSet(clone(DEFAULT_URI_SAFE_ATTRIBUTES), cfg.ADD_URI_SAFE_ATTR) : DEFAULT_URI_SAFE_ATTRIBUTES;
       DATA_URI_TAGS = 'ADD_DATA_URI_TAGS' in cfg ? addToSet(clone(DEFAULT_DATA_URI_TAGS), cfg.ADD_DATA_URI_TAGS) : DEFAULT_DATA_URI_TAGS;
+      FORBID_CONTENTS = 'FORBID_CONTENTS' in cfg ? addToSet({}, cfg.FORBID_CONTENTS) : DEFAULT_FORBID_CONTENTS;
       FORBID_TAGS = 'FORBID_TAGS' in cfg ? addToSet({}, cfg.FORBID_TAGS) : {};
       FORBID_ATTR = 'FORBID_ATTR' in cfg ? addToSet({}, cfg.FORBID_ATTR) : {};
       USE_PROFILES = 'USE_PROFILES' in cfg ? cfg.USE_PROFILES : false;
@@ -10529,6 +10532,14 @@ module.exports = CipherBase
 
       if (cfg.ADD_URI_SAFE_ATTR) {
         addToSet(URI_SAFE_ATTRIBUTES, cfg.ADD_URI_SAFE_ATTR);
+      }
+
+      if (cfg.FORBID_CONTENTS) {
+        if (FORBID_CONTENTS === DEFAULT_FORBID_CONTENTS) {
+          FORBID_CONTENTS = clone(FORBID_CONTENTS);
+        }
+
+        addToSet(FORBID_CONTENTS, cfg.FORBID_CONTENTS);
       }
 
       /* Add #text in case KEEP_CONTENT is set to true */
@@ -10864,6 +10875,12 @@ module.exports = CipherBase
 
       /* Detect mXSS attempts abusing namespace confusion */
       if (!_isNode(currentNode.firstElementChild) && (!_isNode(currentNode.content) || !_isNode(currentNode.content.firstElementChild)) && regExpTest(/<[/\w]/g, currentNode.innerHTML) && regExpTest(/<[/\w]/g, currentNode.textContent)) {
+        _forceRemove(currentNode);
+        return true;
+      }
+
+      /* Mitigate a problem with templates inside select */
+      if (tagName === 'select' && regExpTest(/<template/i, currentNode.innerHTML)) {
         _forceRemove(currentNode);
         return true;
       }
@@ -23074,7 +23091,7 @@ exports.Request = global.Request;
 exports.Response = global.Response;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],133:[function(require,module,exports){
-!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e=e||self).PureCache=t()}(this,(function(){"use strict";function e(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function t(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}function i(e,i,n){return i&&t(e.prototype,i),n&&t(e,n),e}function n(e,t,i){return t in e?Object.defineProperty(e,t,{value:i,enumerable:!0,configurable:!0,writable:!0}):e[t]=i,e}function r(e){return e=e||Object.create(null),{on:function(t,i){(e[t]||(e[t]=[])).push(i)},off:function(t,i){e[t]&&e[t].splice(e[t].indexOf(i)>>>0,1)},emit:function(t,i){(e[t]||[]).slice().map((function(e){e(i)})),(e["*"]||[]).slice().map((function(e){e(t,i)}))}}}var s="expiry",o="add",a="get",u="remove",c="clear",h=function(e){if(e)throw new Error("Cannot use disposed instance.")},d={expiryCheckInterval:100},f=function(){function t(){var i=this,r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};e(this,t),n(this,"expire",(function(){h(i.disposed);for(var e=Date.now(),t=e;t>=i.lastExpiredTime;t-=1){var n=i.queue[t];n&&(delete i.queue[t],n.forEach((function(e){var t=e.key;return(0,e.onExpire)(t)})))}i.lastExpiredTime=e})),this.config=Object.assign({},d,r),this.queue={},this.disposed=!1,this.lastExpiredTime=Date.now()-1;var s=this.config.expiryCheckInterval;this.timer=setInterval(this.expire,s)}return i(t,[{key:"add",value:function(e,t,i){return h(this.disposed),this.queue[e]||(this.queue[e]=[]),this.queue[e].push({key:t,onExpire:i}),!0}},{key:"remove",value:function(e,t){h(this.disposed);var i=this.queue[e];if(i){var n=i.filter((function(e){return e.key!==t}));return n.length?this.queue[e]=n:delete this.queue[e],!0}return!1}},{key:"dispose",value:function(){return h(this.disposed),clearInterval(this.timer),this.timer=null,this.queue={},this.disposed=!0,!0}}]),t}(),l={defaultCacheExpiryIn:6e4,expiryCheckInterval:100};return function(){function t(){var i=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:f;e(this,t),this.config=Object.assign({},l,i);var s=r(),o=s.on,a=s.off,u=s.emit,c=[o,a,u];this.on=c[0],this.off=c[1],this.emit=c[2],this.cacheStore={},this.disposed=!1;var h=this.config.expiryCheckInterval;this.cacheExpirer=new n({expiryCheckInterval:h})}return i(t,[{key:"put",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",i=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"",n=arguments.length>2&&void 0!==arguments[2]?arguments[2]:this.config.defaultCacheExpiryIn;h(this.disposed),this.cacheStore[t]&&this.remove(t);var r=Date.now(),a=n?r+n:null,u={value:i,addedAt:r,expiryAt:a};if(this.cacheStore[t]=u,a){var c=function(){e.remove(t),e.emit(s,{key:t,data:e.cacheStore[t]})};this.cacheExpirer.add(a,t,c)}return this.emit(o,{key:t,data:u}),u}},{key:"get",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"";h(this.disposed);var t=this.cacheStore[e];return t?(this.emit(a,{key:e,data:t}),t):null}},{key:"remove",value:function(e){h(this.disposed);var t=this.cacheStore[e];if(t){delete this.cacheStore[e];var i=t.expiryAt;return this.cacheExpirer.remove(i,e),this.emit(u,{key:e,data:t}),!0}return!1}},{key:"dispose",value:function(){var e=this;return h(this.disposed),Object.keys(this.cacheStore).forEach((function(t){return e.remove(t)})),this.emit(c,{}),this.cacheExpirer.dispose(),this.disposed=!0,!0}}]),t}()}));
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):(e="undefined"!=typeof globalThis?globalThis:e||self).PureCache=t()}(this,(function(){"use strict";function e(e,t){var i=Object.keys(e);if(Object.getOwnPropertySymbols){var r=Object.getOwnPropertySymbols(e);t&&(r=r.filter((function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable}))),i.push.apply(i,r)}return i}function t(t){for(var i=1;i<arguments.length;i++){var r=null!=arguments[i]?arguments[i]:{};i%2?e(Object(r),!0).forEach((function(e){o(t,e,r[e])})):Object.getOwnPropertyDescriptors?Object.defineProperties(t,Object.getOwnPropertyDescriptors(r)):e(Object(r)).forEach((function(e){Object.defineProperty(t,e,Object.getOwnPropertyDescriptor(r,e))}))}return t}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function r(e,t){for(var i=0;i<t.length;i++){var r=t[i];r.enumerable=r.enumerable||!1,r.configurable=!0,"value"in r&&(r.writable=!0),Object.defineProperty(e,r.key,r)}}function n(e,t,i){return t&&r(e.prototype,t),i&&r(e,i),e}function o(e,t,i){return t in e?Object.defineProperty(e,t,{value:i,enumerable:!0,configurable:!0,writable:!0}):e[t]=i,e}function s(e){return{all:e=e||new Map,on:function(t,i){var r=e.get(t);r?r.push(i):e.set(t,[i])},off:function(t,i){var r=e.get(t);r&&(i?r.splice(r.indexOf(i)>>>0,1):e.set(t,[]))},emit:function(t,i){var r=e.get(t);r&&r.slice().map((function(e){e(i)})),(r=e.get("*"))&&r.slice().map((function(e){e(t,i)}))}}}var a="expiry",u="add",c="get",h="remove",f="clear",l=function(e){if(e)throw new Error("Cannot use disposed instance.")},d={expiryCheckInterval:100},p=function(){function e(){var r=this,n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};i(this,e),o(this,"expire",(function(){l(r.disposed);for(var e=Date.now(),t=e;t>=r.lastExpiredTime;t-=1){var i=r.queue[t];i&&(delete r.queue[t],i.forEach((function(e){var t=e.key;return(0,e.onExpire)(t)})))}r.lastExpiredTime=e})),this.config=t(t({},d),n),this.queue={},this.disposed=!1,this.lastExpiredTime=Date.now()-1;var s=this.config.expiryCheckInterval;this.timer=setInterval(this.expire,s)}return n(e,[{key:"add",value:function(e,t,i){return l(this.disposed),this.queue[e]||(this.queue[e]=[]),this.queue[e].push({key:t,onExpire:i}),!0}},{key:"remove",value:function(e,t){l(this.disposed);var i=this.queue[e];if(i){var r=i.filter((function(e){return e.key!==t}));return r.length?this.queue[e]=r:delete this.queue[e],!0}return!1}},{key:"dispose",value:function(){return l(this.disposed),clearInterval(this.timer),this.timer=null,this.queue={},this.disposed=!0,!0}}]),e}(),v={defaultCacheExpiryIn:6e4,expiryCheckInterval:100};return function(){function e(){var r=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},n=arguments.length>1&&void 0!==arguments[1]?arguments[1]:p;i(this,e),this.config=t(t({},v),r);var o=s(),a=o.on,u=o.off,c=o.emit,h=[a,u,c];this.on=h[0],this.off=h[1],this.emit=h[2],this.cacheStore={},this.disposed=!1;var f=this.config.expiryCheckInterval;this.cacheExpirer=new n({expiryCheckInterval:f})}return n(e,[{key:"put",value:function(){var e=this,t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"",i=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"",r=arguments.length>2&&void 0!==arguments[2]?arguments[2]:this.config.defaultCacheExpiryIn;l(this.disposed),this.cacheStore[t]&&this.remove(t);var n=Date.now(),o=r?n+r:null,s={value:i,addedAt:n,expiryAt:o};if(this.cacheStore[t]=s,o){var c=function(){e.remove(t),e.emit(a,{key:t,data:e.cacheStore[t]})};this.cacheExpirer.add(o,t,c)}return this.emit(u,{key:t,data:s}),s}},{key:"get",value:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:"";l(this.disposed);var t=this.cacheStore[e];return t?(this.emit(c,{key:e,data:t}),t):null}},{key:"remove",value:function(e){l(this.disposed);var t=this.cacheStore[e];if(t){delete this.cacheStore[e];var i=t.expiryAt;return this.cacheExpirer.remove(i,e),this.emit(h,{key:e,data:t}),!0}return!1}},{key:"dispose",value:function(){var e=this;return l(this.disposed),Object.keys(this.cacheStore).forEach((function(t){return e.remove(t)})),this.emit(f,{}),this.cacheExpirer.dispose(),this.disposed=!0,!0}}]),e}()}));
 
 
 },{}],134:[function(require,module,exports){
