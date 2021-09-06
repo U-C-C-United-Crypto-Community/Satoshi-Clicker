@@ -102,14 +102,14 @@ function initIntervalNewBitcoinRate() {
   }, 15000);
 }
 
-/**
- * Interval to visiually update the bitcoinrate
- */
-function initIntervalShowNewRate() {
-  setInterval(function () {
-    Game.setNewBitcoinRate();
-  }, 1000);
-}
+// /**
+//  * Interval to visiually update the bitcoinrate
+//  */
+// function initIntervalShowNewRate() {
+//   setInterval(function () {
+//     Game.setNewBitcoinRate();
+//   }, 1000);
+// }
 
 /**
  * init all the intervals
@@ -117,7 +117,7 @@ function initIntervalShowNewRate() {
 function initIntervals() {
   initIntervalLastclick();
   initIntervalNewBitcoinRate();
-  initIntervalShowNewRate();
+  //initIntervalShowNewRate();
   setInterval(function () {
     tabModule.detectTab();
   }, 5000);
@@ -629,8 +629,6 @@ async function login() {
   try {
     if (wax.userAccount === undefined) {
       await wax.login();
-      await init();
-      await Game.setBitcoinPerSecondRateAtBeginning();
       return true;
     } else {
       return false;
@@ -651,7 +649,12 @@ document.getElementById("loginWaxWallet").onclick = async () => {
   showItems("none");
   const success = await login();
   if (success) {
-    makePurchaselist();
+    //makePurchaselist();
+    console.log("Login success");
+    await init();
+    await Game.setBitcoinPerSecondRateAtBeginning();
+    setup();
+
     return;
   }
 
@@ -866,94 +869,6 @@ document
   .getElementsByClassName("bitcoin")[0]
   .addEventListener("click", animateMessage);
 
-// /**
-//  * ------------------------------------------Anchor---------------------------------------------------------------------
-//  */
-
-// // app identifier, should be set to the eosio contract account if applicable
-// const identifier = "waxbtcclicker";
-// // initialize the browser transport
-// const transport = new AnchorLinkBrowserTransport();
-// // initialize the link
-// const link = new AnchorLink({
-//   transport,
-//   chains: [
-//     {
-//       chainId:
-//         "1064487b3cd1a897ce03ae5b6a865651747e2e152090f99c1d19d44e01aea5a4",
-//       nodeUrl: "https://wax.greymass.com",
-//     },
-//     {
-//       chainId:
-//         "f16b1833c747c43682f4386fca9cbb327929334a762755ebec17f6f23c9b8a12",
-//       nodeUrl: "https://waxtestnet.greymass.com",
-//     },
-//   ],
-// });
-// // the session instance, either restored using link.restoreSession() or created with link.login()
-
-// /**
-//  * shows and setups the purchaselist
-//  */
-
-// function makePurchaselist() {
-//   for (let i = 0; i < items.length; i++) {
-//     document.getElementById(items[i].name).style.display = "block";
-//   }
-
-//   setup();
-//   showItems("block");
-
-//   document.getElementById("verifyWaxWallet").style.display = "none"; //show again
-//   document.getElementById("verifyCollection").style.display = "none"; //show again
-
-//   return;
-// }
-
-// /**
-//  * login via anchor wallet. Calls all functions to setup the game.
-//  * @returns {Promise<void>}
-//  */
-// async function anchorLogin() {
-//   try {
-//     await link.login(identifier).then((result) => {
-//       session = result.session;
-//       didLogin();
-//     });
-//   } catch (e) {
-//     document.getElementById("loginWaxWallet").style.display = "none"; //show again
-//     document.getElementById("loginAnchorWallet").style.display = "block";
-//   }
-
-//   document.getElementById("loginWaxWallet").style.display = "none";
-//   document.getElementById("loginAnchorWallet").style.display = "none";
-//   showItems("none");
-
-//   if (session) {
-//     //start the game
-//     wax.userAccount = session.auth.actor.toString();
-//     await init();
-//     await Game.setBitcoinPerSecondRateAtBeginning();
-
-//     makePurchaselist();
-//     return;
-//   }
-
-//   showItems("block");
-
-//   document.getElementById("loginWaxWallet").style.display = "none";
-//   document.getElementById("loginAnchorWallet").style.display = "block";
-// }
-
-// /**
-//  * called to restore a anchor session
-//  */
-// function didLogin() {
-//   document.body.classList.add("logged-in");
-// }
-
-// document.getElementById("loginAnchorWallet").onclick = anchorLogin;
-
 /**
  * ---------------------------------------------Click Multiplier--------------------------------------------------------
  */
@@ -986,7 +901,7 @@ async function registerUser() {
     wax.api
       .transact(
         {
-          actions: [{ action }],
+          actions: [action],
         },
         {
           blocksBehind: 3,
@@ -1026,7 +941,7 @@ async function sendOneWax() {
     await sleep(1000);
     await wax.api.transact(
       {
-        actions: [{ action }],
+        actions: [action],
       },
       {
         blocksBehind: 3,
@@ -1058,21 +973,22 @@ async function hasRegistered(n) {
         player: wax.userAccount,
       },
     };
-    console.log(action);
     await wax.api.transact(
       {
-        actions: [{ action }],
+        actions: [action],
       },
       {
         blocksBehind: 3,
         expireSeconds: 120,
       }
     );
+    return true;
   } catch (e) {
     console.log(e.message.toString());
     if (e.message.toString().includes("eosio_assert_message")) {
       console.log("Didnt pay");
       await registerUser();
     } else await hasRegistered(n - 1);
+    return false;
   }
 }

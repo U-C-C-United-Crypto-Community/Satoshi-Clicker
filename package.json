@@ -14,9 +14,6 @@
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "@waxio/waxjs": "^0.0.15",
-    "anchor-link": "^3.2.3",
-    "anchor-link-browser-transport": "^3.1.3",
-    "anchor-link-console-transport": "^1.0.0",
     "atomicassets": "^1.3.1",
     "bip39": "^2.6.0",
     "browserify-fs": "^1.0.0",
