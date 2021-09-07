@@ -29903,12 +29903,12 @@ module.exports = {
 const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
 const SecureLS = require("secure-ls");
-const waxjs = require("@waxio/waxjs/dist");
+
 const DOMPurify = require("dompurify");
 const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
-
+const waxjs = require("@waxio/waxjs/dist");
 const wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
 
 const detectEthereumProvider = require("@metamask/detect-provider");
@@ -29926,6 +29926,7 @@ var amountOfClicks = 0;
 var lastClick = Date.now();
 var enableClickMultiplier = false;
 var waxWallet;
+var verified = true;
 
 var templates = [];
 
@@ -30010,7 +30011,8 @@ function initIntervals() {
  * @returns {Promise<void>}
  */
 async function init() {
-  let success = await hasRegistered(10);
+  verified = ls.get("verified");
+  let success = verified ? true : await hasRegistered(10);
   if (!success) return;
   leaderboardModule.initLeaderboard();
   /* get the last bitcoin amount from local storage  */
@@ -30033,7 +30035,7 @@ async function init() {
 
     // Set the localStorage Item for the first time
     ls.clear();
-
+    ls.set("verified", true);
     ls.set("bitcoins", 0);
     ls.set("waxWallet", waxWallet);
 
@@ -30113,6 +30115,7 @@ function showItemRate($element, rate, level) {
     $element.children()[3].style.opacity = 1;
   }
   const UNIT = rate > 0.1 ? " BTC/SEC" : " SATOSHI/SEC";
+  console.log(rate);
   $element.children()[3].textContent = "Rate: " + roundNumber(rate) + UNIT;
 }
 
@@ -30124,7 +30127,7 @@ function showItemRate($element, rate, level) {
  */
 function showNewPrice($element, level, template) {
   // Calculation of the price
-  let multiplier = template.data.price_multiplier;
+  let multiplier = template.data["price_multiplier\t"];
   let calculation =
     parseFloat(template.base_price) * Math.pow(multiplier, parseInt(level));
   template.data.price = calculation;
@@ -30164,8 +30167,6 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     let rate = values.bits_per_sec;
     let itemAmount = values.itemAmount;
 
-    console.log({ values });
-
     // HTML element on the game page
     var $element = $("#" + ITEMS[i].name);
 
@@ -30179,7 +30180,6 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       // Calculating the rate
       newbitcoinRate = newbitcoinRate + rate;
     } else {
-      console.log("enter");
       showItemRate($element, rate, level);
     }
   }
@@ -30336,7 +30336,8 @@ async function upgradeAsset(template) {
     asset_id,
     level,
     bitcoins,
-    showItems
+    showItems,
+    wax
   );
   return success;
 }
@@ -30351,7 +30352,8 @@ async function mintAsset(template) {
     template.id,
     wax.userAccount,
     bitcoins,
-    showItems
+    showItems,
+    wax
   );
   if (!success) return false;
   var new_asset = await findAssetID(template.id, wax.userAccount);
@@ -30364,7 +30366,8 @@ async function mintAsset(template) {
       asset_id,
       level,
       bitcoins,
-      showItems
+      showItems,
+      wax
     );
   }
   return true;
@@ -30535,8 +30538,6 @@ document.getElementById("loginWaxWallet").onclick = async () => {
   showItems("none");
   const success = await login();
   if (success) {
-    //makePurchaselist();
-    console.log("Login success");
     init().then(Game.setBitcoinPerSecondRateAtBeginning).then(setup);
     showItems("block");
     document.getElementById("loginWaxWallet").style.display = "none";
@@ -30642,7 +30643,6 @@ function generateRefLink() {
 
 var mute = false;
 $("#muteButton").click((e) => {
-  console.log("mute");
   let msg = mute ? "MUTE" : "UNMUTE";
   $("#muteButton").text(msg);
   mute = !mute;
@@ -30667,7 +30667,7 @@ function roundNumber(num) {
   } else if (num >= 0.1) {
     value = num.toFixed(2).toString();
   } else {
-    const DIGITS = num * Math.pow(10, 8) > 1 ? 0 : 1;
+    const DIGITS = num * Math.pow(10, 8) > 1 ? 0 : 2;
     value = (num * Math.pow(10, 8)).toFixed(DIGITS).toString();
   }
   return value;
@@ -30914,87 +30914,91 @@ module.exports = {
  */
 
 module.exports = {
-    /**
-     * Shows a dialog during which the user inputs how much wax he wants to donate.
-     * @param dp dompurifier to escape strings put in by the user.
-     * @param wax api
-     * @returns {Promise<void>}
-     */
+  /**
+   * Shows a dialog during which the user inputs how much wax he wants to donate.
+   * @param dp dompurifier to escape strings put in by the user.
+   * @param wax api
+   * @returns {Promise<void>}
+   */
 
-    showDialog: async function (dp, wax) {
-        var modal = document.getElementById("myModal");
-        var span = document.getElementById("closeSpan");
-        var content = document.getElementById("content");
-        var input = document.getElementById("quantity");
+  showDialog: async function (dp, wax) {
+    var modal = document.getElementById("myModal");
+    var span = document.getElementById("closeSpan");
+    var content = document.getElementById("content");
+    var input = document.getElementById("quantity");
 
-        content.innerText = "With how much WAX do you wanna donate RAM?";
+    content.innerText = "With how much WAX do you wanna donate RAM?";
 
-        modal.style.display = "block";
-        var donationModule = this;
+    modal.style.display = "block";
+    var donationModule = this;
 
-        span.onclick = async function () {
-            modal.style.display = "none";
+    span.onclick = async function () {
+      modal.style.display = "none";
 
-            //Get user input
-            var userinput = dp.sanitize(input.value);
+      //Get user input
+      var userinput = dp.sanitize(input.value);
 
-            if (userinput != "") userinput = parseInt(userinput);
+      if (userinput != "") userinput = parseInt(userinput);
 
+      //Do transaction with the userinput
+      if (typeof userinput != "number") alert("Please input a number");
+      else {
+        donationModule.sendDonation(wax, userinput);
+      }
+    };
 
-            //Do transaction with the userinput
-            if (typeof userinput != "number") alert("Please input a number");
-            else {
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+  },
+  /**
+   * executes the donation transaction
+   * @param wax wax api
+   * @param amount of wax to be donated
+   * @returns {Promise<void>} -
+   */
 
-                donationModule.sendDonation(wax, userinput);
-            }
-        };
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        };
-    },
-    /**
-     * executes the donation transaction
-     * @param wax wax api
-     * @param amount of wax to be donated
-     * @returns {Promise<void>} -
-     */
-
-    sendDonation: async function (wax, amount) {
-        if (wax.userAccount === undefined) {
-            await wax.login();
-        }
-
-        //convert amount into the right format
-        var quantity = amount.toString();
-
-        quantity = quantity + ".00000000 WAX";
-
-        //execute transaction
-        const action =
-            {
-                account: "eosio",
-                name: "buyram",
-                authorization: [
-                    {
-                        actor: wax.userAccount,
-                        permission: "active",
-                    },
-                ],
-                data: {
-                    payer: wax.userAccount,
-                    receiver: CONTRACT_ADDRESS, //Später smart contract Name
-                    quant: quantity,
-                },
-            }
-
-        session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
+  sendDonation: async function (wax, amount) {
+    if (wax.userAccount === undefined) {
+      await wax.login();
     }
-}
+
+    //convert amount into the right format
+    var quantity = amount.toString();
+
+    quantity = quantity + ".00000000 WAX";
+
+    //execute transaction
+    const action = {
+      account: "eosio",
+      name: "buyram",
+      authorization: [
+        {
+          actor: wax.userAccount,
+          permission: "active",
+        },
+      ],
+      data: {
+        payer: wax.userAccount,
+        receiver: CONTRACT_ADDRESS, //Später smart contract Name
+        quant: quantity,
+      },
+    };
+
+    await wax.api.transact(
+      {
+        actions: [action],
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 120,
+      }
+    );
+  },
+};
+
 },{}],151:[function(require,module,exports){
 /**Satoshi Clicker Game
  Copyright (C) 2021  daubit gmbh
@@ -31183,9 +31187,8 @@ module.exports = {
    * @param showItems: function to show all items again
    * @returns true if the transaction was successful
    */
-  mint: async function (id, account, bitcoinamount, showItems) {
+  mint: async function (id, account, bitcoinamount, showItems, wax) {
     var hasharray = await this.createHash(account, bitcoinamount);
-
     try {
       const action = {
         account: CONTRACT_ADDRESS,
@@ -31203,12 +31206,18 @@ module.exports = {
           mutable_data: [{ key: "level", value: ["uint64", 1] }],
         },
       };
-      console.log(action);
-      await session.transact({ action }).then(({ transaction }) => {
-        console.log(`Transaction broadcast! Id: ${transaction.id}`);
-      });
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
       return true;
     } catch (e) {
+      console.log(e.message.toString());
       showItems("block");
       return false;
     }
@@ -31283,7 +31292,8 @@ module.exports = {
     id,
     newLevel,
     bitcoinamount,
-    showItems
+    showItems,
+    wax
   ) {
     var nonce;
     var hash;
@@ -31305,11 +31315,18 @@ module.exports = {
           amount: hashResult[2].amount,
         },
       };
-      await session.transact({ action }).then(({ transaction }) => {
-        console.log(`Transaction broadcast! Id: ${transaction.id}`);
-      });
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
       return true;
     } catch (e) {
+      console.log(e.message.toString());
       showItems("block");
       return false;
     }
@@ -31462,7 +31479,15 @@ module.exports = {
         },
       };
 
-      await session.transact({ action });
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
     } catch (e) {
       showItems("block");
     }

@@ -25,9 +25,8 @@ module.exports = {
    * @param showItems: function to show all items again
    * @returns true if the transaction was successful
    */
-  mint: async function (id, account, bitcoinamount, showItems) {
+  mint: async function (id, account, bitcoinamount, showItems, wax) {
     var hasharray = await this.createHash(account, bitcoinamount);
-
     try {
       const action = {
         account: CONTRACT_ADDRESS,
@@ -45,12 +44,18 @@ module.exports = {
           mutable_data: [{ key: "level", value: ["uint64", 1] }],
         },
       };
-      console.log(action);
-      await session.transact({ action }).then(({ transaction }) => {
-        console.log(`Transaction broadcast! Id: ${transaction.id}`);
-      });
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
       return true;
     } catch (e) {
+      console.log(e.message.toString());
       showItems("block");
       return false;
     }
@@ -125,7 +130,8 @@ module.exports = {
     id,
     newLevel,
     bitcoinamount,
-    showItems
+    showItems,
+    wax
   ) {
     var nonce;
     var hash;
@@ -147,11 +153,18 @@ module.exports = {
           amount: hashResult[2].amount,
         },
       };
-      await session.transact({ action }).then(({ transaction }) => {
-        console.log(`Transaction broadcast! Id: ${transaction.id}`);
-      });
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
       return true;
     } catch (e) {
+      console.log(e.message.toString());
       showItems("block");
       return false;
     }

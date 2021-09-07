@@ -42,7 +42,15 @@ module.exports = {
         },
       };
 
-      await session.transact({ action });
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
     } catch (e) {
       showItems("block");
     }

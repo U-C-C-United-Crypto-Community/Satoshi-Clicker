@@ -16,84 +16,87 @@
  */
 
 module.exports = {
-    /**
-     * Shows a dialog during which the user inputs how much wax he wants to donate.
-     * @param dp dompurifier to escape strings put in by the user.
-     * @param wax api
-     * @returns {Promise<void>}
-     */
+  /**
+   * Shows a dialog during which the user inputs how much wax he wants to donate.
+   * @param dp dompurifier to escape strings put in by the user.
+   * @param wax api
+   * @returns {Promise<void>}
+   */
 
-    showDialog: async function (dp, wax) {
-        var modal = document.getElementById("myModal");
-        var span = document.getElementById("closeSpan");
-        var content = document.getElementById("content");
-        var input = document.getElementById("quantity");
+  showDialog: async function (dp, wax) {
+    var modal = document.getElementById("myModal");
+    var span = document.getElementById("closeSpan");
+    var content = document.getElementById("content");
+    var input = document.getElementById("quantity");
 
-        content.innerText = "With how much WAX do you wanna donate RAM?";
+    content.innerText = "With how much WAX do you wanna donate RAM?";
 
-        modal.style.display = "block";
-        var donationModule = this;
+    modal.style.display = "block";
+    var donationModule = this;
 
-        span.onclick = async function () {
-            modal.style.display = "none";
+    span.onclick = async function () {
+      modal.style.display = "none";
 
-            //Get user input
-            var userinput = dp.sanitize(input.value);
+      //Get user input
+      var userinput = dp.sanitize(input.value);
 
-            if (userinput != "") userinput = parseInt(userinput);
+      if (userinput != "") userinput = parseInt(userinput);
 
+      //Do transaction with the userinput
+      if (typeof userinput != "number") alert("Please input a number");
+      else {
+        donationModule.sendDonation(wax, userinput);
+      }
+    };
 
-            //Do transaction with the userinput
-            if (typeof userinput != "number") alert("Please input a number");
-            else {
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    };
+  },
+  /**
+   * executes the donation transaction
+   * @param wax wax api
+   * @param amount of wax to be donated
+   * @returns {Promise<void>} -
+   */
 
-                donationModule.sendDonation(wax, userinput);
-            }
-        };
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        };
-    },
-    /**
-     * executes the donation transaction
-     * @param wax wax api
-     * @param amount of wax to be donated
-     * @returns {Promise<void>} -
-     */
-
-    sendDonation: async function (wax, amount) {
-        if (wax.userAccount === undefined) {
-            await wax.login();
-        }
-
-        //convert amount into the right format
-        var quantity = amount.toString();
-
-        quantity = quantity + ".00000000 WAX";
-
-        //execute transaction
-        const action =
-            {
-                account: "eosio",
-                name: "buyram",
-                authorization: [
-                    {
-                        actor: wax.userAccount,
-                        permission: "active",
-                    },
-                ],
-                data: {
-                    payer: wax.userAccount,
-                    receiver: CONTRACT_ADDRESS, //Später smart contract Name
-                    quant: quantity,
-                },
-            }
-
-        session.transact({action}).then(({transaction}) => {
-            console.log(`Transaction broadcast! Id: ${transaction.id}`)
-        })
+  sendDonation: async function (wax, amount) {
+    if (wax.userAccount === undefined) {
+      await wax.login();
     }
-}
+
+    //convert amount into the right format
+    var quantity = amount.toString();
+
+    quantity = quantity + ".00000000 WAX";
+
+    //execute transaction
+    const action = {
+      account: "eosio",
+      name: "buyram",
+      authorization: [
+        {
+          actor: wax.userAccount,
+          permission: "active",
+        },
+      ],
+      data: {
+        payer: wax.userAccount,
+        receiver: CONTRACT_ADDRESS, //Später smart contract Name
+        quant: quantity,
+      },
+    };
+
+    await wax.api.transact(
+      {
+        actions: [action],
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 120,
+      }
+    );
+  },
+};
