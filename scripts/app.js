@@ -232,7 +232,6 @@ function showItemRate($element, rate, level) {
     $element.children()[3].style.opacity = 1;
   }
   const UNIT = rate > 0.1 ? " BTC/SEC" : " SATOSHI/SEC";
-  console.log(rate);
   $element.children()[3].textContent = "Rate: " + roundNumber(rate) + UNIT;
 }
 
@@ -304,7 +303,6 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
   bitcoinRate = newbitcoinRate;
   bitcoinRate *= getClickMultiplier();
   bitcoinRate *= 1 + multiplier;
-  console.log({ bitcoinRate });
 };
 
 /**
@@ -314,6 +312,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  * @returns {Number} - Returning the new Bitcoin per Second - rate
  */
 Game.setNewBitcoinRate = function () {
+  console.log(bitcoinRate);
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text(
       "Rate: " + bitcoinRate.toFixed(0).optimizeNumber() + "\n BTC/SEC"
@@ -324,8 +323,9 @@ Game.setNewBitcoinRate = function () {
     $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "\n BTC/SEC");
   } else {
     let satoshi = bitcoinRate * Math.pow(10, 8);
+    const DIGITS = satoshi > 1 ? 0 : 3;
     $(".bSecRateNumber").text(
-      "Rate: " + satoshi.toFixed(0).toString() + "\n SATOSHI/SEC"
+      "Rate: " + satoshi.toFixed(DIGITS).toString() + "\n SATOSHI/SEC"
     );
   }
 };
@@ -376,30 +376,30 @@ String.prototype.optimizeNumber = Game.optimizeNumber;
  * @returns {function(): void}
  */
 function incrementBitcoin() {
-    lastClick = Date.now();
-    amountOfClicks++;
+  lastClick = Date.now();
+  amountOfClicks++;
 
-    //disable this function + the message pop up
-    disable = true;
-    $(".bitcoin").off("click");
+  //disable this function + the message pop up
+  disable = true;
+  $(".bitcoin").off("click");
 
-    //increase and display the new bitcoin amount: Clickvalue = 1 Satoshi + 0.1% of the current bitcoinrate
-    clickValue = bitcoinRate * 0.001 + 0.00000001;
-    bitcoins = bitcoins + clickValue;
+  //increase and display the new bitcoin amount: Clickvalue = 1 Satoshi + 0.1% of the current bitcoinrate
+  clickValue = bitcoinRate * 0.001 + 0.00000001;
+  bitcoins = bitcoins + clickValue;
 
-    displayBitcoin(bitcoins);
+  displayBitcoin(bitcoins);
 
-    ls.set("bitcoins", bitcoins.toString());
+  ls.set("bitcoins", bitcoins.toString());
 
-    //play the audio for the click
-    var audio = document.getElementById("audio");
-    if (!mute) audio.play();
+  //play the audio for the click
+  var audio = document.getElementById("audio");
+  if (!mute) audio.play();
 
-    //after 50ms reenable this function -> max. 20 Clicks per Second
-    setTimeout(function () {
-      disable = false;
-      $(".bitcoin").click(incrementBitcoin);
-    }, 50);
+  //after 50ms reenable this function -> max. 20 Clicks per Second
+  setTimeout(function () {
+    disable = false;
+    $(".bitcoin").click(incrementBitcoin);
+  }, 50);
 }
 
 /**
@@ -545,18 +545,17 @@ function initOnClicks() {
   $(items).bind("mouseover", (e) => {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
-    const level = parseInt(lvlDisplay);
 
+    const level = parseInt(lvlDisplay);
     const rateDisplay = $(e.currentTarget).find(".itemPrice:last-child");
+
     preUpgrade = rateDisplay.text();
     upgradeDisplay = preUpgrade.replace(/[^0-9\.]?/g, "");
 
     let rate = (parseFloat(upgradeDisplay) * (level + 1)) / level;
     const UNIT = preUpgrade.includes("BTC") ? " BTC/SEC" : " SATOSHI/SEC";
     if (level > 0)
-      rateDisplay
-        .css({ color: "green" })
-        .text("Rate: " + roundNumber(rate) + UNIT);
+      rateDisplay.css({ color: "lightgreen" }).text("Rate: " + rate + UNIT);
   });
   $(items).bind("mouseout", (e) => {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
@@ -583,7 +582,7 @@ function setup() {
     // Write the version into the .version span element
     $(".version").text(GameConst.VERSION);
     // Write the bitcoin per second rate into the .bSecRateNumber span element
-    $(".bSecRateNumber").text(roundNumber(bitcoinRate));
+    Game.setNewBitcoinRate(bitcoinRate);
     // If clicked on the big Bitcoin
     $(".bitcoin").click(incrementBitcoin);
     initOnClicks();
@@ -622,30 +621,13 @@ function showItems(state) {
  */
 function displayBitcoin(bitcoins) {
   if (bitcoins < 1) {
-    $(".bitcoinAmount").text(roundNumber(bitcoins) + " Satoshi");
+    $(".bitcoinAmount").text(roundNumber(bitcoins) + " \nSATOSHI");
     $(".satoshiAmount").hide();
   } else {
-    $(".bitcoinAmount").text(roundNumber(bitcoins) + "BTC");
+    $(".bitcoinAmount").text(roundNumber(bitcoins) + " \nBTC");
     $(".satoshiAmount").show();
-    $(".satoshiAmount").text(roundNumber(bitcoins) + " Satoshi");
+    $(".satoshiAmount").text(roundNumber(bitcoins) + " \nSATOSHI");
   }
-}
-/**
- * Waits for the NFT to finish loading
- * @param {number} oldBitcoinRate
- */
-async function waitForTransaction(oldBitcoinRate) {
-  showItems("none");
-  Game.setNewBitcoinRate();
-  console.log({ oldBitcoinRate, bitcoinRate });
-  setTimeout(() => {
-    if (oldBitcoinRate === bitcoinRate) {
-      waitForTransaction(oldBitcoinRate);
-      return;
-    }
-
-    showItems("block");
-  }, 5000);
 }
 
 /**
