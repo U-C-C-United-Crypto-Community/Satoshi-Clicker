@@ -29936,7 +29936,6 @@ const airdropModule = require("./airdrop");
 const donationModule = require("./donation");
 const mintModule = require("./minting");
 const tabModule = require("./detectTabs");
-
 /**
  *--------------------------------- Game Functionality -------------------------------------
  */
@@ -30136,10 +30135,11 @@ function showNewPrice($element, level, template) {
 
 async function fetchVariables(i) {
   let level = 0;
-  const asset = await Game.getItem(items[i].name);
-  const template = templates.find((val) => val.name === items[i].name);
-
   let itemAmount = 0;
+
+  const asset = await Game.getItem(ITEMS[i].name);
+  const template = templates.find((val) => val.name === ITEMS[i].name);
+
   let bits_per_sec = parseFloat(template.data.rate);
 
   if (asset !== undefined) {
@@ -30155,7 +30155,7 @@ async function fetchVariables(i) {
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
   let newbitcoinRate = 0;
-  for (let i = 0; i < items.length; i++) {
+  for (let i = 0; i < ITEMS.length; i++) {
     const values = await fetchVariables(i);
 
     //values of the current item
@@ -30163,6 +30163,8 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     const template = values.template;
     let rate = values.bits_per_sec;
     let itemAmount = values.itemAmount;
+
+    console.log({ values });
 
     // HTML element on the game page
     var $element = $("#" + ITEMS[i].name);
@@ -30177,6 +30179,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       // Calculating the rate
       newbitcoinRate = newbitcoinRate + rate;
     } else {
+      console.log("enter");
       showItemRate($element, rate, level);
     }
   }
@@ -30468,7 +30471,7 @@ Game.getItem = async function (id) {
  * @param state none for hidden, block for visible
  */
 function showItems(state) {
-  document.getElementById("purchaseList").style.display = state;
+  document.getElementById("itemList").style.display = state;
   const loadingState = state === "none" ? "block" : "none";
   document.getElementById("Loading").style.display = loadingState;
 }
@@ -30534,15 +30537,11 @@ document.getElementById("loginWaxWallet").onclick = async () => {
   if (success) {
     //makePurchaselist();
     console.log("Login success");
-    await init();
-    await Game.setBitcoinPerSecondRateAtBeginning();
-    setup();
-
+    init().then(Game.setBitcoinPerSecondRateAtBeginning).then(setup);
+    showItems("block");
+    document.getElementById("loginWaxWallet").style.display = "none";
     return;
   }
-
-  showItems("block");
-  document.getElementById("loginWaxWallet").style.display = "none";
 };
 
 /**
@@ -30816,12 +30815,11 @@ async function sendOneWax() {
       ],
       data: {
         from: wax.userAccount,
-        to: CONTRACT_ADDRESS, //Später smart contract Name
+        to: CONTRACT_ADDRESS,
         quantity: "1.00000000 WAX",
         memo: "",
       },
     };
-    await sleep(1000);
     await wax.api.transact(
       {
         actions: [action],
@@ -30832,6 +30830,7 @@ async function sendOneWax() {
       }
     );
   } catch (e) {
+    console.log(e.message.toString());
     if (e.message.toString().includes("User canceled request"))
       await sendOneWax();
   }
@@ -30868,13 +30867,18 @@ async function hasRegistered(n) {
     return true;
   } catch (e) {
     console.log(e.message.toString());
-    if (e.message.toString().includes("eosio_assert_message")) {
-      console.log("Didnt pay");
+    if (e.message.toString().includes("Not registered!")) {
       await registerUser();
-    } else await hasRegistered(n - 1);
+    } else if (e.message.toString().includes("payment")) {
+      await sendOneWax();
+    } else {
+      await hasRegistered(n - 1);
+    }
     return false;
   }
 }
+
+document.getElementById("itemList").style.display = "none";
 
 },{"./airdrop":147,"./detectTabs":149,"./donation":150,"./leaderboard":151,"./minting":152,"./multiplier":153,"./reflink":154,"@metamask/detect-provider":11,"@waxio/waxjs/dist":13,"atomicassets":49,"dompurify":61,"node-fetch":132,"secure-ls":136}],149:[function(require,module,exports){
 module.exports = {
