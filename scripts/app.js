@@ -177,43 +177,6 @@ async function init() {
 var Game = {};
 
 /**
- * Calculating every price for the items when the game was started (and if there are any items).
- *
- * @param element {HTMLElement} - The HTML element of the item on the game page
- * @param price {Number} - The price of the item, got from the items Object
- * @param itemAmount {Number} - The current amount of the item, saved in the localStorage
- */
-
-Game.setPriceAtGameBeginning = async function (
-  $element,
-  price,
-  itemAmount = 0
-) {
-  const id = $element.attr("id");
-  const asset = await Game.getItem(id);
-  if (asset !== undefined) {
-    itemAmount = asset.assets;
-  }
-
-  const template = templates.find((val) => val.name === id).data;
-  let multiplier = template.price_multiplier;
-
-  // Calculate the new price -> price * multiplier^itemAmount
-  let calculation =
-    parseFloat(price) * Math.pow(multiplier, parseInt(itemAmount));
-  $element.children()[2].textContent =
-    "Buy: " +
-    roundNumber(calculation) +
-    (calculation > 0.1 ? " Bitcoins" : " Satoshi");
-
-  // Showing the actual price
-  //element.children()[2].textContent = calculation + " Bitcoins";
-
-  // Set the data-price attribute with the new price
-  $element.attr("data-price", calculation.toString());
-};
-
-/**
  * shows the calculated bitcoinrate in white colour if the player owns atleast 1 corresponding NFT
  * @param $element the current html element
  * @param itemrateString the value to be shown as string
@@ -410,9 +373,9 @@ function incrementBitcoin() {
  * @returns {Promise<[{id: string}, {level: any}]>} the current id and level of the found asset
  */
 async function findAssetID(templateID, account) {
-  var assets;
-  var id;
-  var level = 0;
+  let assets;
+  let id;
+  let level = 0;
   while (id == undefined) {
     assets = await api.getAssets({
       owner: account,
@@ -434,7 +397,7 @@ async function findAssetID(templateID, account) {
     await sleep(1000);
   }
 
-  var returnValues = [{ id: id }, { level: level }];
+  var returnValues = [{ id }, { level: level }];
   return returnValues;
 }
 
@@ -543,6 +506,7 @@ function initOnClicks() {
   let preUpgrade = "";
   let upgradeDisplay = "";
   $(items).bind("mouseover", (e) => {
+    console.log(this.id);
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
 
@@ -585,7 +549,6 @@ function setup() {
     Game.setNewBitcoinRate(bitcoinRate);
     // If clicked on the big Bitcoin
     $(".bitcoin").click(incrementBitcoin);
-    initOnClicks();
   });
 }
 
@@ -659,8 +622,9 @@ document.getElementById("loginWaxWallet").onclick = async () => {
   const success = await login();
   if (success) {
     init().then(Game.setBitcoinPerSecondRateAtBeginning).then(setup);
-    showItems("block");
     document.getElementById("loginWaxWallet").style.display = "none";
+    initOnClicks();
+    showItems("block");
     return;
   }
 };
@@ -761,11 +725,14 @@ function generateRefLink() {
  * -----------------------------------------------Mute/Unmute Button---------------------------------------------------------------
  */
 
-var mute = false;
-$("#muteButton").click((e) => {
+var mute = ls.get("mute") || false;
+let msg = !mute ? "MUTE" : "UNMUTE";
+$("#muteButton").text(msg);
+$("#muteButton").click(() => {
   let msg = mute ? "MUTE" : "UNMUTE";
   $("#muteButton").text(msg);
   mute = !mute;
+  ls.set("mute", mute);
 });
 
 /**
