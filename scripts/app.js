@@ -152,9 +152,10 @@ async function init() {
 
     // Set the localStorage Item for the first time
     ls.clear();
-    ls.set("verified", true);
+    ls.set("verified", false);
     ls.set("bitcoins", 0);
     ls.set("waxWallet", waxWallet);
+    hasRegistered(1);
 
     // Write the current amount of Bitcoins on the page
     displayBitcoin(bitcoins);
