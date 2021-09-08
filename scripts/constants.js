@@ -161,7 +161,7 @@ var TEST_ITEMS = [
 // Every constant variable is saved here
 const GameConst = {
   priceMultiplier: 1.15,
-  VERSION: "Beta-1.0.0",
+  VERSION: "1.0.0",
 };
 
 const UNITS = [
