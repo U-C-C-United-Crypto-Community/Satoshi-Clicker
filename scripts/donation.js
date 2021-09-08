@@ -29,7 +29,7 @@ module.exports = {
     var content = document.getElementById("content");
     var input = document.getElementById("quantity");
 
-    content.innerText = "With how much WAX do you wanna donate RAM?";
+    content.innerText = "How much WAX do you wanna donate RAM?";
 
     modal.style.display = "block";
     var donationModule = this;
