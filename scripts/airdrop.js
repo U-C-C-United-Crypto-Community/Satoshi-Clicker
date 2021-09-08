@@ -21,7 +21,7 @@ module.exports = {
    * @param msg to be shown
    * @param privateKey to the airdrop
    */
-  showVerificationDialog: function (msg, privateKey) {
+  showVerificationDialog: function (privateKey, msg) {
     var modal = document.getElementById("pkModal");
     var mcontent = document.getElementById("pkContent");
     var span = document.getElementById("pkSpan");

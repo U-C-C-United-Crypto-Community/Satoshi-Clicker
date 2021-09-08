@@ -64,7 +64,6 @@ async function getTemplates() {
     const name = ITEMS[i].name;
     const data = (await api.getTemplate(COLLECTION, id)).immutable_data;
     const base_price = data.price;
-
     const result = { name, id, data, base_price };
     templates.push(result);
   }
@@ -111,63 +110,6 @@ function initIntervalNewBitcoinRate() {
 //   }, 1000);
 // }
 
-/**
- * init all the intervals
- */
-function initIntervals() {
-  initIntervalLastclick();
-  initIntervalNewBitcoinRate();
-  //initIntervalShowNewRate();
-  setInterval(function () {
-    tabModule.detectTab();
-  }, 5000);
-}
-
-/**
- * the initial setup for everything relevant for the game
- * @returns {Promise<void>}
- */
-async function init() {
-  verified = ls.get("verified");
-  let success = verified ? true : await hasRegistered(10);
-  if (!success) return;
-  leaderboardModule.initLeaderboard();
-  /* get the last bitcoin amount from local storage  */
-  const keys = ls.getAllKeys();
-  if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
-
-  const wallet = ls.get("waxWallet");
-  const btcs = ls.get("bitcoins");
-
-  await getTemplates();
-  if (
-    btcs === null ||
-    btcs === "NaN" ||
-    wallet === null ||
-    wallet !== wax.userAccount
-  ) {
-    // Bitcoins are 0
-    bitcoins = 0;
-    waxWallet = wax.userAccount;
-
-    // Set the localStorage Item for the first time
-    ls.clear();
-    ls.set("verified", false);
-    ls.set("bitcoins", 0);
-    ls.set("waxWallet", waxWallet);
-    hasRegistered(1);
-
-    // Write the current amount of Bitcoins on the page
-    displayBitcoin(bitcoins);
-  } else {
-    // Get the amount of Bitcoins and parse them to a float number
-    bitcoins = parseFloat(ls.get("bitcoins"));
-  }
-  $(".settingBtn").show();
-  await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
-  initIntervals();
-  multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
-}
 /**
  *
  *  <-- Setting up the game´s functions -->
@@ -857,6 +799,64 @@ function getClickMultiplier() {
   return multi;
 }
 
+/**
+ * the initial setup for everything relevant for the game
+ * @returns {Promise<void>}
+ */
+async function init() {
+  verified = ls.get("verified");
+  let success = verified ? true : await hasRegistered(10);
+  if (!success) return;
+  leaderboardModule.initLeaderboard();
+  /* get the last bitcoin amount from local storage  */
+  const keys = ls.getAllKeys();
+  if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
+
+  const wallet = ls.get("waxWallet");
+  const btcs = ls.get("bitcoins");
+
+  await getTemplates();
+  if (
+    btcs === null ||
+    btcs === "NaN" ||
+    wallet === null ||
+    wallet !== wax.userAccount
+  ) {
+    // Bitcoins are 0
+    bitcoins = 0;
+    waxWallet = wax.userAccount;
+
+    // Set the localStorage Item for the first time
+    ls.clear();
+    ls.set("verified", false);
+    ls.set("bitcoins", 0);
+    ls.set("waxWallet", waxWallet);
+    if (!success) await hasRegistered(1);
+
+    // Write the current amount of Bitcoins on the page
+    displayBitcoin(bitcoins);
+  } else {
+    // Get the amount of Bitcoins and parse them to a float number
+    bitcoins = parseFloat(ls.get("bitcoins"));
+  }
+  $(".settingBtn").show();
+  await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
+  initIntervals();
+  multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
+}
+
+/**
+ * init all the intervals
+ */
+function initIntervals() {
+  initIntervalLastclick();
+  initIntervalNewBitcoinRate();
+  //initIntervalShowNewRate();
+  setInterval(function () {
+    tabModule.detectTab();
+  }, 5000);
+}                                                 
+
 async function registerUser() {
   try {
     const action = {
@@ -951,6 +951,7 @@ async function hasRegistered(n) {
         expireSeconds: 120,
       }
     );
+    ls.set("verified", true);
     return true;
   } catch (e) {
     console.log(e.message.toString());
