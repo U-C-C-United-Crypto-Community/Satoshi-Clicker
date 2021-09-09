@@ -43,7 +43,6 @@ var amountOfClicks = 0;
 var lastClick = Date.now();
 var enableClickMultiplier = false;
 var waxWallet;
-var verified = true;
 
 var templates = [];
 
@@ -479,20 +478,27 @@ function initOnClicks() {
  */
 
 // Doing everything here when the game is ready to be used.
-function setup() {
-  $(document).ready(function () {
-    // Stating the interval with the calculated Bitcoin/second rate.
-    bSec = setInterval(function () {
-      Game.bSecFunction(bitcoinRate);
-    }, 1000);
+async function setup() {
+  // Stating the interval with the calculated Bitcoin/second rate.
+  bSec = setInterval(function () {
+    Game.bSecFunction(bitcoinRate);
+  }, 1000);
 
-    // Write the version into the .version span element
-    $(".version").text(GameConst.VERSION);
-    // Write the bitcoin per second rate into the .bSecRateNumber span element
-    Game.setNewBitcoinRate(bitcoinRate);
-    // If clicked on the big Bitcoin
-    $(".bitcoin").click(incrementBitcoin);
-  });
+  // Write the version into the .version span element
+  $(".version").text(GameConst.VERSION);
+  // Write the bitcoin per second rate into the .bSecRateNumber span element
+
+  // If clicked on the big Bitcoin
+  $(".bitcoin").click(incrementBitcoin);
+
+  initOnClicks();
+
+  initIntervals();
+  leaderboardModule.initLeaderboard();
+  await Game.setBitcoinPerSecondRateAtBeginning();
+  console.log(bitcoinRate);
+  Game.setNewBitcoinRate(bitcoinRate);
+  displayBitcoin(bitcoins);
 }
 
 /**
@@ -544,10 +550,8 @@ async function login() {
   try {
     if (wax.userAccount === undefined) {
       await wax.login();
-      return true;
-    } else {
-      return false;
     }
+    return true;
   } catch (e) {
     console.log(e);
     return false;
@@ -559,16 +563,19 @@ async function login() {
  * @returns {Promise<void>}
  */
 document.getElementById("loginWaxWallet").onclick = async () => {
-  document.getElementById("loginWaxWallet").style.display = "none";
-
-  showItems("none");
+  $("#loginWaxWallet").css({ display: "none" });
+  document.getElementById("itemList").style.display = "none";
   const success = await login();
   if (success) {
-    init().then(Game.setBitcoinPerSecondRateAtBeginning).then(setup);
-    document.getElementById("loginWaxWallet").style.display = "none";
-    initOnClicks();
-    showItems("block");
-    return;
+    const initSuccess = await init();
+    if (initSuccess) {
+      showItems("block");
+    } else {
+      await sleep(1000);
+      $("#loginWaxWallet").css({ display: "block" });
+    }
+  } else {
+    $("#loginWaxWallet").css({ display: "block" });
   }
 };
 
@@ -804,13 +811,8 @@ function getClickMultiplier() {
  * @returns {Promise<void>}
  */
 async function init() {
-  verified = ls.get("verified");
-  let success = verified ? true : await hasRegistered(10);
-  if (!success) return;
-  leaderboardModule.initLeaderboard();
-  /* get the last bitcoin amount from local storage  */
-  const keys = ls.getAllKeys();
-  if (keys.length == 0 || !keys.includes("bitcoins")) ls.set("bitcoins", 0);
+  const success = await hasRegistered();
+  if (!success) return false;
 
   const wallet = ls.get("waxWallet");
   const btcs = ls.get("bitcoins");
@@ -831,18 +833,19 @@ async function init() {
     ls.set("verified", false);
     ls.set("bitcoins", 0);
     ls.set("waxWallet", waxWallet);
-    if (!success) await hasRegistered(1);
 
     // Write the current amount of Bitcoins on the page
-    displayBitcoin(bitcoins);
   } else {
     // Get the amount of Bitcoins and parse them to a float number
     bitcoins = parseFloat(ls.get("bitcoins"));
   }
   $(".settingBtn").show();
   await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
-  initIntervals();
+
   multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
+
+  await setup();
+  return true;
 }
 
 /**
@@ -855,7 +858,7 @@ function initIntervals() {
   setInterval(function () {
     tabModule.detectTab();
   }, 5000);
-}                                                 
+}
 
 async function registerUser() {
   try {
@@ -867,25 +870,23 @@ async function registerUser() {
         player: wax.userAccount,
       },
     };
-    wax.api
-      .transact(
-        {
-          actions: [action],
-        },
-        {
-          blocksBehind: 3,
-          expireSeconds: 120,
-        }
-      )
-      .then(sendOneWax);
+    await wax.api.transact(
+      {
+        actions: [action],
+      },
+      {
+        blocksBehind: 3,
+        expireSeconds: 120,
+      }
+    );
+    return await sendOneWax();
   } catch (e) {
-    console.log(e.message.toString());
-    if (
-      e.message.toString().includes("eosio_assert_message assertion failure")
-    ) {
-      console.log("Already called login");
-      await sendOneWax();
-    } else await registerUser();
+    const msg = e.message.toString();
+    if (msg.includes("billed CPU time")) {
+      alert("Not enough CPU to push action!");
+      return false;
+    }
+    return false;
   }
 }
 
@@ -916,19 +917,19 @@ async function sendOneWax() {
         expireSeconds: 120,
       }
     );
+    return true;
   } catch (e) {
-    console.log(e.message.toString());
-    if (e.message.toString().includes("User canceled request"))
-      await sendOneWax();
+    const msg = e.message.toString();
+    if (msg.includes("billed CPU time")) {
+      alert("Not enough CPU to push action!\n" + msg);
+      return false;
+    }
+    return false;
   }
 }
 
-async function hasRegistered(n) {
+async function hasRegistered() {
   try {
-    if (n == 0) {
-      alert("Please reload...");
-      return;
-    }
     const action = {
       account: "satoshiclick",
       name: "checkplayer",
@@ -951,19 +952,16 @@ async function hasRegistered(n) {
         expireSeconds: 120,
       }
     );
-    ls.set("verified", true);
     return true;
   } catch (e) {
-    console.log(e.message.toString());
-    if (e.message.toString().includes("Not registered!")) {
-      await registerUser();
-    } else if (e.message.toString().includes("payment")) {
-      await sendOneWax();
-    } else {
-      await hasRegistered(n - 1);
+    const msg = e.message.toString();
+    if (msg.includes("Not registered!")) {
+      return await registerUser();
+    } else if (msg.includes("payment")) {
+      return await sendOneWax();
+    } else if (msg.includes("Safe exit")) {
+      return true;
     }
     return false;
   }
 }
-
-document.getElementById("itemList").style.display = "none";

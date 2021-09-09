@@ -55,7 +55,10 @@ module.exports = {
       );
       return true;
     } catch (e) {
-      console.log(e.message.toString());
+      const msg = e.message.toString();
+      if (msg.includes("billed CPU time")) {
+        alert("Not enough CPU to push action!\n" + msg);
+      }
       showItems("block");
       return false;
     }
@@ -165,6 +168,10 @@ module.exports = {
       return true;
     } catch (e) {
       console.log(e.message.toString());
+      const msg = e.message.toString();
+      if (msg.includes("billed CPU time")) {
+        alert("Not enough CPU to push action!\n" + msg);
+      }
       showItems("block");
       return false;
     }
