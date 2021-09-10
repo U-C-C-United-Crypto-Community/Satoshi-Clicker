@@ -98,6 +98,12 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.settingBtn:hover {
+  color: darkgrey;
+  transform: translateY(-0.1rem);
+  transition: all 0.3s ease;
+}
+
 /* Main Container */
 /* THE BITCOIN IMAGE */
 .mainGameContent {
@@ -158,6 +164,10 @@ body {
   -webkit-user-drag: none;
 }
 
+.unclickable {
+  pointer-events: none;
+}
+
 .bitcoin:hover {
   width: 27%;
   top: 23%;
@@ -185,38 +195,6 @@ body {
   display: none;
 }
 
-/* Item list item */
-.purchaseItem {
-  position: relative;
-  width: 99%;
-  outline: 3px solid #919297;
-  border-style: double;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
-  border-right: 1px solid black;
-  border-left: 1px solid black;
-  padding-left: 10px;
-  background: rgb(50, 77, 106);
-  background: linear-gradient(
-    90deg,
-    rgba(50, 77, 106, 1) 0%,
-    rgba(41, 54, 71, 1) 50%,
-    rgba(23, 25, 24, 1) 100%
-  );
-  overflow: auto;
-  margin: 0 0 10px 0;
-}
-.purchaseItem:hover {
-  background: rgb(50, 77, 106);
-  background: linear-gradient(
-    90deg,
-    rgba(50, 77, 106, 1) 0%,
-    rgba(41, 54, 71, 1) 50%,
-    rgba(23, 25, 24, 1) 100%
-  );
-  cursor: pointer;
-  overflow: auto;
-}
 .amountOfItem {
   text-align: left;
   font-size: 15pt;
@@ -479,6 +457,8 @@ body {
   );
   cursor: pointer;
   overflow: auto;
+  transform: translateY(-0.15rem);
+  transition: all 0.3s ease;
 }
 
 .purchaseItemCommon {
@@ -511,6 +491,8 @@ body {
   );
   cursor: pointer;
   overflow: auto;
+  transform: translateY(-0.15rem);
+  transition: all 0.3s ease;
 }
 
 .purchaseItemLegendary {
@@ -543,6 +525,8 @@ body {
   );
   cursor: pointer;
   overflow: auto;
+  transform: translateY(-0.15rem);
+  transition: all 0.3s ease;
 }
 
 .purchaseItemRare {
@@ -575,10 +559,18 @@ body {
   );
   cursor: pointer;
   overflow: auto;
+  transform: translateY(-0.15rem);
+  transition: all 0.3s ease;
 }
 
 .w3-animate-bottom {
   animation: floatup 1s forwards;
+}
+
+#loginWaxWallet:hover {
+  color: darkgrey;
+  border-color: whitesmoke;
+  transition: all 0.2s ease;
 }
 
 @keyframes floatup {

@@ -178,7 +178,7 @@ async function fetchVariables(i) {
  * Or whenever this is called
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
-  let newbitcoinRate = 0;
+  bitcoinRate = 0;
   for (let i = 0; i < ITEMS.length; i++) {
     const values = await fetchVariables(i);
 
@@ -199,15 +199,13 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
       showItemRate($element, rate * level, level);
       // Calculating the rate
-      newbitcoinRate = newbitcoinRate + rate;
+      bitcoinRate += rate;
     } else {
       showItemRate($element, rate, level);
     }
   }
-
-  bitcoinRate = newbitcoinRate;
-  bitcoinRate *= getClickMultiplier();
-  bitcoinRate *= 1 + multiplier;
+  //bitcoinRate *= getClickMultiplier();
+  //bitcoinRate *= 1 + multiplier;
 };
 
 /**
@@ -499,6 +497,7 @@ async function setup() {
   console.log(bitcoinRate);
   Game.setNewBitcoinRate(bitcoinRate);
   displayBitcoin(bitcoins);
+  $(".bitcoin").removeClass("unclickable");
 }
 
 /**
@@ -798,7 +797,7 @@ document
  */
 
 function getClickMultiplier() {
-  var multi = 0.1;
+  var multi = 0.5;
   if (enableClickMultiplier && amountOfClicks >= 10) {
     multi = amountOfClicks / 100;
     if (multi > 1) multi = 1;
