@@ -23,7 +23,7 @@ module.exports = {
    * @param showItems function to show all items again
    * @returns {Promise<void>} -
    */
-  mintSpecialNft: async function (ref, account, showItems) {
+  mintSpecialNft: async function (ref, account, showItems, wax) {
     try {
       const action = {
         account: CONTRACT_ADDRESS,
@@ -51,8 +51,14 @@ module.exports = {
           expireSeconds: 120,
         }
       );
+      return true;
     } catch (e) {
+      const msg = e.message.toString();
+      if (msg.includes("billed CPU time")) {
+        alert("Not enough CPU to push action!\n" + msg);
+      }
       showItems("block");
+      return false;
     }
   },
   /**
@@ -63,14 +69,11 @@ module.exports = {
    * @param api: wax api
    * @returns {Promise<void>}
    */
-  detectRef: async function (dp, userAccount, showItems, api) {
+  detectRef: async function (dp, userAccount, showItems, api, wax) {
     let url = new URL(window.location.href);
-
+    let hasRef = await this.checkForRefNft(userAccount, api);
     //if the url has the right search param and the current user doesnt already have a special nft
-    if (
-      url.searchParams.has("ref") &&
-      !(await this.checkForRefNft(userAccount, api))
-    ) {
+    if (url.searchParams.has("ref") && !hasRef) {
       let ref;
 
       //escape the parameters before using them
@@ -79,9 +82,10 @@ module.exports = {
       }
       //check if ref ist diffrent from the current user -> if true start minting
       if (ref != userAccount) {
-        await this.mintSpecialNft(ref, userAccount, showItems);
+        return await this.mintSpecialNft(ref, userAccount, showItems, wax);
       }
     }
+    return hasRef;
   },
   /**
    * checks if the account already received a special nft

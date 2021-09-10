@@ -183,7 +183,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
     const values = await fetchVariables(i);
 
     //values of the current item
-    const level = values.level;
+    const level = parseInt(values.level);
     const template = values.template;
     let rate = values.bits_per_sec;
     let itemAmount = values.itemAmount;
@@ -199,7 +199,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
       showItemRate($element, rate * level, level);
       // Calculating the rate
-      bitcoinRate += rate;
+      bitcoinRate += rate * level;
     } else {
       showItemRate($element, rate, level);
     }
@@ -215,7 +215,6 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  * @returns {Number} - Returning the new Bitcoin per Second - rate
  */
 Game.setNewBitcoinRate = function () {
-  console.log(bitcoinRate);
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text(
       "Rate: " + bitcoinRate.toFixed(0).optimizeNumber() + "\n BTC/SEC"
@@ -431,6 +430,8 @@ async function startMinting() {
     }
     if (!success) return;
     //await waitForTransaction(bitcoinRate);
+    await Game.setBitcoinPerSecondRateAtBeginning();
+    Game.setNewBitcoinRate(bitcoinRate);
     substractBitcoins(price);
     showItems("block");
   }
@@ -533,11 +534,8 @@ function showItems(state) {
 function displayBitcoin(bitcoins) {
   if (bitcoins < 1) {
     $(".bitcoinAmount").text(roundNumber(bitcoins) + " \nSATOSHI");
-    $(".satoshiAmount").hide();
   } else {
     $(".bitcoinAmount").text(roundNumber(bitcoins) + " \nBTC");
-    $(".satoshiAmount").show();
-    $(".satoshiAmount").text(roundNumber(bitcoins) + " \nSATOSHI");
   }
 }
 
@@ -839,8 +837,15 @@ async function init() {
     bitcoins = parseFloat(ls.get("bitcoins"));
   }
   $(".settingBtn").show();
-  await reflinkModule.detectRef(ls, dp, wax.userAccount, showItems, api);
+  let hasRef = await reflinkModule.detectRef(
+    dp,
+    wax.userAccount,
+    showItems,
+    api,
+    wax
+  );
 
+  if (hasRef) $("#FRIENDS").show();
   multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
 
   await setup();

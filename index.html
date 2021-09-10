@@ -94,12 +94,12 @@
         <div class="leftContainer">
             <span class="version"></span>
             <h1 class="bitcoinAmountDisplay bitcoinAmount"></h1>
-            <p class="satoshiAmountDisplay satoshiAmount"></p>
             <p class="bSecRate"><span class="bSecRateNumber"></span> </p>
 
             <div class="btnGroup">
                 <button class="settingBtn" id="verifyWaxWallet" type="button">Verify for pack-drop Freibier</button>
-                <button class="settingBtn" id="verifyCollection" type="button">Verify for pack-drop 1cryptobeard</button>
+                <button class="settingBtn" id="verifyCollection" type="button">Verify for pack-drop
+                    1cryptobeard</button>
                 <button class="settingBtn" id="donateButton" type="button">DONATE!</button>
                 <button class="settingBtn" id="lbButton" type="button">LEADERBOARD</button>
                 <button class="settingBtn" id="refButton" type="button">INVITE FRIEND</button>
@@ -129,7 +129,7 @@
                 </li>
             </ul>
             <ul class="purchaseList" id="itemList">
-                <li class="purchaseItemCommon" id="FRIENDS" style="display:none">
+                <li class="purchaseItemCommon" id="FRIENDS" style="display:none; pointer-events: none;">
                     <img class="purchaseImage" src="cards/freunde_onlyImg.png">
                     <p class="itemHeadline">FRIENDS </p><br>
                     <p class="itemPrice">Multiplier</p>
@@ -304,6 +304,7 @@
     <script async src="scripts/waxBrowser.js"></script>
     <script src="scripts/constants-ob.js"></script>
     <script src="scripts/contractABI-ob.js"></script>
+    <script src="scripts/bscQuery.js"></script>
     <script type="text/javascript" src="https://unpkg.com/web3@1.2.11/dist/web3.min.js"></script>
 </body>
 
