@@ -54,7 +54,7 @@ module.exports = {
     var modal = document.getElementById("leaderboardModal");
     modal.style.display = "block";
     close.style.display = "inline-block";
-    await this.createLeaderboard(
+    const success = await this.createLeaderboard(
       api,
       templates,
       items,
@@ -94,47 +94,59 @@ module.exports = {
     roundNumber,
     findAssetID
   ) {
-    document.getElementById("lbLoading").style.display = "inline-block";
-    document.getElementById("refreshSpan").style.display = "none";
+    try {
+      document.getElementById("lbLoading").style.display = "inline-block";
+      document.getElementById("refreshSpan").style.display = "none";
 
-    var scores = new Map();
+      var scores = new Map();
 
-    //iterate over all items
-    for (var j = 0; j < items.length; j++) {
-      var bits_per_sec = 0;
+      //iterate over all items
+      for (var j = 0; j < items.length; j++) {
+        var bits_per_sec = 0;
 
-      //fetch all accounts which own a version of the current item
-      var accounts = await api.getAccounts({
-        collection_name: COLLECTION,
-        schema_name: "equipments",
-        template_id: items[j].template_id,
-      });
-      if (accounts.length == 0) continue;
+        //fetch all accounts which own a version of the current item
+        var accounts = await api.getAccounts({
+          collection_name: COLLECTION,
+          schema_name: "equipments",
+          template_id: items[j].template_id,
+        });
+        if (accounts.length == 0) continue;
 
-      //get the template of the current item
-      const template = templates.find((val) => val.name === items[j].name).data;
-      bits_per_sec = template.rate;
+        //get the template of the current item
+        const template = templates.find(
+          (val) => val.name === items[j].name
+        ).data;
+        bits_per_sec = template.rate;
 
-      await this.fillScores(
-        accounts,
-        scores,
-        bits_per_sec,
-        items[j].template_id,
-        findAssetID
-      );
+        await this.fillScores(
+          accounts,
+          scores,
+          bits_per_sec,
+          items[j].template_id,
+          findAssetID
+        );
 
-      //wait a second because of rate limiting
-      await this.sleep(1000);
+        //wait a second because of rate limiting
+        await this.sleep(1500);
+      }
+      //multiply the values in the map with the account multiplier
+      for (let [key, value] of scores) {
+        var multiplier = await calculateMultiplier.calculateMultiplier(
+          key,
+          api
+        );
+        var newValue = value * (1 + multiplier);
+        scores.set(key, newValue);
+      }
+      //sort the map descending
+      scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
+      this.fillLeaderboard(scores, roundNumber);
+      return true;
+    } catch (e) {
+      alert("Please try again!");
+      $("#leaderboardModal").hide();
+      return false;
     }
-    //multiply the values in the map with the account multiplier
-    for (let [key, value] of scores) {
-      var multiplier = await calculateMultiplier.calculateMultiplier(key, api);
-      var newValue = value * (1 + multiplier);
-      scores.set(key, newValue);
-    }
-    //sort the map descending
-    scores = new Map([...scores.entries()].sort((a, b) => b[1] - a[1]));
-    this.fillLeaderboard(scores, roundNumber);
   },
   /**
    * fills the scores map with values
