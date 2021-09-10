@@ -447,7 +447,6 @@ function initOnClicks() {
   let preUpgrade = "";
   let upgradeDisplay = "";
   $(items).bind("mouseover", (e) => {
-    console.log(this.id);
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
 
@@ -495,7 +494,6 @@ async function setup() {
   initIntervals();
   leaderboardModule.initLeaderboard();
   await Game.setBitcoinPerSecondRateAtBeginning();
-  console.log(bitcoinRate);
   Game.setNewBitcoinRate(bitcoinRate);
   displayBitcoin(bitcoins);
   $(".bitcoin").removeClass("unclickable");
