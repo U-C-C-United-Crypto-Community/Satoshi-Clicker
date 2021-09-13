@@ -204,6 +204,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       showItemRate($element, rate, level);
     }
   }
+  console.log(bitcoinRate);
   //bitcoinRate *= getClickMultiplier();
   //bitcoinRate *= 1 + multiplier;
 };

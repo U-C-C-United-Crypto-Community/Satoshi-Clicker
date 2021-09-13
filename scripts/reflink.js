@@ -56,6 +56,8 @@ module.exports = {
       const msg = e.message.toString();
       if (msg.includes("billed CPU time")) {
         alert("Not enough CPU to push action!\n" + msg);
+      } else {
+        alert("Error!");
       }
       showItems("block");
       return false;
