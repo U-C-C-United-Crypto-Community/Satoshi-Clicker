@@ -457,7 +457,7 @@ function initOnClicks() {
     preUpgrade = rateDisplay.text();
     upgradeDisplay = preUpgrade.replace(/[^0-9\.]?/g, "");
 
-    let rate = (parseFloat(upgradeDisplay) * (level + 1)) / level;
+    let rate = ((parseFloat(upgradeDisplay) * (level + 1)) / level).toFixed(2);
     const UNIT = preUpgrade.includes("BTC") ? " BTC/SEC" : " SATOSHI/SEC";
     if (level > 0)
       rateDisplay.css({ color: "lightgreen" }).text("Rate: " + rate + UNIT);
