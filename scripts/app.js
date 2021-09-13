@@ -204,9 +204,9 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       showItemRate($element, rate, level);
     }
   }
-  console.log(bitcoinRate);
+  Game.setNewBitcoinRate(bitcoinRate);
   //bitcoinRate *= getClickMultiplier();
-  //bitcoinRate *= 1 + multiplier;
+  bitcoinRate *= 1 + multiplier;
 };
 
 /**
@@ -313,7 +313,8 @@ function incrementBitcoin() {
  * @returns {Promise<[{id: string}, {level: any}]>} the current id and level of the found asset
  */
 async function findAssetID(templateID, account) {
-  let assets;
+  try{
+    let assets;
   let id;
   let level = 0;
   while (id == undefined) {
@@ -339,6 +340,10 @@ async function findAssetID(templateID, account) {
 
   var returnValues = [{ id }, { level: level }];
   return returnValues;
+  } catch(e){
+    alert("Please reload the page!");
+  }
+  
 }
 
 /**
