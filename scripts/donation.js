@@ -29,6 +29,10 @@ module.exports = {
     var content = document.getElementById("content");
     var input = document.getElementById("quantity");
 
+    $("#closeDonate").click(() => {
+      modal.style.display = "none";
+    });
+
     content.innerText = "How much WAX do you wanna donate RAM?";
 
     modal.style.display = "block";

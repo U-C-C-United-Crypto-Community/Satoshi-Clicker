@@ -266,16 +266,20 @@ body {
   margin-bottom: 0px;
   margin-top: 10px;
   color: black;
+  display: flex;
+  flex-direction: column;
+  align-items:flex-start;
 }
 
 .close {
   display: block;
-  position: absolute;
+  position: relative;
   bottom: 5px;
   left: 5px;
-  width: auto;
+  width: 30%;
   height: auto;
   padding: 2px;
+  margin-right: 1rem;
   border: 3px solid black;
   font-size: 20pt;
   font-family: Rajdhani-SemiBold, sans-serif;
@@ -290,6 +294,7 @@ body {
     -1px -1px 1px black;
   color: white;
   cursor: pointer;
+  text-align: center;
 }
 
 .input {
