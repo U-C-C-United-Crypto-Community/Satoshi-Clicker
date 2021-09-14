@@ -178,7 +178,7 @@ async function fetchVariables(i) {
  * Or whenever this is called
  */
 Game.setBitcoinPerSecondRateAtBeginning = async function () {
-  bitcoinRate = 0;
+  let newRate = 0;
   for (let i = 0; i < ITEMS.length; i++) {
     const values = await fetchVariables(i);
 
@@ -199,14 +199,15 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
       $element.children()[1].children[0].textContent = "LEVEL: " + level + " +";
       showItemRate($element, rate * level, level);
       // Calculating the rate
-      bitcoinRate += rate * level;
+      newRate += rate * level;
     } else {
       showItemRate($element, rate, level);
     }
   }
-  Game.setNewBitcoinRate(bitcoinRate);
   //bitcoinRate *= getClickMultiplier();
-  bitcoinRate *= 1 + multiplier;
+  newRate *= 1 + multiplier;
+  Game.setNewBitcoinRate(newRate);
+  bitcoinRate = newRate;
 };
 
 /**
@@ -226,7 +227,7 @@ Game.setNewBitcoinRate = function () {
     $(".bSecRateNumber").text("Rate: " + bitcoinRate.toFixed(2) + "\n BTC/SEC");
   } else {
     let satoshi = bitcoinRate * Math.pow(10, 8);
-    const DIGITS = satoshi > 1 ? 0 : 3;
+    const DIGITS = satoshi > 1 ? 1 : 3;
     $(".bSecRateNumber").text(
       "Rate: " + satoshi.toFixed(DIGITS).toString() + "\n SATOSHI/SEC"
     );
@@ -313,37 +314,36 @@ function incrementBitcoin() {
  * @returns {Promise<[{id: string}, {level: any}]>} the current id and level of the found asset
  */
 async function findAssetID(templateID, account) {
-  try{
+  try {
     let assets;
-  let id;
-  let level = 0;
-  while (id == undefined) {
-    assets = await api.getAssets({
-      owner: account,
-      collection_name: COLLECTION,
-      template_id: templateID,
-    });
+    let id;
+    let level = 0;
+    while (id == undefined) {
+      assets = await api.getAssets({
+        owner: account,
+        collection_name: COLLECTION,
+        template_id: templateID,
+      });
 
-    for (var i = 0; i < assets.length; i++) {
-      if (
-        assets[i].mutable_data.level > level ||
-        assets[i].mutable_data.level == undefined
-      ) {
-        id = assets[i].asset_id;
-        if (assets[i].mutable_data.level == undefined) level = 0;
-        else level = assets[i].mutable_data.level;
+      for (var i = 0; i < assets.length; i++) {
+        if (
+          assets[i].mutable_data.level > level ||
+          assets[i].mutable_data.level == undefined
+        ) {
+          id = assets[i].asset_id;
+          if (assets[i].mutable_data.level == undefined) level = 0;
+          else level = assets[i].mutable_data.level;
+        }
       }
+      //wait because of rate limiting
+      await sleep(1000);
     }
-    //wait because of rate limiting
-    await sleep(1000);
-  }
 
-  var returnValues = [{ id }, { level: level }];
-  return returnValues;
-  } catch(e){
+    var returnValues = [{ id }, { level: level }];
+    return returnValues;
+  } catch (e) {
     alert("Please reload the page!");
   }
-  
 }
 
 /**
@@ -705,7 +705,7 @@ function roundNumber(num) {
   } else if (num >= 0.1) {
     value = num.toFixed(2).toString();
   } else {
-    const DIGITS = num * Math.pow(10, 8) > 1 ? 0 : 2;
+    const DIGITS = num * Math.pow(10, 8) > 1 ? 1 : 2;
     value = (num * Math.pow(10, 8)).toFixed(DIGITS).toString();
   }
   return value;
