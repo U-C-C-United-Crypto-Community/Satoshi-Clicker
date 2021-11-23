@@ -9,7 +9,8 @@
     "lib": "lib"
   },
   "scripts": {
-    "build": "browserify scripts/app.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/waxBrowser.js -o scripts/waxBrowser.js && javascript-obfuscator scripts/constants.js -o scripts/constants-ob.js && javascript-obfuscator scripts/contractABI.js -o scripts/contractABI-ob.js"
+    "start": "npm run build && serve public",
+    "build": "browserify src/scripts/app.js -o public/js/waxBrowser.js && javascript-obfuscator public/js/waxBrowser.js -o public/js/waxBrowser.js && javascript-obfuscator src/scripts/constants.js -o public/js/constants-ob.js && javascript-obfuscator src/scripts/contractABI.js -o public/js/contractABI-ob.js"
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
