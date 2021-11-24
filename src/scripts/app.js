@@ -44,6 +44,8 @@ var lastClick = Date.now();
 var enableClickMultiplier = false;
 var waxWallet;
 
+// Rate is null (at the beginning)
+var bSec = null;
 var templates = [];
 
 const multiplierModule = require("./multiplier");
@@ -68,11 +70,8 @@ async function getTemplates() {
   }
 }
 
-// Rate is null (at the beginning)
-var bSec = null;
-
 /**
- * inits the interval which messures how long ago the last click was
+ * Inits the interval which messures how long ago the last click was
  */
 
 function initIntervalLastclick() {
@@ -91,7 +90,7 @@ function initIntervalLastclick() {
 }
 
 /**
- * inits the interval which calculates the current bitcoinrate again
+ * Inits the interval which calculates the current bitcoinrate again
  */
 
 function initIntervalNewBitcoinRate() {
