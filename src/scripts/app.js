@@ -15,7 +15,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/**--------------------------Global varibles  and requires------------------------------------------------------- */
+/**--------------------------Global variables and requires------------------------------------------------------- */
 
 const { ExplorerApi } = require("atomicassets");
 const fetch = require("node-fetch");
@@ -96,7 +96,7 @@ function initIntervalLastclick() {
 
 function initIntervalNewBitcoinRate() {
   setInterval(async function () {
-    await Game.setBitcoinPerSecondRateAtBeginning();
+    await Game.setBtcRate();
   }, 15000);
 }
 
@@ -105,7 +105,7 @@ function initIntervalNewBitcoinRate() {
 //  */
 // function initIntervalShowNewRate() {
 //   setInterval(function () {
-//     Game.setNewBitcoinRate();
+//     Game.updateBitcoinRateView();
 //   }, 1000);
 // }
 
@@ -177,7 +177,7 @@ async function fetchVariables(i) {
  * Calculating the Bitcoins per Second - rate when the page was opened.
  * Or whenever this is called
  */
-Game.setBitcoinPerSecondRateAtBeginning = async function () {
+Game.setBtcRate = async function () {
   let newRate = 0;
   for (let i = 0; i < ITEMS.length; i++) {
     const values = await fetchVariables(i);
@@ -206,7 +206,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
   }
   //bitcoinRate *= getClickMultiplier();
   newRate *= 1 + multiplier;
-  Game.setNewBitcoinRate(newRate);
+  Game.updateBitcoinRateView(newRate);
   bitcoinRate = newRate;
 };
 
@@ -216,7 +216,7 @@ Game.setBitcoinPerSecondRateAtBeginning = async function () {
  * @param rate - The number which must be added to the current Bitcoin per Second - rate
  * @returns {Number} - Returning the new Bitcoin per Second - rate
  */
-Game.setNewBitcoinRate = function () {
+Game.updateBitcoinRateView = function () {
   if (bitcoinRate >= 1000000) {
     $(".bSecRateNumber").text(
       "Rate: " + bitcoinRate.toFixed(0).optimizeNumber() + "\n BTC/SEC"
@@ -436,8 +436,8 @@ async function startMinting() {
     }
     if (!success) return;
     //await waitForTransaction(bitcoinRate);
-    await Game.setBitcoinPerSecondRateAtBeginning();
-    Game.setNewBitcoinRate(bitcoinRate);
+    await Game.setBtcRate();
+    Game.updateBitcoinRateView(bitcoinRate);
     substractBitcoins(price);
     showItems("block");
   }
@@ -499,8 +499,8 @@ async function setup() {
 
   initIntervals();
   leaderboardModule.initLeaderboard();
-  await Game.setBitcoinPerSecondRateAtBeginning();
-  Game.setNewBitcoinRate(bitcoinRate);
+  await Game.setBtcRate();
+  Game.updateBitcoinRateView(bitcoinRate);
   displayBitcoin(bitcoins);
   $(".bitcoin").removeClass("unclickable");
 }
