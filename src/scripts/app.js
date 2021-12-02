@@ -748,7 +748,7 @@ function createSpan(event, valueString, maingame) {
 function createImage(event, maingame) {
   var img = document.createElement("img");
 
-  img.src = "../images/pngegg.png";
+  img.src = "../images/btc-logo.png";
   img.style.maxHeight = "20px";
   img.style.maxWidth = "20px";
   img.style.width = "auto";
