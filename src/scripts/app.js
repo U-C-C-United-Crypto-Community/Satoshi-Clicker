@@ -18,7 +18,6 @@
 /**--------------------------Global variables and requires------------------------------------------------------- */
 
 const { ExplorerApi } = require("atomicassets");
-const fetch = require("node-fetch");
 const SecureLS = require("secure-ls");
 
 const DOMPurify = require("dompurify");
@@ -972,3 +971,5 @@ async function hasRegistered() {
     return false;
   }
 }
+
+api.getSchemas({ collection_name: COLLECTION }).then(console.log);
