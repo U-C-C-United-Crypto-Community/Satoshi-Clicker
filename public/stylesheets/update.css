@@ -1,0 +1,92 @@
+@font-face {
+    font-family: 'Rajdhani-SemiBold';
+    src: url('../fonts/Rajdhani-SemiBold.eot');
+    src: url('../fonts/Rajdhani-SemiBold.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/Rajdhani-SemiBold.svg#Rajdhani-SemiBold') format('svg'),
+    url('../fonts/Rajdhani-SemiBold.ttf') format('truetype'),
+    url('../fonts/Rajdhani-SemiBold.woff') format('woff'),
+    url('../fonts/Rajdhani-SemiBold.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    margin: 0;
+    background: white;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -o-user-select: none;
+}
+
+.header {
+    position: absolute;
+    font-family: Rajdhani-SemiBold,sans-serif;
+    width: 100%;
+    float: top;
+}
+
+.update {
+    font-size: 60pt;
+    display: block;
+    font-family: Rajdhani-SemiBold,sans-serif;
+    color: #5ed4fa;
+    font-weight: bold;
+    text-align: center;
+}
+
+.updateHeadline {
+    font-size: 80pt;
+    font-weight: bold;
+    margin-bottom: 0px;
+    text-align: left;
+    color: white;
+    text-shadow: 1px 1px 1px black, 1px -1px 1px black, -1px 1px 1px black,
+    -1px -1px 1px black;
+    padding-top: 200px;
+    padding-left: 100px;
+}
+
+.updatePage {
+
+    padding: 5px;
+    margin-top: 0;
+    margin-bottom: 0;
+    position: relative;
+    height: fit-content;
+    background: white;
+    font-family: Rajdhani-SemiBold, sans-serif;
+    font-size: 15pt;
+}
+.content {
+    display: block;
+    padding-top: 50%;
+    max-width: 960px;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+
+
+}
+
+html { overflow-y: scroll; }
+
+div {
+    display: block;
+}
+
+* {
+    box-sizing: border-box !important;
+}
+
+@media screen and (max-width: 1028px) {
+    .header {
+        height: 30%;
+    }
+    .updateHeadline {
+        padding-top: 100px;
+        text-align: center;
+    }
+}

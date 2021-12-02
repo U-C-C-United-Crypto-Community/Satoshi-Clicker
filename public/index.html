@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- COMMON TAGS -->
+    <meta charset="utf-8">
+    <title>Satoshi Clicker</title>
+    <!-- Search Engine -->
+    <meta name="description" content="A clicker game where you can get virtual Bitcoins by clicking!">
+    <meta name="image"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <!-- Schema.org for Google -->
+    <meta itemprop="name" content="Satoshi Clicker">
+    <meta itemprop="description" content="A clicker game where you can get virtual Bitcoins by clicking!">
+    <meta itemprop="image"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Satoshi Clicker">
+    <meta name="twitter:description" content="A clicker game where you can get virtual Bitcoins by clicking!">
+    <meta name="twitter:image:src"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <!-- Open Graph general (Facebook, Pinterest & Google+) -->
+    <meta name="og:title" content="Satoshi Clicker">
+    <meta name="og:description" content="A clicker game where you can get virtual Bitcoins by clicking!">
+    <meta name="og:image"
+        content="https://raw.githubusercontent.com/julianYaman/bitcoin-clicker/master/images/bitcoin-8bit.png">
+    <meta name="og:url" content="https://satoshiclicker.com/">
+    <meta name="og:site_name" content="Satoshi Clicker">
+    <meta name="og:type" content="website">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+</head>
+
+<body style="background-image: url('images/background.png') ; -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;">
+    <div class="gameFullContent">
+        <audio id="audio" src="sounds/166184__drminky__retro-coin-collect.wav"></audio>
+
+        <div id="leaderboardModal" class="lbmodal">
+            <!-- Modal content -->
+            <div>
+                <b class="lbHeadline">Leaderboard</b>
+                <span id="lbLoading" class="lbLoading">loading...</span>
+                <ul class="purchaseList">
+                    <li>
+                        <p class="lbHeadline" id="lb1">1. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb2">2. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb3">3. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb4">4. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb5">5. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb6">6. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb7">7. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb8">8. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb9">9. -</p>
+                    </li>
+                    <li>
+                        <p class="lbHeadline" id="lb10">10.-</p>
+                    </li>
+                    <li id="refresh">
+                        <span class="lbClose" id="refreshSpan">REFRESH</span>
+                        <span class="lbClose" id="closeLbSpan">CLOSE</span>
+                    </li>
+                </ul>
+
+
+            </div>
+
+        </div>
+
+        <div class="leftContainer">
+            <span class="version"></span>
+            <h1 class="bitcoinAmountDisplay bitcoinAmount"></h1>
+            <p class="bSecRate"><span class="bSecRateNumber"></span> </p>
+
+            <div class="btnGroup">
+                <button class="settingBtn" id="verifyWaxWallet" type="button">Verify for pack-drop Freibier</button>
+                <button class="settingBtn" id="verifyCollection" type="button">Verify for pack-drop
+                    1cryptobeard</button>
+                <button class="settingBtn" id="donateButton" type="button">DONATE!</button>
+                <button class="settingBtn" id="lbButton" type="button">LEADERBOARD</button>
+                <button class="settingBtn" id="refButton" type="button">INVITE FRIEND</button>
+                <button class="settingBtn" id="muteButton" type="button">MUTE</button>
+
+            </div>
+        </div>
+        <div class="mainGameContent" id="mainGame">
+
+            <img class="bitcoin unclickable" src="images/btc-logo.png" draggable="false">
+            <p
+                style="position: absolute; text-align: center; bottom: 0;left: 48%; font-family: Rajdhani-SemiBold,sans-serif;font-size: 15pt; color: white">
+                © Zum
+                <a style="font-family: Rajdhani-SemiBold,sans-serif; color: white"
+                    href="https://daubit.org/impressum.html" target="_blank">Impressum</a>
+            </p>
+        </div>
+        <span class="satoshiAmountDisplay" id="Loading"
+            style="display:none; text-align: center; font-size: xx-large;">loading...</span>
+        <div id="purchaseList" class="rightContainer buyItemContainer">
+
+            <!-- Rounded switch -->
+            <a class="update" href="./infopage/ ">Info</a>
+            <ul class="purchaseList" id="optionList">
+                <li class="purchaseItemCommon" id="loginWaxWallet">
+                    <p class="itemHeadline">Connect to WAX to start playing!</p><br>
+                </li>
+            </ul>
+            <ul class="purchaseList" id="itemList">
+                <li class="purchaseItemCommon" id="FRIENDS" style="display:none; pointer-events: none;">
+                    <img class="purchaseImage" src="assets/Friends.jpg">
+                    <p class="itemHeadline">FRIENDS </p><br>
+                    <p class="itemPrice">Multiplier</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_oldCalculator">
+                    <img class="purchaseImage" src="assets/Old Calculator.jpg">
+                    <p class="itemHeadline">OLD CALCULATOR <span></span></p>
+                    <p class="itemPrice">10 Satoshi</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_oldCpu">
+                    <img class="purchaseImage" src="assets/Old CPU.jpg">
+                    <p class="itemHeadline">OLD CPU <span></span></p>
+                    <p class="itemPrice">125 Satoshi</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_oldPc">
+                    <img class="purchaseImage" src="assets/Old Pc.jpg">
+                    <p class="itemHeadline">OLD COMPUTER PC <span></span></p>
+                    <p class="itemPrice">3k Satoshi</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_smartphone">
+                    <img class="purchaseImage" src="assets/Smartphone.jpg">
+                    <p class="itemHeadline">SMARTPHONE <span></span></p>
+                    <p class="itemPrice">5k Satoshi</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_middleAgePc">
+                    <img class="purchaseImage" src="assets/Middle Aged Pc.jpg">
+                    <p class="itemHeadline">MIDDLE-AGED PC <span></span></p>
+                    <p class="itemPrice">0.0005 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_cheapServer">
+                    <img class="purchaseImage" src="assets/Cheap Server.jpg">
+                    <p class="itemHeadline">CHEAP SERVER <span></span></p>
+                    <p class="itemPrice">0.0015 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_gamingPc">
+                    <img class="purchaseImage" src="assets/Gaming Pc.jpg">
+                    <p class="itemHeadline">GAMING PC <span></span></p>
+                    <p class="itemPrice">0.0040 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemRare" id="Freibier Bronze" style="display:none">
+                    <p class="itemHeadline">FREIBIER BRONZE</p><br>
+                    <p class="itemPrice">Multiplier</p>
+                </li>
+                <li class="purchaseItemCommon" id="item_cheapMiner">
+                    <img class="purchaseImage" src="assets/Cheap Miner.jpg">
+                    <p class="itemHeadline">CHEAP MINER <span></span></p>
+                    <p class="itemPrice">0.015 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemCommon" id="item_highEndUltraPc">
+                    <img class="purchaseImage" src="assets/High-End Ultra Pc.jpg">
+                    <p class="itemHeadline">HIGHEND-ULTRA PC <span></span></p>
+                    <p class="itemPrice">0.05 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemRare" id="item_bigMiner">
+                    <img class="purchaseImage" src="assets/Big Miner.jpg">
+                    <p class="itemHeadline">BIG MINER <span></span></p>
+                    <p class="itemPrice">0.15 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemRare" id="item_miningRig">
+                    <img class="purchaseImage" src="assets/Mining Rig.jpg">
+                    <p class="itemHeadline">MINING RIG <span></span></p>
+                    <p class="itemPrice">1.5 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemRare" id="item_miningFarm">
+                    <img class="purchaseImage" src="assets/Mining Farm.jpg">
+                    <p class="itemHeadline">MINING FARM <span></span></p>
+                    <p class="itemPrice">250 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemRare" id="item_quantumRig">
+                    <img class="purchaseImage" src="assets/Quantum Cpu Mining Rig.jpg">
+                    <p class="itemHeadline">QUANTUM RIG <span></span></p>
+                    <p class="itemPrice">5.000 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemRare" id="item_quantumFarm">
+                    <img class="purchaseImage" src="assets/Quantum Cpu Mining Farm.jpg">
+                    <p class="itemHeadline">QUANTUM RIG <span></span></p>
+                    <p class="itemPrice">245.000 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemLegendary" id="item_quantumMiningFarm">
+                    <img class="purchaseImage" src="assets/Quantum Cpu Mining Farm.jpg">
+                    <p class="itemHeadline">MINING FARM IN SPACE <span></span></p>
+                    <p class="itemPrice">2.000.000 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemLegendary" id="item_miningFarmMoon">
+                    <img class="purchaseImage" src="assets/Mining Farm on the Moon.jpg">
+                    <p class="itemHeadline">MINING FARM ON THE MOON <span></span></p>
+                    <p class="itemPrice">75.500.000 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemLegendary" id="item_bitcoinTimeMachine">
+                    <img class="purchaseImage" src="assets/Bitcoin_Time_Machine.jpg">
+                    <p class="itemHeadline">BITCOIN TIMEMACHINE <span></span></p>
+                    <p class="itemPrice">975.000.000 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+                <li class="purchaseItemUltimate" id="Freibier Gold" style="display:none">
+                    <p class="itemHeadline">FREIBIER GOLD</p><br>
+                    <p class="itemPrice">Multiplier</p>
+                </li>
+                <li class="purchaseItemUltimate" id="item_blackHolePoweredMiner">
+                    <img class="purchaseImage" src="assets/Black Hole-Powered Miner.jpg">
+                    <p class="itemHeadline">BLACKHOLE-POWERED MINER <span></span></p>
+                    <p class="itemPrice">750.000.000.000 Bitcoins</p>
+                    <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
+
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+               
+                <p id="content">Some text in the Modal..</p>
+                <input class="input" type="number" id="quantity" name="quantity"> 
+                <div style="display: flex; flex-direction: row; width: 100%">
+                    <span id="closeSpan" class="close">Donate</span>
+                    <span id="closeDonate" class="close">Close</span>
+                </div>
+            </div>
+
+        </div>
+        <!-- The Modal -->
+        <div id="pkModal" class="modal">
+
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="pkSpan" class="close">Close</span>
+                <p id="pkContent">Some text in the Modal..</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="lib/jquery-3.3.1.min.js"></script>
+    <script async src="js/waxBrowser.js"></script>
+    <script src="js/constants-ob.js"></script>
+    <script src="js/contractABI-ob.js"></script>
+    <script src="js/bscQuery.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/web3@1.2.11/dist/web3.min.js"></script>
+</body>
+
+</html>
