@@ -14,6 +14,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+import wax from "./wax";
+import dp from "./app";
 
 module.exports = {
   /**
@@ -23,13 +25,13 @@ module.exports = {
    * @returns {Promise<void>}
    */
 
-  showDialog: async function (dp, wax) {
+  showDialog: async function () {
     var modal = document.getElementById("myModal");
     var span = document.getElementById("closeSpan");
     var content = document.getElementById("content");
     var input = document.getElementById("quantity");
 
-    $("#closeDonate").click(() => {
+    $("#closeDonate").on("click", () => {
       modal.style.display = "none";
     });
 
@@ -49,7 +51,7 @@ module.exports = {
       //Do transaction with the userinput
       if (typeof userinput != "number") alert("Please input a number");
       else {
-        donationModule.sendDonation(wax, userinput);
+        donationModule.sendDonation(userinput);
       }
     };
 
@@ -66,7 +68,7 @@ module.exports = {
    * @returns {Promise<void>} -
    */
 
-  sendDonation: async function (wax, amount) {
+  sendDonation: async function (amount) {
     if (wax.userAccount === undefined) {
       await wax.login();
     }
