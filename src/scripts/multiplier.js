@@ -15,7 +15,8 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import regeneratorRuntime from "regenerator-runtime";
-import api from "./app";
+import { api } from "./app";
+import { SPECIAL_ITEMS, COLLECTION } from "./constants";
 
 module.exports = {
   specialTemplates: [],
@@ -32,14 +33,14 @@ module.exports = {
     await this.getSpecialTemplates();
 
     //iterate over all special nfts
-    for (var i = 0; i < special_items.length; i++) {
+    for (var i = 0; i < SPECIAL_ITEMS.length; i++) {
       var itemAmount = 0;
       var asset = await this.findSpecialNft(
-        special_items[i].template_id,
+        SPECIAL_ITEMS[i].template_id,
         account
       );
       var template = this.specialTemplates.find(
-        (val) => val.id === special_items[i].template_id
+        (val) => val.id === SPECIAL_ITEMS[i].template_id
       ).data;
       var nftMulti = 0;
 
@@ -90,9 +91,9 @@ module.exports = {
    * @returns {Promise<void>} -
    */
   getSpecialTemplates: async function () {
-    for (let i = 0; i < special_items.length; i++) {
-      const id = special_items[i].template_id;
-      const name = special_items[i].name;
+    for (let i = 0; i < SPECIAL_ITEMS.length; i++) {
+      const id = SPECIAL_ITEMS[i].template_id;
+      const name = SPECIAL_ITEMS[i].name;
       const data = (await api.getTemplate(COLLECTION, id)).immutable_data;
 
       const result = { name, id, data };

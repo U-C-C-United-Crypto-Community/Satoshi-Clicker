@@ -20,7 +20,12 @@
 import { ExplorerApi } from "atomicassets";
 import SecureLS from "secure-ls";
 import DOMPurify from "dompurify";
-import { ATOMIC_MAIN_URL, COLLECTION } from "./constants";
+import {
+  ATOMIC_MAIN_URL,
+  COLLECTION,
+  ITEMS,
+  GameConst,
+} from "./constants";
 import $ from "jquery";
 import { hasRegistered } from "./login";
 import { wax } from "./wax";

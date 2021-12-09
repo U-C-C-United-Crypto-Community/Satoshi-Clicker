@@ -15,6 +15,7 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { wax, api, dp } from "./app";
+import { COLLECTION, SPECIAL_ITEMS } from "./constants";
 
 module.exports = {
   /**
@@ -33,7 +34,7 @@ module.exports = {
         data: {
           collection_name: COLLECTION,
           schema_name: "invfriends",
-          template_id: special_items[0].template_id,
+          template_id: SPECIAL_ITEMS[0].template_id,
           ref: ref,
           receiver: account,
           mutable_data: [
@@ -99,7 +100,7 @@ module.exports = {
     var assets = await api.getAssets({
       owner: account,
       collection_name: COLLECTION,
-      template_id: special_items[0].template_id,
+      template_id: SPECIAL_ITEMS[0].template_id,
     });
     for (var i = 0; i < assets.length; i++) {
       if (assets[i].mutable_data.receiver == account) return true;
