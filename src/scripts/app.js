@@ -20,16 +20,15 @@
 import { ExplorerApi } from "atomicassets";
 import SecureLS from "secure-ls";
 import DOMPurify from "dompurify";
-import * as waxjs from "@waxio/waxjs/dist";
-import { ATOMIC_MAIN_URL, WAX_MAINNET, COLLECTION } from "./constants";
+import { ATOMIC_MAIN_URL, COLLECTION } from "./constants";
 import $ from "jquery";
-
-const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
+import { hasRegistered } from "./login";
+import { wax } from "./wax";
+export const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
-const wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
+export const dp = new DOMPurify();
 
-const dp = new DOMPurify();
 const ls = new SecureLS();
 var multiplier = 0.0;
 
@@ -38,11 +37,11 @@ var bitcoinRate = 0;
 var currentUser = null;
 var clickValue = 0;
 
-var disable = false;
-var amountOfClicks = 0;
-var lastClick = Date.now();
-var enableClickMultiplier = false;
 var waxWallet;
+var disable = false;
+var lastClick = Date.now();
+var amountOfClicks = 0;
+var enableClickMultiplier = false;
 
 // Rate is null (at the beginning)
 var bSec = null;
@@ -292,7 +291,7 @@ function incrementBitcoin() {
   //after 50ms reenable this function -> max. 20 Clicks per Second
   setTimeout(function () {
     disable = false;
-    $(".bitcoin").click(incrementBitcoin);
+    $(".bitcoin").on("click", incrementBitcoin);
   }, 50);
 }
 
@@ -801,111 +800,6 @@ function initIntervals() {
   }, 5000);
 }
 
-async function registerUser() {
-  try {
-    const action = {
-      account: CONTRACT_ADDRESS,
-      name: "login",
-      authorization: [{ actor: wax.userAccount, permission: "active" }],
-      data: {
-        player: wax.userAccount,
-      },
-    };
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
-    return await sendOneWax();
-  } catch (e) {
-    const msg = e.message.toString();
-    if (msg.includes("billed CPU time")) {
-      alert("Not enough CPU to push action!");
-      return false;
-    }
-    return false;
-  }
-}
-
-async function sendOneWax() {
-  try {
-    const action = {
-      account: "eosio.token",
-      name: "transfer",
-      authorization: [
-        {
-          actor: wax.userAccount,
-          permission: "active",
-        },
-      ],
-      data: {
-        from: wax.userAccount,
-        to: CONTRACT_ADDRESS,
-        quantity: "1.00000000 WAX",
-        memo: "",
-      },
-    };
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
-    return true;
-  } catch (e) {
-    const msg = e.message.toString();
-    if (msg.includes("billed CPU time")) {
-      alert("Not enough CPU to push action!\n" + msg);
-      return false;
-    }
-    return false;
-  }
-}
-
-async function hasRegistered() {
-  try {
-    const action = {
-      account: "satoshiclick",
-      name: "checkplayer",
-      authorization: [
-        {
-          actor: wax.userAccount,
-          permission: "active",
-        },
-      ],
-      data: {
-        player: wax.userAccount,
-      },
-    };
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
-    return true;
-  } catch (e) {
-    const msg = e.message.toString();
-    if (msg.includes("Not registered!")) {
-      return await registerUser();
-    } else if (msg.includes("payment")) {
-      return await sendOneWax();
-    } else if (msg.includes("Safe exit")) {
-      return true;
-    }
-    return false;
-  }
-}
 const options = { collection_name: COLLECTION };
 // api.getSchemas(options).then(console.log);
 api.getTemplates(options).then(console.log);
