@@ -17,14 +17,16 @@
 
 /**--------------------------Global variables and requires------------------------------------------------------- */
 
-const { ExplorerApi } = require("atomicassets");
-const SecureLS = require("secure-ls");
+import { ExplorerApi } from "atomicassets";
+import SecureLS from "secure-ls";
+import DOMPurify from "dompurify";
+import * as waxjs from "@waxio/waxjs/dist";
+import { ATOMIC_MAIN_URL, WAX_MAINNET, COLLECTION } from "./constants";
+import $ from "jquery";
 
-const DOMPurify = require("dompurify");
 const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
-const waxjs = require("@waxio/waxjs/dist");
 const wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
 
 const dp = new DOMPurify();
@@ -406,7 +408,7 @@ function substractBitcoins(price) {
 async function startMinting() {
   //get which item was clicked on
   const id = $(this).attr("id");
-  var itemAmount = 0;
+  let itemAmount = 0;
   const asset = await Game.getItem(id);
   if (asset !== undefined) {
     itemAmount = asset.assets;
@@ -435,12 +437,12 @@ function initOnClicks() {
   let items =
     ".purchaseItemCommon, .purchaseItemRare,.purchaseItemLegendary,.purchaseItemUltimate";
   // If any item from the list was clicked...
-  $(items).click(async function () {
+  $(items).on("click", async function () {
     await startMinting.call(this);
   });
   let preUpgrade = "";
   let upgradeDisplay = "";
-  $(items).bind("mouseover", (e) => {
+  $(items).on("mouseover", (e) => {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
 
@@ -455,7 +457,7 @@ function initOnClicks() {
     if (level > 0)
       rateDisplay.css({ color: "lightgreen" }).text("Rate: " + rate + UNIT);
   });
-  $(items).bind("mouseout", (e) => {
+  $(items).on("mouseout", (e) => {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
     const level = parseInt(lvlDisplay);
@@ -481,7 +483,7 @@ async function setup() {
   // Write the bitcoin per second rate into the .bSecRateNumber span element
 
   // If clicked on the big Bitcoin
-  $(".bitcoin").click(incrementBitcoin);
+  $(".bitcoin").on("click", incrementBitcoin);
 
   initOnClicks();
 
@@ -628,7 +630,7 @@ function generateRefLink() {
 var mute = ls.get("mute") || false;
 let msg = !mute ? "MUTE" : "UNMUTE";
 $("#muteButton").text(msg);
-$("#muteButton").click(() => {
+$("#muteButton").on("click", () => {
   let msg = mute ? "MUTE" : "UNMUTE";
   $("#muteButton").text(msg);
   mute = !mute;
@@ -904,5 +906,6 @@ async function hasRegistered() {
     return false;
   }
 }
-
-api.getSchemas({ collection_name: COLLECTION }).then(console.log);
+const options = { collection_name: COLLECTION };
+// api.getSchemas(options).then(console.log);
+api.getTemplates(options).then(console.log);

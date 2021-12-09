@@ -1,14 +1,21 @@
-const WAX_MAINNET = "https://wax.greymass.com";
-const WAX_TESTNET = "https://waxtestnet.greymass.com";
+export const WAX_MAINNET = "https://wax.greymass.com";
+export const WAX_TESTNET = "https://waxtestnet.greymass.com";
 
-const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
-const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
+export const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
+export const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
-const COLLECTION = "satoshic1ick";
+export const COLLECTION = "satoshic1ick";
 
-const CONTRACT_ADDRESS = "satoshiclick";
+export const CONTRACT_ADDRESS = "satoshiclick";
 
-const ITEMS = [
+export const SPECIAL_ITEMS = [
+  {
+    name: "FRIENDS",
+    template_id: "272760",
+  },
+];
+
+export const ITEMS = [
   {
     name: "item_oldCalculator",
     template_id: "272761",
@@ -84,12 +91,12 @@ const ITEMS = [
 ];
 
 // Every constant variable is saved here
-const GameConst = {
+export const GameConst = {
   priceMultiplier: 1.15,
   VERSION: "1.0.0",
 };
 
-const UNITS = [
+export const UNITS = [
   "Million",
   "Billion",
   "Trillion",
@@ -125,9 +132,4 @@ const UNITS = [
   "Tretrigintillion",
 ];
 
-const special_items = [
-  {
-    name: "FRIENDS",
-    template_id: "272760",
-  },
-];
+
