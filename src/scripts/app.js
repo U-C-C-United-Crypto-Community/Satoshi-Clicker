@@ -27,7 +27,6 @@ const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
 const waxjs = require("@waxio/waxjs/dist");
 const wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
 
-const detectEthereumProvider = require("@metamask/detect-provider");
 const dp = new DOMPurify();
 const ls = new SecureLS();
 var multiplier = 0.0;
@@ -97,15 +96,6 @@ function initIntervalNewBitcoinRate() {
     await Game.setBtcRate();
   }, 15000);
 }
-
-// /**
-//  * Interval to visiually update the bitcoinrate
-//  */
-// function initIntervalShowNewRate() {
-//   setInterval(function () {
-//     Game.updateBitcoinRateView();
-//   }, 1000);
-// }
 
 /**
  *
@@ -579,51 +569,12 @@ document.getElementById("loginWaxWallet").onclick = async () => {
 };
 
 /**
- * Send transaction to verify for whitelisting -> freibier airdrop
- */
-
-document.getElementById("verifyWaxWallet").onclick = verifyWaxWallet;
-
-async function verifyWaxWallet() {
-  const provider = await detectEthereumProvider();
-  if (provider === window.ethereum) {
-    window.web3 = new Web3(ethereum);
-    try {
-      await ethereum.request({ method: "eth_requestAccounts" });
-      const accounts = await ethereum.request({ method: "eth_accounts" });
-      currentUser = accounts[0];
-      const contract = new web3.eth.Contract(
-        waxWalletCollector,
-        waxWalletCollectorAddress
-      );
-      await contract.methods
-        .collect(wax.userAccount)
-        .send({ from: currentUser });
-    } catch (err) {
-      console.log(err);
-    }
-  }
-}
-
-/**
  * ------------------------------------------------Donation-------------------------------------------------------------
  */
 
 document.getElementById("donateButton").onclick = async function () {
   await donationModule.showDialog(dp, wax);
 };
-
-/**
- * ------------------------------------------------Airdrop-------------------------------------------------------------
- */
-
-document.getElementById("verifyCollection").onclick = async function () {
-  await airdropModule.verifyCollection(api, wax.userAccount);
-};
-
-/**
- * --------------------------------------------------Leaderboard--------------------------------------------------------
- */
 
 /**
  * On click function for a button to show the leaderboard
@@ -786,24 +737,6 @@ async function animateMessage(event) {
 document
   .getElementsByClassName("bitcoin")[0]
   .addEventListener("click", animateMessage);
-
-/**
- * ---------------------------------------------Click Multiplier--------------------------------------------------------
- */
-
-/**
- *  calculates the current click multiplier
- * @returns {number} current click multiplier
- */
-
-function getClickMultiplier() {
-  var multi = 0.5;
-  if (enableClickMultiplier && amountOfClicks >= 10) {
-    multi = amountOfClicks / 100;
-    if (multi > 1) multi = 1;
-  }
-  return multi;
-}
 
 /**
  * the initial setup for everything relevant for the game
