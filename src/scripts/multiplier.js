@@ -15,6 +15,7 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import regeneratorRuntime from "regenerator-runtime";
+import api from "./app";
 
 module.exports = {
   specialTemplates: [],
@@ -24,19 +25,18 @@ module.exports = {
    * @param api: wax api
    * @returns {Promise<number>} the multiplier
    */
-  calculateMultiplier: async function (account, api) {
+  calculateMultiplier: async function (account) {
     var multiplier = 0.0;
     var freibierMulti = 0.0;
     //load the templates of the special nfts
-    await this.getSpecialTemplates(api);
+    await this.getSpecialTemplates();
 
     //iterate over all special nfts
     for (var i = 0; i < special_items.length; i++) {
       var itemAmount = 0;
       var asset = await this.findSpecialNft(
         special_items[i].template_id,
-        account,
-        api
+        account
       );
       var template = this.specialTemplates.find(
         (val) => val.id === special_items[i].template_id
@@ -75,10 +75,9 @@ module.exports = {
    * finds a special nft on an account
    * @param id: template id of the nft to be found
    * @param account: which gets checked for the nft
-   * @param api: wax api
    * @returns {Promise<*>} the found asset
    */
-  findSpecialNft: async function (id, account, api) {
+  findSpecialNft: async function (id, account) {
     var assets = (await api.getAccount(account)).templates;
 
     const asset = assets.find((val) => {
@@ -88,10 +87,9 @@ module.exports = {
   },
   /**
    * loads all special nft templates
-   * @param api: wax api
    * @returns {Promise<void>} -
    */
-  getSpecialTemplates: async function (api) {
+  getSpecialTemplates: async function () {
     for (let i = 0; i < special_items.length; i++) {
       const id = special_items[i].template_id;
       const name = special_items[i].name;

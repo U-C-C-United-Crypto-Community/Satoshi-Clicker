@@ -14,6 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+import { wax, api, dp } from "./app";
 
 module.exports = {
   /**
@@ -23,7 +24,7 @@ module.exports = {
    * @param showItems function to show all items again
    * @returns {Promise<void>} -
    */
-  mintSpecialNft: async function (ref, account, showItems, wax) {
+  mintSpecialNft: async function (ref, account, showItems) {
     try {
       const action = {
         account: CONTRACT_ADDRESS,
@@ -71,9 +72,9 @@ module.exports = {
    * @param api: wax api
    * @returns {Promise<void>}
    */
-  detectRef: async function (dp, userAccount, showItems, api, wax) {
+  detectRef: async function (userAccount, showItems) {
     let url = new URL(window.location.href);
-    let hasRef = await this.checkForRefNft(userAccount, api);
+    let hasRef = await this.checkForRefNft(userAccount);
     //if the url has the right search param and the current user doesnt already have a special nft
     if (url.searchParams.has("ref") && !hasRef) {
       let ref;
@@ -84,7 +85,7 @@ module.exports = {
       }
       //check if ref ist diffrent from the current user -> if true start minting
       if (ref != userAccount) {
-        return await this.mintSpecialNft(ref, userAccount, showItems, wax);
+        return await this.mintSpecialNft(ref, userAccount, showItems);
       }
     }
     return hasRef;
@@ -92,10 +93,9 @@ module.exports = {
   /**
    * checks if the account already received a special nft
    * @param account current user
-   * @param api: wax api
    * @returns {Promise<boolean>} true if a special nft was already received else false
    */
-  checkForRefNft: async function (account, api) {
+  checkForRefNft: async function (account) {
     var assets = await api.getAssets({
       owner: account,
       collection_name: COLLECTION,

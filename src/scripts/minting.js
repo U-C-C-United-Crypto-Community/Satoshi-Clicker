@@ -15,17 +15,18 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import ecc from "eosjs-ecc";
+import wax from "./wax";
 
 module.exports = {
   /**
-   * mints a NFt
+   * mints a NFT
    * @param id: template id of the nft to be minted
    * @param account which receives the nft
    * @param bitcoinamount: current bitcoinamount
    * @param showItems: function to show all items again
    * @returns true if the transaction was successful
    */
-  mint: async function (id, account, bitcoinamount, showItems, wax) {
+  mint: async function (id, account, bitcoinamount, showItems) {
     var hasharray = await this.createHash(account, bitcoinamount);
     try {
       const action = {
@@ -135,12 +136,11 @@ module.exports = {
     id,
     newLevel,
     bitcoinamount,
-    showItems,
-    wax
+    showItems
   ) {
-    var nonce;
-    var hash;
-    var hashResult = await this.createHash(account, bitcoinamount);
+    let nonce;
+    let hash;
+    let hashResult = await this.createHash(account, bitcoinamount);
     hash = hashResult[0].hash;
     nonce = hashResult[1].array;
 
