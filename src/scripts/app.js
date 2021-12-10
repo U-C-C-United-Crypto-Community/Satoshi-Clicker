@@ -704,8 +704,8 @@ function createSpan(event, valueString, maingame) {
 
 function createImage(event, maingame) {
   var img = document.createElement("img");
-
-  img.src = "../images/btc-logo.png";
+  let src = document.getElementById("bitcoin").currentSrc;
+  img.src = src;
   img.style.maxHeight = "20px";
   img.style.maxWidth = "20px";
   img.style.width = "auto";
