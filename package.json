@@ -7,7 +7,7 @@
   "scripts": {
     "start": "parcel -p 3000 public/index.html",
     "build": "parcel build public/index.html && cp -r infopage dist",
-    "test": "parcel -p 3000 dist/index.html",
+    "test": "serve dist",
     "clean": "rm -r dist"
   },
   "dependencies": {
