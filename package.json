@@ -1,47 +1,28 @@
 {
-  "name": "wax-bitcoin-clicker",
+  "name": "satoshi-clicker",
   "version": "1.0.0",
   "description": "Satoshi Clicker Game",
   "main": "index.html",
   "type": "module",
-  "sourceType": "module",
-  "directories": {
-    "lib": "lib"
-  },
   "scripts": {
-    "start": "npm run build && serve public",
-    "build": "browserify src/scripts/app.js -o public/js/waxBrowser.js && javascript-obfuscator public/js/waxBrowser.js -o public/js/waxBrowser.js && javascript-obfuscator src/scripts/constants.js -o public/js/constants-ob.js && javascript-obfuscator src/scripts/contractABI.js -o public/js/contractABI-ob.js"
+    "start": "parcel -p 3000 public/index.html",
+    "build": "parcel build public/index.html && cp -r infopage dist",
+    "test": "serve dist",
+    "clean": "rm -r dist"
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.2.0",
     "@waxio/waxjs": "^0.0.15",
     "atomicassets": "^1.3.1",
-    "bip39": "^2.6.0",
-    "browserify-fs": "^1.0.0",
-    "browserslist": "^4.16.6",
-    "core-js": "^3.15.2",
-    "cors": "^2.8.5",
     "dompurify": "^2.3.0",
-    "dotenv": "^10.0.0",
     "eosjs": "^20.0.3",
     "eosjs-api": "^7.0.4",
     "eosjs-ecc": "^4.0.7",
-    "eth-keyring-controller": "^6.2.1",
-    "ethereum-block-by-date": "^1.4.0",
-    "ethereum-input-data-decoder": "^0.3.2",
-    "ethereumjs-tx": "^2.1.2",
-    "ethereumjs-util": "^6.2.1",
-    "ethereumjs-wallet": "^1.0.1",
-    "express": "^4.17.1",
-    "file-saver": "^2.0.5",
-    "fs": "^0.0.1-security",
-    "js-sha256": "^0.9.0",
-    "next": "^11.0.1",
-    "node-fetch": "^2.6.1",
+    "jquery": "^3.6.0",
+    "regenerator-runtime": "^0.13.9",
     "secure-ls": "^1.2.6",
-    "text-encoding": "^0.7.0",
-    "web3": "^1.3.6",
-    "web3-eth-contract": "^1.3.6"
+    "serve": "^13.0.2",
+    "text-encoding": "^0.7.0"
   },
   "repository": {
     "type": "git",
@@ -58,6 +39,7 @@
     "@types/node": "^12.20.15",
     "browserify": "^17.0.0",
     "es-check": "^5.2.4",
-    "javascript-obfuscator": "^2.19.0"
+    "javascript-obfuscator": "^2.19.0",
+    "parcel-bundler": "^1.12.5"
   }
 }

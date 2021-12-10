@@ -1,95 +1,101 @@
-const WAX_MAINNET = "https://wax.greymass.com";
-const WAX_TESTNET = "https://waxtestnet.greymass.com";
+export const WAX_MAINNET = "https://wax.greymass.com";
+export const WAX_TESTNET = "https://waxtestnet.greymass.com";
 
-const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
-const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
+export const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
+export const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
-const COLLECTION = "satoshic1ick";
+export const COLLECTION = "satoshiclikr"; //"satoshic1ick";
 
-const CONTRACT_ADDRESS = "satoshiclick";
+export const CONTRACT_ADDRESS = "satoshiclick";
 
-const ITEMS = [
+export const SPECIAL_ITEMS = [
   {
-    name: "item_oldCalculator",
-    template_id: "272761",
+    name: "FRIENDS",
+    template_id: "272760",
+  },
+];
+
+export const ITEMS = [
+  {
+    name: "oldCalculator",
+    template_id: "392198",
   },
   {
-    name: "item_oldCpu",
-    template_id: "272762",
+    name: "oldCpu",
+    template_id: "392199",
   },
   {
-    name: "item_oldComputerFromGrandpa",
-    template_id: "272763",
+    name: "oldPc",
+    template_id: "392200",
   },
   {
-    name: "item_raspberrypi",
-    template_id: "272769",
+    name: "smartphone",
+    template_id: "392202",
   },
   {
-    name: "item_smartphone",
-    template_id: "272766",
+    name: "middleAgePc",
+    template_id: "392203",
   },
   {
-    name: "item_middleClassPC",
-    template_id: "272767",
+    name: "cheapServer",
+    template_id: "392204",
   },
   {
-    name: "item_cheapServer",
-    template_id: "272770",
+    name: "gamingPc",
+    template_id: "392205",
   },
   {
-    name: "item_gamingPC",
-    template_id: "272771",
+    name: "cheapMiner",
+    template_id: "392206",
   },
   {
-    name: "item_cheapMiner",
-    template_id: "272772",
+    name: "highEndUltraPc",
+    template_id: "392207",
   },
   {
-    name: "item_highEndUltraPC",
-    template_id: "272775",
+    name: "bigMiner",
+    template_id: "392208",
   },
   {
-    name: "item_bigMiner",
-    template_id: "272777",
+    name: "miningRig",
+    template_id: "392209",
   },
   {
-    name: "item_miningFarm",
-    template_id: "272779",
+    name: "miningFarm",
+    template_id: "392210",
   },
   {
-    name: "item_nasaPC",
-    template_id: "272782",
+    name: "quantumRig",
+    template_id: "392213",
   },
   {
-    name: "item_quantumRig",
-    template_id: "272783",
+    name: "quantumFarm",
+    template_id: "392214",
   },
   {
-    name: "item_miningFarmSpace",
-    template_id: "272788",
+    name: "miningFarmSpace",
+    template_id: "392216",
   },
   {
-    name: "item_miningFarmMoon",
-    template_id: "272789",
+    name: "miningFarmMoon",
+    template_id: "392223",
   },
   {
-    name: "item_bitcoinTimeMachine",
-    template_id: "272791",
+    name: "bitcoinTimeMachine",
+    template_id: "392224",
   },
   {
-    name: "item_blackHolePoweredMiner",
-    template_id: "272792",
+    name: "blackHolePoweredMiner",
+    template_id: "392225",
   },
 ];
 
 // Every constant variable is saved here
-const GameConst = {
-  priceMultiplier: 1.15,
-  VERSION: "1.0.0",
+export const GameConst = {
+  VERSION: "1.1.0",
 };
 
-const UNITS = [
+export const UNITS = [
   "Million",
   "Billion",
   "Trillion",
@@ -123,11 +129,4 @@ const UNITS = [
   "Untrigintillion",
   "Duotrigintillion",
   "Tretrigintillion",
-];
-
-const special_items = [
-  {
-    name: "FRIENDS",
-    template_id: "272760",
-  },
 ];

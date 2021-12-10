@@ -3,3 +3,7 @@
 node_modules
 .vscode
 
+.cache
+dist
+infopage
+

@@ -17,19 +17,24 @@
 
 /**--------------------------Global variables and requires------------------------------------------------------- */
 
-const { ExplorerApi } = require("atomicassets");
-const fetch = require("node-fetch");
-const SecureLS = require("secure-ls");
-
-const DOMPurify = require("dompurify");
-const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
+import { ExplorerApi } from "atomicassets";
+import SecureLS from "secure-ls";
+import DOMPurify from "dompurify";
+import {
+  ATOMIC_MAIN_URL,
+  COLLECTION,
+  ITEMS,
+  GameConst,
+  UNITS,
+} from "./constants";
+import $ from "jquery";
+import { hasRegistered } from "./login";
+import { wax } from "./wax";
+export const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
-const waxjs = require("@waxio/waxjs/dist");
-const wax = new waxjs.WaxJS(WAX_MAINNET, null, null, false);
+export const dp = new DOMPurify();
 
-const detectEthereumProvider = require("@metamask/detect-provider");
-const dp = new DOMPurify();
 const ls = new SecureLS();
 var multiplier = 0.0;
 
@@ -38,11 +43,11 @@ var bitcoinRate = 0;
 var currentUser = null;
 var clickValue = 0;
 
-var disable = false;
-var amountOfClicks = 0;
-var lastClick = Date.now();
-var enableClickMultiplier = false;
 var waxWallet;
+var disable = false;
+var lastClick = Date.now();
+var amountOfClicks = 0;
+var enableClickMultiplier = false;
 
 // Rate is null (at the beginning)
 var bSec = null;
@@ -98,15 +103,6 @@ function initIntervalNewBitcoinRate() {
     await Game.setBtcRate();
   }, 15000);
 }
-
-// /**
-//  * Interval to visiually update the bitcoinrate
-//  */
-// function initIntervalShowNewRate() {
-//   setInterval(function () {
-//     Game.updateBitcoinRateView();
-//   }, 1000);
-// }
 
 /**
  *
@@ -301,7 +297,7 @@ function incrementBitcoin() {
   //after 50ms reenable this function -> max. 20 Clicks per Second
   setTimeout(function () {
     disable = false;
-    $(".bitcoin").click(incrementBitcoin);
+    $(".bitcoin").on("click", incrementBitcoin);
   }, 50);
 }
 
@@ -417,7 +413,7 @@ function substractBitcoins(price) {
 async function startMinting() {
   //get which item was clicked on
   const id = $(this).attr("id");
-  var itemAmount = 0;
+  let itemAmount = 0;
   const asset = await Game.getItem(id);
   if (asset !== undefined) {
     itemAmount = asset.assets;
@@ -446,12 +442,12 @@ function initOnClicks() {
   let items =
     ".purchaseItemCommon, .purchaseItemRare,.purchaseItemLegendary,.purchaseItemUltimate";
   // If any item from the list was clicked...
-  $(items).click(async function () {
+  $(items).on("click", async function () {
     await startMinting.call(this);
   });
   let preUpgrade = "";
   let upgradeDisplay = "";
-  $(items).bind("mouseover", (e) => {
+  $(items).on("mouseover", (e) => {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
 
@@ -466,7 +462,7 @@ function initOnClicks() {
     if (level > 0)
       rateDisplay.css({ color: "lightgreen" }).text("Rate: " + rate + UNIT);
   });
-  $(items).bind("mouseout", (e) => {
+  $(items).on("mouseout", (e) => {
     let lvlDisplay = $(e.currentTarget).find(".itemHeadline").text();
     lvlDisplay = lvlDisplay.replace(/[^0-9]/g, "");
     const level = parseInt(lvlDisplay);
@@ -492,7 +488,7 @@ async function setup() {
   // Write the bitcoin per second rate into the .bSecRateNumber span element
 
   // If clicked on the big Bitcoin
-  $(".bitcoin").click(incrementBitcoin);
+  $(".bitcoin").on("click", incrementBitcoin);
 
   initOnClicks();
 
@@ -580,51 +576,12 @@ document.getElementById("loginWaxWallet").onclick = async () => {
 };
 
 /**
- * Send transaction to verify for whitelisting -> freibier airdrop
- */
-
-document.getElementById("verifyWaxWallet").onclick = verifyWaxWallet;
-
-async function verifyWaxWallet() {
-  const provider = await detectEthereumProvider();
-  if (provider === window.ethereum) {
-    window.web3 = new Web3(ethereum);
-    try {
-      await ethereum.request({ method: "eth_requestAccounts" });
-      const accounts = await ethereum.request({ method: "eth_accounts" });
-      currentUser = accounts[0];
-      const contract = new web3.eth.Contract(
-        waxWalletCollector,
-        waxWalletCollectorAddress
-      );
-      await contract.methods
-        .collect(wax.userAccount)
-        .send({ from: currentUser });
-    } catch (err) {
-      console.log(err);
-    }
-  }
-}
-
-/**
  * ------------------------------------------------Donation-------------------------------------------------------------
  */
 
 document.getElementById("donateButton").onclick = async function () {
   await donationModule.showDialog(dp, wax);
 };
-
-/**
- * ------------------------------------------------Airdrop-------------------------------------------------------------
- */
-
-document.getElementById("verifyCollection").onclick = async function () {
-  await airdropModule.verifyCollection(api, wax.userAccount);
-};
-
-/**
- * --------------------------------------------------Leaderboard--------------------------------------------------------
- */
 
 /**
  * On click function for a button to show the leaderboard
@@ -678,7 +635,7 @@ function generateRefLink() {
 var mute = ls.get("mute") || false;
 let msg = !mute ? "MUTE" : "UNMUTE";
 $("#muteButton").text(msg);
-$("#muteButton").click(() => {
+$("#muteButton").on("click", () => {
   let msg = mute ? "MUTE" : "UNMUTE";
   $("#muteButton").text(msg);
   mute = !mute;
@@ -789,24 +746,6 @@ document
   .addEventListener("click", animateMessage);
 
 /**
- * ---------------------------------------------Click Multiplier--------------------------------------------------------
- */
-
-/**
- *  calculates the current click multiplier
- * @returns {number} current click multiplier
- */
-
-function getClickMultiplier() {
-  var multi = 0.5;
-  if (enableClickMultiplier && amountOfClicks >= 10) {
-    multi = amountOfClicks / 100;
-    if (multi > 1) multi = 1;
-  }
-  return multi;
-}
-
-/**
  * the initial setup for everything relevant for the game
  * @returns {Promise<void>}
  */
@@ -867,108 +806,6 @@ function initIntervals() {
   }, 5000);
 }
 
-async function registerUser() {
-  try {
-    const action = {
-      account: CONTRACT_ADDRESS,
-      name: "login",
-      authorization: [{ actor: wax.userAccount, permission: "active" }],
-      data: {
-        player: wax.userAccount,
-      },
-    };
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
-    return await sendOneWax();
-  } catch (e) {
-    const msg = e.message.toString();
-    if (msg.includes("billed CPU time")) {
-      alert("Not enough CPU to push action!");
-      return false;
-    }
-    return false;
-  }
-}
-
-async function sendOneWax() {
-  try {
-    const action = {
-      account: "eosio.token",
-      name: "transfer",
-      authorization: [
-        {
-          actor: wax.userAccount,
-          permission: "active",
-        },
-      ],
-      data: {
-        from: wax.userAccount,
-        to: CONTRACT_ADDRESS,
-        quantity: "1.00000000 WAX",
-        memo: "",
-      },
-    };
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
-    return true;
-  } catch (e) {
-    const msg = e.message.toString();
-    if (msg.includes("billed CPU time")) {
-      alert("Not enough CPU to push action!\n" + msg);
-      return false;
-    }
-    return false;
-  }
-}
-
-async function hasRegistered() {
-  try {
-    const action = {
-      account: "satoshiclick",
-      name: "checkplayer",
-      authorization: [
-        {
-          actor: wax.userAccount,
-          permission: "active",
-        },
-      ],
-      data: {
-        player: wax.userAccount,
-      },
-    };
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
-    return true;
-  } catch (e) {
-    const msg = e.message.toString();
-    if (msg.includes("Not registered!")) {
-      return await registerUser();
-    } else if (msg.includes("payment")) {
-      return await sendOneWax();
-    } else if (msg.includes("Safe exit")) {
-      return true;
-    }
-    return false;
-  }
-}
+const options = { collection_name: COLLECTION };
+// api.getSchemas(options).then(console.log);
+api.getTemplates(options).then(console.log);

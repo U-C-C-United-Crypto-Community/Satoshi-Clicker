@@ -31,6 +31,8 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+    <!-- favicon -->
+    <link rel="icon" href="favicon.ico" type="image/gif" />
 </head>
 
 <body style="background-image: url('images/background.png') ; -webkit-background-size: cover;
@@ -93,17 +95,12 @@
         <div class="leftContainer">
             <span class="version"></span>
             <h1 class="bitcoinAmountDisplay bitcoinAmount"></h1>
-            <p class="bSecRate"><span class="bSecRateNumber"></span> </p>
-
+            <p class="bSecRate"><span class="bSecRateNumber"></span></p>
             <div class="btnGroup">
-                <button class="settingBtn" id="verifyWaxWallet" type="button">Verify for pack-drop Freibier</button>
-                <button class="settingBtn" id="verifyCollection" type="button">Verify for pack-drop
-                    1cryptobeard</button>
                 <button class="settingBtn" id="donateButton" type="button">DONATE!</button>
                 <button class="settingBtn" id="lbButton" type="button">LEADERBOARD</button>
                 <button class="settingBtn" id="refButton" type="button">INVITE FRIEND</button>
                 <button class="settingBtn" id="muteButton" type="button">MUTE</button>
-
             </div>
         </div>
         <div class="mainGameContent" id="mainGame">
@@ -123,7 +120,7 @@
             <!-- Rounded switch -->
             <a class="update" href="./infopage/ ">Info</a>
             <ul class="purchaseList" id="optionList">
-                <li class="purchaseItemCommon" id="loginWaxWallet">
+                <li class="purchaseItemLegendary" id="loginWaxWallet" style="align-self: center;">
                     <p class="itemHeadline">Connect to WAX to start playing!</p><br>
                 </li>
             </ul>
@@ -134,49 +131,49 @@
                     <p class="itemPrice">Multiplier</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_oldCalculator">
+                <li class="purchaseItemCommon" id="oldCalculator">
                     <img class="purchaseImage" src="assets/Old Calculator.jpg">
                     <p class="itemHeadline">OLD CALCULATOR <span></span></p>
                     <p class="itemPrice">10 Satoshi</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_oldCpu">
+                <li class="purchaseItemCommon" id="oldCpu">
                     <img class="purchaseImage" src="assets/Old CPU.jpg">
                     <p class="itemHeadline">OLD CPU <span></span></p>
                     <p class="itemPrice">125 Satoshi</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_oldPc">
+                <li class="purchaseItemCommon" id="oldPc">
                     <img class="purchaseImage" src="assets/Old Pc.jpg">
-                    <p class="itemHeadline">OLD COMPUTER PC <span></span></p>
+                    <p class="itemHeadline">OLD PC <span></span></p>
                     <p class="itemPrice">3k Satoshi</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_smartphone">
+                <li class="purchaseItemCommon" id="smartphone">
                     <img class="purchaseImage" src="assets/Smartphone.jpg">
                     <p class="itemHeadline">SMARTPHONE <span></span></p>
                     <p class="itemPrice">5k Satoshi</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_middleAgePc">
+                <li class="purchaseItemCommon" id="middleAgePc">
                     <img class="purchaseImage" src="assets/Middle Aged Pc.jpg">
                     <p class="itemHeadline">MIDDLE-AGED PC <span></span></p>
                     <p class="itemPrice">0.0005 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_cheapServer">
+                <li class="purchaseItemCommon" id="cheapServer">
                     <img class="purchaseImage" src="assets/Cheap Server.jpg">
                     <p class="itemHeadline">CHEAP SERVER <span></span></p>
                     <p class="itemPrice">0.0015 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_gamingPc">
+                <li class="purchaseItemCommon" id="gamingPc">
                     <img class="purchaseImage" src="assets/Gaming Pc.jpg">
                     <p class="itemHeadline">GAMING PC <span></span></p>
                     <p class="itemPrice">0.0040 Bitcoins</p>
@@ -187,70 +184,70 @@
                     <p class="itemHeadline">FREIBIER BRONZE</p><br>
                     <p class="itemPrice">Multiplier</p>
                 </li>
-                <li class="purchaseItemCommon" id="item_cheapMiner">
+                <li class="purchaseItemCommon" id="cheapMiner">
                     <img class="purchaseImage" src="assets/Cheap Miner.jpg">
                     <p class="itemHeadline">CHEAP MINER <span></span></p>
                     <p class="itemPrice">0.015 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemCommon" id="item_highEndUltraPc">
+                <li class="purchaseItemCommon" id="highEndUltraPc">
                     <img class="purchaseImage" src="assets/High-End Ultra Pc.jpg">
                     <p class="itemHeadline">HIGHEND-ULTRA PC <span></span></p>
                     <p class="itemPrice">0.05 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemRare" id="item_bigMiner">
+                <li class="purchaseItemRare" id="bigMiner">
                     <img class="purchaseImage" src="assets/Big Miner.jpg">
                     <p class="itemHeadline">BIG MINER <span></span></p>
                     <p class="itemPrice">0.15 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemRare" id="item_miningRig">
+                <li class="purchaseItemRare" id="miningRig">
                     <img class="purchaseImage" src="assets/Mining Rig.jpg">
                     <p class="itemHeadline">MINING RIG <span></span></p>
                     <p class="itemPrice">1.5 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemRare" id="item_miningFarm">
+                <li class="purchaseItemRare" id="miningFarm">
                     <img class="purchaseImage" src="assets/Mining Farm.jpg">
                     <p class="itemHeadline">MINING FARM <span></span></p>
                     <p class="itemPrice">250 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemRare" id="item_quantumRig">
+                <li class="purchaseItemRare" id="quantumRig">
                     <img class="purchaseImage" src="assets/Quantum Cpu Mining Rig.jpg">
                     <p class="itemHeadline">QUANTUM RIG <span></span></p>
                     <p class="itemPrice">5.000 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemRare" id="item_quantumFarm">
+                <li class="purchaseItemRare" id="quantumFarm">
                     <img class="purchaseImage" src="assets/Quantum Cpu Mining Farm.jpg">
                     <p class="itemHeadline">QUANTUM RIG <span></span></p>
                     <p class="itemPrice">245.000 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemLegendary" id="item_quantumMiningFarm">
-                    <img class="purchaseImage" src="assets/Quantum Cpu Mining Farm.jpg">
+                <li class="purchaseItemLegendary" id="miningFarmSpace">
+                    <img class="purchaseImage" src="assets/Mining Farm in Space.jpg">
                     <p class="itemHeadline">MINING FARM IN SPACE <span></span></p>
                     <p class="itemPrice">2.000.000 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemLegendary" id="item_miningFarmMoon">
+                <li class="purchaseItemLegendary" id="miningFarmMoon">
                     <img class="purchaseImage" src="assets/Mining Farm on the Moon.jpg">
                     <p class="itemHeadline">MINING FARM ON THE MOON <span></span></p>
                     <p class="itemPrice">75.500.000 Bitcoins</p>
                     <p class="itemPrice" style="display: none">0.15 Bitcoins</p>
 
                 </li>
-                <li class="purchaseItemLegendary" id="item_bitcoinTimeMachine">
+                <li class="purchaseItemLegendary" id="bitcoinTimeMachine">
                     <img class="purchaseImage" src="assets/Bitcoin_Time_Machine.jpg">
                     <p class="itemHeadline">BITCOIN TIMEMACHINE <span></span></p>
                     <p class="itemPrice">975.000.000 Bitcoins</p>
@@ -261,7 +258,7 @@
                     <p class="itemHeadline">FREIBIER GOLD</p><br>
                     <p class="itemPrice">Multiplier</p>
                 </li>
-                <li class="purchaseItemUltimate" id="item_blackHolePoweredMiner">
+                <li class="purchaseItemUltimate" id="blackHolePoweredMiner">
                     <img class="purchaseImage" src="assets/Black Hole-Powered Miner.jpg">
                     <p class="itemHeadline">BLACKHOLE-POWERED MINER <span></span></p>
                     <p class="itemPrice">750.000.000.000 Bitcoins</p>
@@ -277,9 +274,9 @@
 
             <!-- Modal content -->
             <div class="modal-content">
-               
+
                 <p id="content">Some text in the Modal..</p>
-                <input class="input" type="number" id="quantity" name="quantity"> 
+                <input class="input" type="number" id="quantity" name="quantity">
                 <div style="display: flex; flex-direction: row; width: 100%">
                     <span id="closeSpan" class="close">Donate</span>
                     <span id="closeDonate" class="close">Close</span>
@@ -300,11 +297,7 @@
     </div>
 
     <script src="lib/jquery-3.3.1.min.js"></script>
-    <script async src="js/waxBrowser.js"></script>
-    <script src="js/constants-ob.js"></script>
-    <script src="js/contractABI-ob.js"></script>
-    <script src="js/bscQuery.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/web3@1.2.11/dist/web3.min.js"></script>
+    <script src="../src/scripts/app.js"></script>
 </body>
 
 </html>
