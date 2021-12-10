@@ -25,6 +25,7 @@ import {
   COLLECTION,
   ITEMS,
   GameConst,
+  UNITS,
 } from "./constants";
 import $ from "jquery";
 import { hasRegistered } from "./login";
@@ -183,6 +184,7 @@ Game.setBtcRate = async function () {
     let itemAmount = values.itemAmount;
 
     // HTML element on the game page
+    console.log(ITEMS[i].name);
     var $element = $("#" + ITEMS[i].name);
 
     // Writing the amount on the page at the items element
