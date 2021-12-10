@@ -4,7 +4,7 @@ export const WAX_TESTNET = "https://waxtestnet.greymass.com";
 export const ATOMIC_TEST_URL = "https://test.wax.api.atomicassets.io";
 export const ATOMIC_MAIN_URL = "https://wax.api.atomicassets.io";
 
-export const COLLECTION = "satoshic1ick";
+export const COLLECTION = "satoshiclikr"; //"satoshic1ick";
 
 export const CONTRACT_ADDRESS = "satoshiclick";
 
@@ -131,5 +131,3 @@ export const UNITS = [
   "Duotrigintillion",
   "Tretrigintillion",
 ];
-
-
