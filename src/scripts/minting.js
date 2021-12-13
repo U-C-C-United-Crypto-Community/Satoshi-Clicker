@@ -16,6 +16,7 @@
  */
 import ecc from "eosjs-ecc";
 import wax from "./wax";
+import { CONTRACT_ADDRESS, COLLECTION } from "./constants";
 
 module.exports = {
   /**

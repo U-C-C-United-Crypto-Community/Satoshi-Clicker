@@ -16,6 +16,7 @@
  */
 import wax from "./wax";
 import dp from "./app";
+import { CONTRACT_ADDRESS } from "./constants";
 
 module.exports = {
   /**
@@ -90,7 +91,7 @@ module.exports = {
       ],
       data: {
         payer: wax.userAccount,
-        receiver: CONTRACT_ADDRESS, //Später smart contract Name
+        receiver: CONTRACT_ADDRESS,
         quant: quantity,
       },
     };

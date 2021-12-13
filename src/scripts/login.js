@@ -1,4 +1,5 @@
 import { wax } from "./wax";
+import { CONTRACT_ADDRESS } from "./constants";
 
 export async function hasRegistered() {
   try {
