@@ -15,7 +15,7 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import ecc from "eosjs-ecc";
-import wax from "./wax";
+import { wax } from "./wax";
 import { CONTRACT_ADDRESS, COLLECTION } from "./constants";
 
 module.exports = {
@@ -61,6 +61,7 @@ module.exports = {
       if (msg.includes("billed CPU time")) {
         alert("Not enough CPU to push action!\n" + msg);
       } else {
+        console.log(e);
         alert("Error!");
       }
       showItems("block");
