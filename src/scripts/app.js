@@ -142,7 +142,7 @@ function showItemRate($element, rate, level) {
  */
 function showNewPrice($element, level, template) {
   // Calculation of the price
-  let multiplier = template.data["price_multiplier\t"];
+  let multiplier = template.data["price_multiplier"];
   let calculation =
     parseFloat(template.base_price) * Math.pow(multiplier, parseInt(level));
   template.data.price = calculation;
@@ -798,4 +798,3 @@ function initIntervals() {
     tabModule.detectTab();
   }, 5000);
 }
-
