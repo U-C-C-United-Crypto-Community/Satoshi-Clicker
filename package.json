@@ -5,9 +5,9 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
-    "dev": "parcel -p 3000 public/index.html",
-    "build": "parcel build public/index.html && cp -r infopage dist",
-    "test": "npm run clean && npm run build && serve dist",
+    "start": "npm run clean && npm run build && serve dist",
+    "dev": "npm run clean && parcel -p 3000 public/index.html",
+    "build": "npm run clean && parcel build public/index.html && cp -r infopage dist",
     "clean": "rm -r dist"
   },
   "dependencies": {
