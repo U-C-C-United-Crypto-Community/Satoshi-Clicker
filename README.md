@@ -11,17 +11,17 @@ First you install all the dependencies.
  npm install
 ```
 
-To get the obfuscated version. 
+To start the whole application, run:
 
 ``` 
-npm run build 
+npm start
 ```
 
 # Development
-To run on your own machine.
+To run the game on your machine.
 
 ```
-npm start
+npm run dev
 ```
 
 ## Contributing
