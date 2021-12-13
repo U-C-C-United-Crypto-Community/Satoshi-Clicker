@@ -5,7 +5,7 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
-    "start": "npm run build && serve dist",
+    "start": "npm run build && live-server dist --port=3000",
     "dev": "npm run clean && mkdir dist && cp -r public/infopage dist && parcel -p 3000 public/index.html",
     "build": "npm run clean && parcel build public/index.html && cp -r public/infopage dist",
     "clean": "rm -rf dist"
@@ -37,7 +37,7 @@
     "@types/file-saver": "^2.0.3",
     "@types/node": "^12.20.15",
     "es-check": "^5.2.4",
-    "parcel-bundler": "^1.12.5",
-    "serve": "^13.0.2"
+    "live-server": "^1.2.1",
+    "parcel-bundler": "^1.12.5"
   }
 }

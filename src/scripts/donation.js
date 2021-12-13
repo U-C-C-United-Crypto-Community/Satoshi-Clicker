@@ -16,6 +16,7 @@
  */
 import wax from "./wax";
 import dp from "./app";
+import $ from "jquery";
 import { CONTRACT_ADDRESS } from "./constants";
 
 module.exports = {
