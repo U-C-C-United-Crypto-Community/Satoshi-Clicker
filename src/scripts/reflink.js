@@ -14,7 +14,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import { wax, api, dp } from "./app";
+import { api, dp } from "./app";
+import { wax } from "./wax";
 import { COLLECTION, SPECIAL_ITEMS } from "./constants";
 
 module.exports = {
@@ -73,8 +74,9 @@ module.exports = {
    * @param api: wax api
    * @returns {Promise<void>}
    */
-  detectRef: async function (userAccount, showItems) {
+  detectRef: async function (showItems) {
     let url = new URL(window.location.href);
+    let userAccount = wax.userAccount;
     let hasRef = await this.checkForRefNft(userAccount);
     //if the url has the right search param and the current user doesnt already have a special nft
     if (url.searchParams.has("ref") && !hasRef) {

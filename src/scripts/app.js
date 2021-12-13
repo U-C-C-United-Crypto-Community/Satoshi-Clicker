@@ -30,17 +30,16 @@ import {
 import $ from "jquery";
 import { hasRegistered } from "./login";
 import { wax } from "./wax";
+
 export const api = new ExplorerApi(ATOMIC_MAIN_URL, "atomicassets", {
   fetch,
 });
 export const dp = new DOMPurify();
-
 const ls = new SecureLS();
-var multiplier = 0.0;
 
+var multiplier = 0.0;
 var bitcoins = 0;
 var bitcoinRate = 0;
-var currentUser = null;
 var clickValue = 0;
 
 var waxWallet;
@@ -779,16 +778,10 @@ async function init() {
     bitcoins = parseFloat(ls.get("bitcoins"));
   }
   $(".settingBtn").show();
-  let hasRef = await reflinkModule.detectRef(
-    dp,
-    wax.userAccount,
-    showItems,
-    api,
-    wax
-  );
+  let hasRef = await reflinkModule.detectRef(showItems);
 
   if (hasRef) $("#FRIENDS").show();
-  multiplier = await multiplierModule.calculateMultiplier(wax.userAccount, api);
+  multiplier = await multiplierModule.calculateMultiplier(wax.userAccount);
 
   await setup();
   return true;
@@ -806,6 +799,3 @@ function initIntervals() {
   }, 5000);
 }
 
-const options = { collection_name: COLLECTION };
-// api.getSchemas(options).then(console.log);
-api.getTemplates(options).then(console.log);
