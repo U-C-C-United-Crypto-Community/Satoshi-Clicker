@@ -14,16 +14,14 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-import wax from "./wax";
-import dp from "./app";
+import { wax } from "./wax";
+import { dp } from "./app";
 import $ from "jquery";
 import { CONTRACT_ADDRESS } from "./constants";
 
 module.exports = {
   /**
    * Shows a dialog during which the user inputs how much wax he wants to donate.
-   * @param dp dompurifier to escape strings put in by the user.
-   * @param wax api
    * @returns {Promise<void>}
    */
 
@@ -46,9 +44,8 @@ module.exports = {
       modal.style.display = "none";
 
       //Get user input
-      var userinput = dp.sanitize(input.value);
-
-      if (userinput != "") userinput = parseInt(userinput);
+      var userinput = dp.sanitize(input.value) || "";
+      if (userinput !== "") userinput = parseInt(userinput);
 
       //Do transaction with the userinput
       if (typeof userinput != "number") alert("Please input a number");
@@ -65,7 +62,6 @@ module.exports = {
   },
   /**
    * executes the donation transaction
-   * @param wax wax api
    * @param amount of wax to be donated
    * @returns {Promise<void>} -
    */
