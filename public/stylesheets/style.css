@@ -486,7 +486,7 @@ body {
   overflow: auto;
   margin: 0 0 10px 0;
 }
-.purchaseItemRare {
+.purchaseItemRare:hover {
   background: rgb(121, 212, 249);
   background: linear-gradient(
     90deg,
