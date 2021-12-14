@@ -309,28 +309,19 @@ function incrementBitcoin() {
  */
 async function findAssetID(templateID, account) {
   try {
-    let assets;
-    let id;
+    const assets = await api.getAssets({
+      owner: account,
+      collection_name: COLLECTION,
+      template_id: templateID,
+    });
     let level = 0;
-    while (id == undefined) {
-      assets = await api.getAssets({
-        owner: account,
-        collection_name: COLLECTION,
-        template_id: templateID,
-      });
-
-      for (var i = 0; i < assets.length; i++) {
-        if (
-          assets[i].mutable_data.level > level ||
-          assets[i].mutable_data.level == undefined
-        ) {
-          id = assets[i].asset_id;
-          if (assets[i].mutable_data.level == undefined) level = 0;
-          else level = assets[i].mutable_data.level;
-        }
+    let id = null;
+    for (var i = 0; i < assets.length; i++) {
+      let mutable_data_level = assets[i].mutable_data.level;
+      if (mutable_data_level > level || mutable_data_level == undefined) {
+        id = assets[i].asset_id;
+        level = Number(mutable_data_level);
       }
-      //wait because of rate limiting
-      await sleep(1000);
     }
 
     return { id, level };
@@ -345,8 +336,7 @@ async function findAssetID(templateID, account) {
  * @returns {Promise<void>} -
  */
 async function upgradeAsset(template) {
-  bitcoins += 0.00000001;
-  const { id, level } = await findAssetID(template.id, wax.userAccount);
+  let { id, level } = await findAssetID(template.id, wax.userAccount);
   const success = await mintModule.updateAsset(
     wax.userAccount,
     id,
@@ -372,7 +362,7 @@ async function mintAsset(template) {
     wax
   );
   if (!success) return false;
-  const { id, level } = await findAssetID(template.id, wax.userAccount);
+  let { id, level } = await findAssetID(template.id, wax.userAccount);
   if (level == 1) {
     bitcoins += 0.00000001;
     await mintModule.updateAsset(
