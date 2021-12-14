@@ -44,13 +44,13 @@ module.exports = {
       modal.style.display = "none";
 
       //Get user input
-      var userinput = dp.sanitize(input.value) || "";
-      if (userinput !== "") userinput = parseInt(userinput);
+      let value = input.value;
+      if (value !== "") value = parseFloat(value);
 
-      //Do transaction with the userinput
-      if (typeof userinput != "number") alert("Please input a number");
+      //Do transaction with the value
+      if (typeof value != "number") alert("Please input a number");
       else {
-        donationModule.sendDonation(userinput);
+        donationModule.sendDonation(value);
       }
     };
 
@@ -72,10 +72,8 @@ module.exports = {
     }
 
     //convert amount into the right format
-    var quantity = amount.toString();
-
-    quantity = quantity + ".00000000 WAX";
-
+    amount = amount.toFixed(8).toString() + " WAX";
+    console.log(amount);
     //execute transaction
     const action = {
       account: "eosio",
@@ -89,7 +87,7 @@ module.exports = {
       data: {
         payer: wax.userAccount,
         receiver: CONTRACT_ADDRESS,
-        quant: quantity,
+        quant: amount,
       },
     };
 
