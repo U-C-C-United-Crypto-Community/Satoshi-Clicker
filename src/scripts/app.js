@@ -291,8 +291,10 @@ function incrementBitcoin() {
 
   //play the audio for the click
   var audio = document.getElementById("audio");
-  if (!mute) audio.play();
-
+  if (!mute) {
+    console.log("play");
+    audio.play();
+  }
   //after 50ms reenable this function -> max. 20 Clicks per Second
   setTimeout(function () {
     disable = false;
@@ -439,7 +441,7 @@ async function startMinting() {
 
 function initOnClicks() {
   let items =
-    ".purchaseItemCommon, .purchaseItemRare,.purchaseItemLegendary,.purchaseItemUltimate";
+    ".purchaseItemCommon, .purchaseItemRare, .purchaseItemLegendary, .purchaseItemUltimate";
   // If any item from the list was clicked...
   $(items).on("click", async function () {
     await startMinting.call(this);
@@ -610,22 +612,22 @@ function sleep(ms) {
  * -----------------------------------------------Reflink---------------------------------------------------------------
  */
 
-document.getElementById("refButton").onclick = generateRefLink;
+// document.getElementById("refButton").onclick = generateRefLink;
 
-/**
- * function to generate a reflink
- */
+// /**
+//  * function to generate a reflink
+//  */
 
-function generateRefLink() {
-  let url = new URL(window.location.href);
+// function generateRefLink() {
+//   let url = new URL(window.location.href);
 
-  url.searchParams.set("ref", wax.userAccount);
-  navigator.clipboard.writeText(url);
-  airdropModule.showVerificationDialog(
-    "",
-    "Url: " + url + " copied to clipboard"
-  );
-}
+//   url.searchParams.set("ref", wax.userAccount);
+//   navigator.clipboard.writeText(url);
+//   airdropModule.showVerificationDialog(
+//     "",
+//     "Url: " + url + " copied to clipboard"
+//   );
+// }
 
 /**
  * -----------------------------------------------Mute/Unmute Button---------------------------------------------------------------
