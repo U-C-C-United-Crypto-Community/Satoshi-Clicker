@@ -260,7 +260,7 @@ Game.optimizeNumber = function () {
         ) / 3
       ) * 3;
     var num = (this / ("1e" + unit)).toFixed(2);
-    var unitname = UNITS[Math.floor(unit / 3) - 1];
+    var unitname = UNITS[Math.floor(unit / 3) - 2];
     return num + " " + unitname;
   }
   return this.toLocaleString();
