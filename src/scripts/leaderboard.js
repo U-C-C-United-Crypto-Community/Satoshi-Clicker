@@ -15,6 +15,7 @@
  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 import { COLLECTION } from "./constants";
+import $ from "jquery";
 
 module.exports = {
   /**
@@ -172,8 +173,7 @@ module.exports = {
       if (scores.has(accounts[i].account)) {
         bitcoinrate = scores.get(accounts[i].account);
       }
-      var currentAsset = await findAssetID(templateId, accounts[i].account);
-      var level = currentAsset[1].level;
+      const { level } = await findAssetID(templateId, accounts[i].account);
 
       //set and save the new bitcoinrate
       bitcoinrate = bitcoinrate + level * bits_per_sec;
