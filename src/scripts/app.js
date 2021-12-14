@@ -162,7 +162,7 @@ async function fetchVariables(i) {
 
   if (asset !== undefined) {
     itemAmount = asset.assets;
-    level = (await findAssetID(template.id, wax.userAccount))[1].level;
+    level = (await findAssetID(template.id, wax.userAccount)).level;
   }
   return { level, template, itemAmount, bits_per_sec };
 }
@@ -292,7 +292,7 @@ function incrementBitcoin() {
   //play the audio for the click
   var audio = document.getElementById("audio");
   if (!mute) audio.play();
-  
+
   //after 50ms reenable this function -> max. 20 Clicks per Second
   setTimeout(function () {
     disable = false;
@@ -305,7 +305,7 @@ function incrementBitcoin() {
  * highest level.
  * @param templateID of the asset to be found
  * @param account which owns the asset
- * @returns {Promise<[{id: string}, {level: any}]>} the current id and level of the found asset
+ * @returns {Promise<{id: string, level: num}>} the current id and level of the found asset
  */
 async function findAssetID(templateID, account) {
   try {
@@ -333,8 +333,7 @@ async function findAssetID(templateID, account) {
       await sleep(1000);
     }
 
-    var returnValues = [{ id }, { level: level }];
-    return returnValues;
+    return { id, level };
   } catch (e) {
     alert("Please reload the page!");
   }
@@ -347,13 +346,11 @@ async function findAssetID(templateID, account) {
  */
 async function upgradeAsset(template) {
   bitcoins += 0.00000001;
-  var new_asset = await findAssetID(template.id, wax.userAccount);
-  var asset_id = new_asset[0].id;
-  var level = parseInt(new_asset[1].level) + 1;
+  const { id, level } = await findAssetID(template.id, wax.userAccount);
   const success = await mintModule.updateAsset(
     wax.userAccount,
-    asset_id,
-    level,
+    id,
+    level + 1,
     bitcoins,
     showItems,
     wax
@@ -375,15 +372,13 @@ async function mintAsset(template) {
     wax
   );
   if (!success) return false;
-  var new_asset = await findAssetID(template.id, wax.userAccount);
-  var asset_id = new_asset[0].id;
-  var level = parseInt(new_asset[1].level) + 1;
+  const { id, level } = await findAssetID(template.id, wax.userAccount);
   if (level == 1) {
     bitcoins += 0.00000001;
     await mintModule.updateAsset(
       wax.userAccount,
-      asset_id,
-      level,
+      id,
+      level + 1,
       bitcoins,
       showItems,
       wax
