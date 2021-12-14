@@ -291,10 +291,8 @@ function incrementBitcoin() {
 
   //play the audio for the click
   var audio = document.getElementById("audio");
-  if (!mute) {
-    console.log("play");
-    audio.play();
-  }
+  if (!mute) audio.play();
+  
   //after 50ms reenable this function -> max. 20 Clicks per Second
   setTimeout(function () {
     disable = false;

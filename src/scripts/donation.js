@@ -90,15 +90,16 @@ module.exports = {
         quant: amount,
       },
     };
-
-    await wax.api.transact(
-      {
-        actions: [action],
-      },
-      {
-        blocksBehind: 3,
-        expireSeconds: 120,
-      }
-    );
+    try {
+      await wax.api.transact(
+        {
+          actions: [action],
+        },
+        {
+          blocksBehind: 3,
+          expireSeconds: 120,
+        }
+      );
+    } catch (e) {}
   },
 };
