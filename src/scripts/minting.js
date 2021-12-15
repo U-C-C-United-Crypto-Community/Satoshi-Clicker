@@ -61,8 +61,7 @@ module.exports = {
       if (msg.includes("billed CPU time")) {
         alert("Not enough CPU to push action!\n" + msg);
       } else {
-        console.log(e);
-        alert("Error!");
+        alert(msg);
       }
       showItems("block");
       return false;
